@@ -1,0 +1,35 @@
+﻿@model List<LoginMVCApp.Models.Users>
+<h2>Manajemen User</h2>
+
+<br />
+<a asp-action="Create" class="btn btn-success mb-3">+ Tambah User</a>
+<br />
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>FullName</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Active</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Username</td>
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>@(user.IsActive ? "Yes" : "No")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-sm btn-info">Detail</a>
+                    <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-danger">Hapus</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
