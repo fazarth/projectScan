@@ -17,6 +17,7 @@ namespace LoginMVCApp.Controllers
         public IActionResult Index()
         {
             var username = HttpContext.Session.GetString("Username");
+            var fullName = HttpContext.Session.GetString("FullName");
             var role = HttpContext.Session.GetString("Role");
 
             if (string.IsNullOrEmpty(username))

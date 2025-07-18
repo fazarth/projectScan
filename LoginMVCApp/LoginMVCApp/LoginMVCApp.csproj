@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\Content\img\logo.png" />
+    <None Include="wwwroot\Content\img\user.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.35" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.35">

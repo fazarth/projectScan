@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LoginMVCApp.Models
@@ -6,13 +7,13 @@ namespace LoginMVCApp.Models
     public class Users
     {
         public int Id { get; set; }
-
+        [Required]
         public string FullName { get; set; }
 
         [Required]
         public string Username { get; set; }
 
-        //[Required, EmailAddress]
+        [Required, EmailAddress]
         public string Email { get; set; }
 
         public string PhoneNumber { get; set; }
@@ -29,7 +30,7 @@ namespace LoginMVCApp.Models
         public string Role { get; set; }
 
         public bool IsActive { get; set; } = true;
-        [Required]
+
         public DateTime CreatedAt { get; set; }
 
         public string CreatedBy { get; set; }

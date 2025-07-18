@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "H+geAruYI96T725sDtMJ9GwDiDeNQ6/iLpyxP21kuwUwn/+tqbHVzO7pA+X5SGGKQMT/156WRiCC1qIXu2B7ZQ==",
+  "dgSpecHash": "tVZc8TveBpcH4fR3Mgi/VE28l3HG2FZRpiuh0FZYTOz+l5qw5Va9eXtpYLoBEmyCp/38K8Lcl6fXHc746NsRqQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\bil1d\\source\\repos\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
+  "projectFilePath": "C:\\Users\\bil1d\\source\\repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\bil1d\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\bil1d\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",

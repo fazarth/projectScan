@@ -7,12 +7,15 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LoginMVCApp.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
             <div class="container">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">LoginMVCApp</a>
+                <img class="mb-2" src="@Url.Content("~/Content/img/logo.png")" alt="logo" width="100" height="50">
+                @*<a class="navbar-brand" asp-controller="Home" asp-action="Index">LoginMVCApp</a>*@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -27,16 +30,13 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Users" asp-action="Index">Kelola User</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Register">Tambah Akun</a>
-                            </li>
                         }
                     </ul>
                     <ul class="navbar-nav">
                         @if (!string.IsNullOrEmpty(Context.Session.GetString("Username")))
                         {
                             <li class="nav-item">
-                                <span class="navbar-text text-light me-3">Halo, @Context.Session.GetString("Username")</span>
+                                <span class="navbar-text text-light me-3">Halo, @Context.Session.GetString("FullName")</span>
                             </li>
                             <li class="nav-item">
                                 <form asp-action="Logout" asp-controller="Account" method="post">

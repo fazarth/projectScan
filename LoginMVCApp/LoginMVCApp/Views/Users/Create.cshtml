@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Tambah User";
+    var username = Context.Session.GetString("Username") ?? "system";
 }
 
 <h3>Tambah User Baru</h3>
@@ -53,6 +54,11 @@
             <option>User</option>
         </select>
         <span asp-validation-for="Role" class="text-danger"></span>
+    </div>
+    <div class="form-group" type="hidden">
+        @*<label asp-for="CreatedBy" class="control-label"></label>*@
+        <input asp-for="CreatedBy" type="hidden" class="form-control" value="@username" readonly />
+        <span asp-validation-for="CreatedBy" class="text-danger"></span>
     </div>
 
     <div class="form-check mb-3">

@@ -19,6 +19,8 @@ namespace LoginMVCApp.Controllers
             //penjagaan akses
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("Username")))
                 return RedirectToAction("Login", "Account");
+
+            HttpContext.Session.GetString("FullName");
             return View();
         }
 
@@ -48,6 +50,7 @@ namespace LoginMVCApp.Controllers
             if (user != null && BCrypt.Net.BCrypt.Verify(users.Password, user.Password))
             {
                 HttpContext.Session.SetString("Username", user.Username);
+                HttpContext.Session.SetString("FullName", user.FullName ?? "");
                 HttpContext.Session.SetString("Role", user.Role);
                 return RedirectToAction("Index", "Home");
             }

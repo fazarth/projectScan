@@ -1,0 +1,18 @@
+﻿@model LoginMVCApp.Models.Users
+@{
+    ViewBag.Title = "Detail Pengguna";
+}
+
+<div class="container mt-4">
+    <h3>Detail Pengguna</h3>
+    <table class="table table-bordered">
+        <tr><th>Username</th><td>@Model.Username</td></tr>
+        <tr><th>Full Name</th><td>@Model.FullName</td></tr>
+        <tr><th>Email</th><td>@Model.Email</td></tr>
+        <tr><th>Phone</th><td>@Model.PhoneNumber</td></tr>
+        <tr><th>Role</th><td>@Model.Role</td></tr>
+        <tr><th>Status</th><td>@(Model.IsActive ? "Aktif" : "Nonaktif")</td></tr>
+        <tr><th>Created By</th><td>@Model.CreatedBy</td></tr>
+    </table>
+    <a asp-action="Index" class="btn btn-secondary">Kembali</a>
+</div>

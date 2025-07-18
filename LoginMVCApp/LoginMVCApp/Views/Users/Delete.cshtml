@@ -1,0 +1,13 @@
+﻿@model LoginMVCApp.Models.Users
+
+<h3>Hapus Pengguna</h3>
+
+<div class="alert alert-danger">
+    <p>Apakah Anda yakin ingin menghapus user <strong>@Model.Username</strong>?</p>
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+    <a asp-action="Index" class="btn btn-secondary">Batal</a>
+</form>

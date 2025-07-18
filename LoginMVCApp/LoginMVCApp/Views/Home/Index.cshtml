@@ -6,16 +6,12 @@
 }
 @{
     ViewBag.Title = "Dashboard";
-    string username = Context.Session.GetString("Username");
+    string fullName = Context.Session.GetString("FullName");
 }
 
 <div class="container mt-5">
     <div class="bg-white p-4 rounded shadow">
-        <h3>Halo, @username 👋</h3>
+        <h3>Halo, @fullName 👋</h3>
         <p>Selamat datang di dashboard.</p>
     </div>
-</div>
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>

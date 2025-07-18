@@ -1,15 +1,12 @@
 ﻿using LoginMVCApp.Data;
 using LoginMVCApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LoginMVCApp.Controllers
 {
     public class UsersController : Controller
     {
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
         private readonly AppDbContext _context;
 
         public UsersController(AppDbContext context)
@@ -26,7 +23,6 @@ namespace LoginMVCApp.Controllers
         {
             if (!IsAdmin())
                 return RedirectToAction("AccessDenied", "Account");
-
             return View(_context.Users.ToList());
         }
 
@@ -44,6 +40,16 @@ namespace LoginMVCApp.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Users users)
         {
+            var role = HttpContext.Session.GetString("Role");
+            if (role != "Admin")
+                return RedirectToAction("AccessDenied");
+
+            // Jika CreatedBy kosong dari form, isi dari Session
+            if (string.IsNullOrEmpty(users.CreatedBy))
+                users.CreatedBy = HttpContext.Session.GetString("Username") ?? "system";
+
+            users.CreatedAt = DateTime.Now;
+
             if (!ModelState.IsValid)
                 return View(users);
 
@@ -56,18 +62,13 @@ namespace LoginMVCApp.Controllers
 
             // Hash password
             users.Password = BCrypt.Net.BCrypt.HashPassword(users.Password);
-            users.CreatedAt = DateTime.Now;
-            users.CreatedBy = HttpContext.Session.GetString("Username") ?? "system";
 
-            _context.Users.Add(users);
-            _context.SaveChanges();
-
-            //TempData["success"] = "User Berhasil Ditambahkan.";
             try
             {
                 _context.Users.Add(users);
                 _context.SaveChanges();
                 TempData["success"] = "User Berhasil Ditambahkan.";
+                ModelState.Clear();
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -99,13 +100,25 @@ namespace LoginMVCApp.Controllers
 
             return View(user);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Users user)
         {
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id != user.Id) return NotFound();
+
+            var existingUser = _context.Users.AsNoTracking().FirstOrDefault(u => u.Id == id);
+            if (existingUser == null) return NotFound();
+
+            // Jika password tidak kosong, hash ulang (berarti admin ingin ubah password)
+            if (!string.IsNullOrEmpty(user.Password))
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            }
+            else
+            {
+                user.Password = existingUser.Password; // tetap pakai yang lama
+            }
 
             if (ModelState.IsValid)
             {
@@ -116,6 +129,23 @@ namespace LoginMVCApp.Controllers
 
             return View(user);
         }
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult Edit(int id, Users user)
+        //{
+        //    if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
+        //    if (id != user.Id) return NotFound();
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Update(user);
+        //        _context.SaveChanges();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    return View(user);
+        //}
 
         public IActionResult Delete(int? id)
         {

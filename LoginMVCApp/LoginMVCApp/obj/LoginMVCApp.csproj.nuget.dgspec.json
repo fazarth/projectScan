@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\bil1d\\source\\repos\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {}
+    "C:\\Users\\bil1d\\source\\repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\bil1d\\source\\repos\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {
+    "C:\\Users\\bil1d\\source\\repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bil1d\\source\\repos\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
+        "projectUniqueName": "C:\\Users\\bil1d\\source\\repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
         "projectName": "LoginMVCApp",
-        "projectPath": "C:\\Users\\bil1d\\source\\repos\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
+        "projectPath": "C:\\Users\\bil1d\\source\\repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
         "packagesPath": "C:\\Users\\bil1d\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bil1d\\source\\repos\\LoginMVCApp\\LoginMVCApp\\obj\\",
+        "outputPath": "C:\\Users\\bil1d\\source\\repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\bil1d\\AppData\\Roaming\\NuGet\\NuGet.Config",
