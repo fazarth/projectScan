@@ -1,5 +1,6 @@
 ﻿using LoginMVCApp.Data;
 using LoginMVCApp.Models;
+using LoginMVCApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -98,47 +99,50 @@ namespace LoginMVCApp.Controllers
             var user = _context.Users.Find(id);
             if (user == null) return NotFound();
 
-            return View(user);
+            var viewModel = new EditUserViewModel
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Username = user.Username,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Role = user.Role,
+                IsActive = user.IsActive
+            };
+
+            return View(viewModel);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Users user)
+        public IActionResult Edit(int id, EditUserViewModel model)
         {
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
-            if (id != user.Id) return NotFound();
+            if (id != model.Id) return NotFound();
 
             var existingUser = _context.Users.FirstOrDefault(u => u.Id == id);
             if (existingUser == null) return NotFound();
 
-            // Validasi Model
             if (ModelState.IsValid)
             {
-                try
-                {
-                    // Update fields manual
-                    existingUser.Username = user.Username;
-                    existingUser.FullName = user.FullName;
-                    existingUser.Email = user.Email;
-                    existingUser.Role = user.Role;
-                    existingUser.IsActive = user.IsActive;
+                existingUser.FullName = model.FullName;
+                existingUser.Username = model.Username;
+                existingUser.Email = model.Email;
+                existingUser.PhoneNumber = model.PhoneNumber;
+                existingUser.Role = model.Role;
+                existingUser.IsActive = model.IsActive;
 
-                    if (!string.IsNullOrEmpty(user.Password))
-                    {
-                        existingUser.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-                    }
-
-                    _context.SaveChanges();
-                    TempData["success"] = "User Berhasil Diperbarui.";
-                    return RedirectToAction("Index");
-                }
-                catch (Exception ex)
+                if (!string.IsNullOrWhiteSpace(model.Password))
                 {
-                    Console.WriteLine("Error: " + ex.Message);
-                    ModelState.AddModelError("", "Gagal menyimpan perubahan: " + ex.Message);
+                    existingUser.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
                 }
+
+                _context.SaveChanges();
+                TempData["success"] = "User berhasil diperbarui.";
+                return RedirectToAction("Index");
             }
 
-            return View(user);
+            return View(model);
         }
 
         public IActionResult Delete(int? id)
