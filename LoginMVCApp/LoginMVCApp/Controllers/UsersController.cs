@@ -107,45 +107,39 @@ namespace LoginMVCApp.Controllers
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id != user.Id) return NotFound();
 
-            var existingUser = _context.Users.AsNoTracking().FirstOrDefault(u => u.Id == id);
+            var existingUser = _context.Users.FirstOrDefault(u => u.Id == id);
             if (existingUser == null) return NotFound();
 
-            // Jika password tidak kosong, hash ulang (berarti admin ingin ubah password)
-            if (!string.IsNullOrEmpty(user.Password))
-            {
-                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            }
-            else
-            {
-                user.Password = existingUser.Password; // tetap pakai yang lama
-            }
-
+            // Validasi Model
             if (ModelState.IsValid)
             {
-                _context.Update(user);
-                _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    // Update fields manual
+                    existingUser.Username = user.Username;
+                    existingUser.FullName = user.FullName;
+                    existingUser.Email = user.Email;
+                    existingUser.Role = user.Role;
+                    existingUser.IsActive = user.IsActive;
+
+                    if (!string.IsNullOrEmpty(user.Password))
+                    {
+                        existingUser.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+                    }
+
+                    _context.SaveChanges();
+                    TempData["success"] = "User Berhasil Diperbarui.";
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message);
+                    ModelState.AddModelError("", "Gagal menyimpan perubahan: " + ex.Message);
+                }
             }
 
             return View(user);
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Edit(int id, Users user)
-        //{
-        //    if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
-        //    if (id != user.Id) return NotFound();
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Update(user);
-        //        _context.SaveChanges();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-
-        //    return View(user);
-        //}
 
         public IActionResult Delete(int? id)
         {
