@@ -52,7 +52,17 @@ namespace LoginMVCApp.Controllers
                 HttpContext.Session.SetString("Username", user.Username);
                 HttpContext.Session.SetString("FullName", user.FullName ?? "");
                 HttpContext.Session.SetString("Role", user.Role);
-                return RedirectToAction("Index", "Home");
+                switch (user.Role)
+                {
+                    case "Admin":
+                        return RedirectToAction("Index", "Home");
+                    case "Checker":
+                        return RedirectToAction("Index", "Checker");
+                    case "Poles":
+                        return RedirectToAction("Index", "Poles");
+                    default:
+                        return RedirectToAction("AccessDenied", "Account");
+                }
             }
 
             ViewBag.Error = "Username atau Password salah!";

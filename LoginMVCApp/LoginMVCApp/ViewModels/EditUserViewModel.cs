@@ -20,6 +20,7 @@ namespace LoginMVCApp.ViewModels
         public string PhoneNumber { get; set; }
 
         // Tidak wajib, hanya jika ingin ubah password
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password minimal 8 karakter.")]
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 

@@ -18,6 +18,7 @@ namespace LoginMVCApp.Models
 
         public string PhoneNumber { get; set; }
 
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password minimal 8 karakter.")]
         [Required, DataType(DataType.Password)]
         public string Password { get; set; }
 

@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Scan Inventory - Checker";
+}
+<div class="container mt-4">
+    <h2>Selamat Datang, Checker!</h2>
+    <p>Ini adalah halaman untuk role Checker.</p>
+</div>
+
+<div class="container mt-4">
+    <h3>Scan Inventory Checker</h3>
+
+    <form method="post" asp-action="ScanInventory" class="d-flex mb-3">
+        <input type="text" name="inventoryId" class="form-control me-2" placeholder="Scan atau ketik Inventory ID" autofocus />
+        <button type="submit" class="btn btn-primary">SCAN</button>
+    </form>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="p-4 text-center rounded bg-info text-dark fw-bold border border-dark">
+            @TempData["Message"]
+        </div>
+    }
+</div>    
