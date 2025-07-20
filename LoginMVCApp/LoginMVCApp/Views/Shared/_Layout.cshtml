@@ -24,33 +24,47 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         @if (Context.Session.GetString("Role") == "Admin")
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Users" asp-action="Index">Management User</a>
+                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Index">Management User</a>
                             </li>
                         }
                     </ul>
-
-                    <div class="d-flex flex-column me-4 text-end">
-                        <div class="fw-bold">CHECKER LINE</div>
-                        <div class="row gx-2 small">
-                            <div class="col-auto">
-                                <div><strong>FACTORY:</strong> CIKARANG 3A</div>
-                            </div>
-                            <div class="col-auto">
-                                <div><strong>PIC:</strong> @Context.Session.GetString("FullName")</div>
-                            </div>
-                            <div class="col-auto">
-                                <div><strong>DATE:</strong> <span id="clock-date"></span></div>
-                            </div>
-                            <div class="col-auto">
-                                <div><strong>TIME:</strong> <span id="clock-time"></span></div>
+                    @if (!string.IsNullOrEmpty(Context.Session.GetString("Username")))
+                    {
+                        <div class="d-flex flex-column me-4 text-end">
+                            <div class="fw-bold">CHECKER LINE</div>
+                            <div class="row gx-2 small">
+                                <div class="col-auto">
+                                    <div><strong>FACTORY:</strong> CIKARANG 3A</div>
+                                </div>
+                                <div class="col-auto">
+                                    <div><strong>PIC:</strong> @Context.Session.GetString("FullName")</div>
+                                </div>
+                                <div class="col-auto">
+                                    <div><strong>DATE:</strong> <span id="clock-date"></span></div>
+                                </div>
+                                <div class="col-auto">
+                                    <div><strong>TIME:</strong> <span id="clock-time"></span></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }else{
+                        <div class="d-flex flex-column me-4 text-end">
+                            <div class="fw-bold">CHECKER LINE</div>
+                            <div class="row gx-2 small">
+                                <div class="col-auto">
+                                    <div><strong>DATE:</strong> <span id="clock-date"></span></div>
+                                </div>
+                                <div class="col-auto">
+                                    <div><strong>TIME:</strong> <span id="clock-time"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    }
 
                     <ul class="navbar-nav">
                         @if (!string.IsNullOrEmpty(Context.Session.GetString("Username")))
@@ -108,5 +122,12 @@
 
     setInterval(updateClock, 1000);
     updateClock();
+    setTimeout(function () {
+        var alertBox = document.getElementById('successAlert');
+        if (alertBox) {
+            alertBox.classList.remove('show');
+            alertBox.classList.add('hide');
+        }
+    }, 3000); // 3 detik
 </script>
 </html>

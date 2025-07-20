@@ -74,54 +74,6 @@ namespace LoginMVCApp.Controllers
             return View();
         }
 
-        //Register
-        //[HttpGet]
-        //public IActionResult Register()
-        //{
-        //    var role = HttpContext.Session.GetString("Role");
-        //    if (role != "Admin")
-        //        return RedirectToAction("AccessDenied");
-
-        //    return View();
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Register(Users model)
-        //{
-        //    var role = HttpContext.Session.GetString("Role");
-        //    if (role != "Admin")
-        //        return RedirectToAction("AccessDenied");
-
-        //    if (!ModelState.IsValid)
-        //        return View(model);
-
-        //    var existing = _context.Users.FirstOrDefault(u => u.Username == model.Username || u.Email == model.Email);
-        //    if (existing != null)
-        //    {
-        //        ModelState.AddModelError("Username", "Username atau email sudah digunakan");
-        //        return View(model);
-        //    }
-
-        //    var newUser = new Users
-        //    {
-        //        FullName = model.FullName,
-        //        Username = model.Username,
-        //        Email = model.Email,
-        //        PhoneNumber = model.PhoneNumber,
-        //        Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-        //        Role = model.Role,
-        //        IsActive = true,
-        //        CreatedAt = DateTime.Now,
-        //        CreatedBy = HttpContext.Session.GetString("Username")
-        //    };
-
-        //    _context.Users.Add(newUser);
-        //    _context.SaveChanges();
-
-        //    TempData["success"] = "Akun berhasil dibuat.";
-        //    return RedirectToAction("Index", "Home");
-        //}
         public IActionResult AccessDenied()
         {
             return View();

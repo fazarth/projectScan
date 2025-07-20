@@ -1,18 +1,49 @@
 ﻿@model LoginMVCApp.Models.Users
+
 @{
     ViewBag.Title = "Detail Pengguna";
 }
 
-<div class="container mt-4">
-    <h3>Detail Pengguna</h3>
-    <table class="table table-bordered">
-        <tr><th>Username</th><td>@Model.Username</td></tr>
-        <tr><th>Full Name</th><td>@Model.FullName</td></tr>
-        <tr><th>Email</th><td>@Model.Email</td></tr>
-        <tr><th>Phone</th><td>@Model.PhoneNumber</td></tr>
-        <tr><th>Role</th><td>@Model.Role</td></tr>
-        <tr><th>Status</th><td>@(Model.IsActive ? "Aktif" : "Nonaktif")</td></tr>
-        <tr><th>Created By</th><td>@Model.CreatedBy</td></tr>
-    </table>
-    <a asp-action="Index" class="btn btn-secondary">Kembali</a>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">Detail Users</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Username</dt>
+                <dd class="col-sm-8">@Model.Username</dd>
+
+                <dt class="col-sm-4">Full Name</dt>
+                <dd class="col-sm-8">@Model.FullName</dd>
+
+                <dt class="col-sm-4">Email</dt>
+                <dd class="col-sm-8">@Model.Email</dd>
+
+                <dt class="col-sm-4">Phone</dt>
+                <dd class="col-sm-8">@Model.PhoneNumber</dd>
+
+                <dt class="col-sm-4">Role</dt>
+                <dd class="col-sm-8">@Model.Role</dd>
+
+                <dt class="col-sm-4">Status</dt>
+                <dd class="col-sm-8">
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success">Aktif</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Nonaktif</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4">Created By</dt>
+                <dd class="col-sm-8">@Model.CreatedBy</dd>
+            </dl>
+        </div>
+        <div class="card-footer text-end">
+            <a asp-action="Index" class="btn btn-outline-secondary">Kembali</a>
+        </div>
+    </div>
 </div>

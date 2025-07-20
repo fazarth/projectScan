@@ -75,7 +75,7 @@ namespace LoginMVCApp.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message);
-                ModelState.AddModelError("", "Gagal menyimpan user: " + ex.Message);
+                ModelState.AddModelError("", "Gagal Menyimpan User: " + ex.Message);
                 return View(users);
             }
         }
@@ -138,7 +138,7 @@ namespace LoginMVCApp.Controllers
                 }
 
                 _context.SaveChanges();
-                TempData["success"] = "User berhasil diperbarui.";
+                TempData["success"] = "User Berhasil Diperbarui.";
                 return RedirectToAction("Index");
             }
 

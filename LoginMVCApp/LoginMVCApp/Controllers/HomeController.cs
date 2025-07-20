@@ -26,10 +26,6 @@ namespace LoginMVCApp.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // hanya untuk Admin:
-            // if (role != "Admin")
-            //     return RedirectToAction("AccessDenied", "Account");
-
             return View();
         }
 
