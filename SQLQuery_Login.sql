@@ -32,7 +32,7 @@ GO
 IF NOT EXISTS (SELECT 1 FROM Users WHERE Username = 'admin3')
 BEGIN
 INSERT INTO Users (Username, Password, FullName,Email, PhoneNumber, Role, CreatedBy)
-VALUES ('Administrator', '$2a$11$tmYCSyvP9qnscxq0qWZcb.e10ciRthnPtBdliFE/rZjKxcbincRMO', 'Administrator','admin@example.com','081234567890','Admin','system');
+VALUES ('Administrator', '$2a$11$BHcjzUL38w0eVKAJ7MDPE.ZrbNqsQ5gGiIidwPQdv//LqcllTmk6u', 'Administrator','admin@example.com','081234567890','Admin','system');
 END
 ELSE
 BEGIN
@@ -40,6 +40,6 @@ BEGIN
 END
 go
 --sudah pake bcrypt / hash di pass
---user : Administrator	pass : administrator || $2a$11$BHcjzUL38w0eVKAJ7MDPE.ZrbNqsQ5gGiIidwPQdv//LqcllTmk6u
+--user : Administrator	pass : administrator/admin3 || $2a$11$BHcjzUL38w0eVKAJ7MDPE.ZrbNqsQ5gGiIidwPQdv//LqcllTmk6u
 select * from [dbo].[Users]
 go
