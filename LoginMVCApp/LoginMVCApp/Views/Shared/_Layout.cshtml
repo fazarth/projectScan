@@ -33,7 +33,7 @@
                             </li>
                         }
                     </ul>
-                    @if (!string.IsNullOrEmpty(Context.Session.GetString("Username")))
+                    @if (!string.IsNullOrEmpty(Context.Session.GetString("Email")))
                     {
                         <div class="d-flex flex-column me-4 text-end">
                             <div class="fw-bold">CHECKER LINE</div>
@@ -67,7 +67,7 @@
                     }
 
                     <ul class="navbar-nav">
-                        @if (!string.IsNullOrEmpty(Context.Session.GetString("Username")))
+                        @if (!string.IsNullOrEmpty(Context.Session.GetString("Email")))
                         {
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" id="dropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">

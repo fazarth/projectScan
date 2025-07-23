@@ -17,7 +17,7 @@ namespace LoginMVCApp.Controllers
         public IActionResult Index()
         {
             //penjagaan akses
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("Username")))
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("Email")))
                 return RedirectToAction("Login", "Account");
 
             HttpContext.Session.GetString("FullName");
@@ -27,7 +27,7 @@ namespace LoginMVCApp.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            if (!string.IsNullOrEmpty(HttpContext.Session.GetString("Username")))
+            if (!string.IsNullOrEmpty(HttpContext.Session.GetString("Email")))
             {
                 // Sudah login → arahkan ke dashboard
                 return RedirectToAction("Index", "Home");
@@ -40,16 +40,16 @@ namespace LoginMVCApp.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Login(Users users)
         {
-            if (string.IsNullOrWhiteSpace(users.Username) || string.IsNullOrWhiteSpace(users.Password))
+            if (string.IsNullOrWhiteSpace(users.Email) || string.IsNullOrWhiteSpace(users.Password))
             {
-                ViewBag.Error = "Username dan Password wajib diisi!";
+                ViewBag.Error = "Email dan Password wajib diisi!";
                 return View(users);
             }
-            var user = _context.Users.FirstOrDefault(u => u.Username == users.Username);
+            var user = _context.Users.FirstOrDefault(u => u.Email == users.Email);
 
             if (user != null && BCrypt.Net.BCrypt.Verify(users.Password, user.Password))
             {
-                HttpContext.Session.SetString("Username", user.Username);
+                HttpContext.Session.SetString("Email", user.Email);
                 HttpContext.Session.SetString("FullName", user.FullName ?? "");
                 HttpContext.Session.SetString("Role", user.Role);
                 switch (user.Role)
@@ -65,7 +65,7 @@ namespace LoginMVCApp.Controllers
                 }
             }
 
-            ViewBag.Error = "Username atau Password salah!";
+            ViewBag.Error = "Email atau Password salah!";
             return View();
         }
         [HttpPost]
@@ -79,7 +79,7 @@ namespace LoginMVCApp.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Welcome()
         {
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("Username")))
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("Email")))
                 return RedirectToAction("Login", "Account");
             return View();
         }

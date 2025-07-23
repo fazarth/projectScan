@@ -5,13 +5,10 @@ namespace LoginMVCApp.ViewModels
 {
     public class EditUserViewModel
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [Required(ErrorMessage = "Nama lengkap wajib diisi")]
         public string FullName { get; set; }
-
-        [Required(ErrorMessage = "Username wajib diisi")]
-        public string Username { get; set; }
 
         [Required(ErrorMessage = "Email wajib diisi")]
         [EmailAddress(ErrorMessage = "Format email tidak valid")]
@@ -32,6 +29,10 @@ namespace LoginMVCApp.ViewModels
         [Required(ErrorMessage = "Role wajib dipilih")]
         public string Role { get; set; }
 
-        public bool IsActive { get; set; }
+        [Column("line_id")]
+        public long? LineId { get; set; }
+
+        [Column("isactive")]
+        public bool IsActive { get; set; } = true;
     }
 }

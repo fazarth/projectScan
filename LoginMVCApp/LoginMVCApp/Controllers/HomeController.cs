@@ -16,11 +16,11 @@ namespace LoginMVCApp.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var username = HttpContext.Session.GetString("Username");
+            var email = HttpContext.Session.GetString("Email");
             var fullName = HttpContext.Session.GetString("FullName");
             var role = HttpContext.Session.GetString("Role");
 
-            if (string.IsNullOrEmpty(username))
+            if (string.IsNullOrEmpty(email))
             {
                 TempData["error"] = "Sesi Anda telah habis. Silakan login ulang.";
                 return RedirectToAction("Login", "Account");

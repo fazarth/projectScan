@@ -47,17 +47,18 @@ namespace LoginMVCApp.Controllers
 
             // Jika CreatedBy kosong dari form, isi dari Session
             if (string.IsNullOrEmpty(users.CreatedBy))
-                users.CreatedBy = HttpContext.Session.GetString("Username") ?? "system";
+                users.CreatedBy = HttpContext.Session.GetString("Email") ?? "system";
 
             users.CreatedAt = DateTime.Now;
+            users.UpdatedAt = DateTime.Now;
 
             if (!ModelState.IsValid)
                 return View(users);
 
-            // Cek apakah username sudah ada
-            if (_context.Users.Any(u => u.Username == users.Username))
+            // Cek apakah Email sudah ada
+            if (_context.Users.Any(u => u.Email == users.Email))
             {
-                ModelState.AddModelError("Username", "Username sudah digunakan");
+                ModelState.AddModelError("Email", "Email sudah digunakan");
                 return View(users);
             }
 
@@ -80,7 +81,7 @@ namespace LoginMVCApp.Controllers
             }
         }
 
-        public IActionResult Details(int? id)
+        public IActionResult Details(long? id)
         {
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id == null) return NotFound();
@@ -91,7 +92,7 @@ namespace LoginMVCApp.Controllers
             return View(user);
         }
 
-        public IActionResult Edit(int? id)
+        public IActionResult Edit(long? id)
         {
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id == null) return NotFound();
@@ -103,10 +104,10 @@ namespace LoginMVCApp.Controllers
             {
                 Id = user.Id,
                 FullName = user.FullName,
-                Username = user.Username,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 Role = user.Role,
+                LineId = user.LineId,
                 IsActive = user.IsActive
             };
 
@@ -115,7 +116,7 @@ namespace LoginMVCApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, EditUserViewModel model)
+        public IActionResult Edit(long id, EditUserViewModel model)
         {
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id != model.Id) return NotFound();
@@ -126,10 +127,10 @@ namespace LoginMVCApp.Controllers
             if (ModelState.IsValid)
             {
                 existingUser.FullName = model.FullName;
-                existingUser.Username = model.Username;
                 existingUser.Email = model.Email;
                 existingUser.PhoneNumber = model.PhoneNumber;
                 existingUser.Role = model.Role;
+                existingUser.LineId = model.LineId;
                 existingUser.IsActive = model.IsActive;
 
                 if (!string.IsNullOrWhiteSpace(model.Password))
@@ -145,7 +146,7 @@ namespace LoginMVCApp.Controllers
             return View(model);
         }
 
-        public IActionResult Delete(int? id)
+        public IActionResult Delete(long? id)
         {
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id == null) return NotFound();
@@ -158,7 +159,7 @@ namespace LoginMVCApp.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(long id)
         {
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
 

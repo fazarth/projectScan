@@ -6,16 +6,15 @@ namespace LoginMVCApp.Models
 {
     public class Users
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         [Required]
+        [Column("nama")]
         public string FullName { get; set; }
 
-        [Required]
-        public string Username { get; set; }
-
         [Required, EmailAddress]
+        [Column("email")]
         public string Email { get; set; }
-
+        [Column("phonenumber")]
         public string PhoneNumber { get; set; }
 
         [StringLength(100, MinimumLength = 8, ErrorMessage = "Password minimal 8 karakter.")]
@@ -28,12 +27,20 @@ namespace LoginMVCApp.Models
         public string ConfirmPassword { get; set; }
 
         [Required]
+        [Column("role")]
         public string Role { get; set; }
 
+        [Column("line_id")]
+        public long? LineId { get; set; }
+        [Column("isactive")]
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
 
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+        [Column("createdby")]
         public string CreatedBy { get; set; }
     }
 }

@@ -25,10 +25,10 @@
                 <thead class="table-dark text-center">
                     <tr>
                         <th>No</th>
-                        <th>Username</th>
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th>Line</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -39,10 +39,10 @@
                         var user = Model[i];
                         <tr>
                             <td class="text-center">@(@i + 1)</td>
-                            <td>@user.Username</td>
                             <td>@user.FullName</td>
                             <td>@user.Email</td>
                             <td>@user.Role</td>
+                            <td>@user.LineId</td>
                             <td class="text-center">
                                 @if (user.IsActive)
                                 {

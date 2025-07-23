@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Tambah User";
-    var username = Context.Session.GetString("Username") ?? "system";
+    var fullname = Context.Session.GetString("nama") ?? "system";
 }
 
 <h3>Tambah User Baru</h3>
@@ -14,12 +14,6 @@
         <label asp-for="FullName"></label>
         <input asp-for="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Username"></label>
-        <input asp-for="Username" class="form-control" />
-        <span asp-validation-for="Username" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
@@ -47,6 +41,16 @@
     </div>
 
     <div class="mb-3">
+        <label for="LineId">Line</label>
+        <select asp-for="LineId" class="form-control" asp-items="ViewBag.Lines">
+            <option value="">-- Pilih Line --</option>
+            <option>1</option>
+            <option>2</option>
+        </select>
+        <span asp-validation-for="LineId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
         <label asp-for="Role"></label>
         <select asp-for="Role" class="form-select">
             <option value="">Pilih Role</option>
@@ -57,7 +61,7 @@
         <span asp-validation-for="Role" class="text-danger"></span>
     </div>
     <div class="form-group" type="hidden">
-        <input asp-for="CreatedBy" type="hidden" class="form-control" value="@username" readonly />
+        <input asp-for="CreatedBy" type="hidden" class="form-control" value="@fullname" readonly />
         <span asp-validation-for="CreatedBy" class="text-danger"></span>
     </div>
 
