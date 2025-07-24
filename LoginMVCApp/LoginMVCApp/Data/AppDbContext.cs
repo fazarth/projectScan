@@ -8,5 +8,6 @@ namespace LoginMVCApp.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Users> Users { get; set; }
+        public DbSet<Inventories> Inventories { get; set; }
     }
 }
