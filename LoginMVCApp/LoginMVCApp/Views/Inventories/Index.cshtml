@@ -1,83 +1,96 @@
-﻿@model IEnumerable<LoginMVCApp.Models.Inventories>
-
+﻿@model List<LoginMVCApp.Models.Inventories>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Manajemen Inventori";
 }
 
-<h1>Inventory Management</h1>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Manajemen Inventori</h2>
+        @if (TempData["success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+                @TempData["success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Tambah Data
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Project)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.InvId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Tipe)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Warna)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PartNo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PartName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Barcode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedBy)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Project)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.InvId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Tipe)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Warna)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PartNo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PartName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Barcode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedBy)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>No</th>
+                        <th>Project</th>
+                        <th>Inventory ID</th>
+                        <th>Type</th>
+                        <th>Warna</th>
+                        <th>Part Number</th>
+                        <th>Part Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var inv = Model[i];
+                        <tr>
+                            <td class="text-center">@(@i + 1)</td>
+                            <td>@inv.Project</td>
+                            <td>@inv.InvId</td>
+                            <td>@inv.Tipe</td>
+                            <td>@inv.Warna</td>
+                            <td>@inv.PartNo</td>
+                            <td>@inv.PartName</td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@inv.Id" class="btn btn-sm btn-info me-1">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@inv.Id" class="btn btn-sm btn-warning me-1">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-danger"
+                                   data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+
+                            </td>
+                        </tr>
+
+                    <!-- Modal Delete -->
+                    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                        <p>Apakah Anda yakin ingin menghapus data @inv.InvId? Tindakan ini tidak dapat dibatalkan.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <form method="post" asp-action="Delete" asp-route-id="@inv.Id">
+                                        <button type="submit" class="btn btn-danger">Hapus</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            Belum ada data inventori yang tersedia.
+        </div>
+    }
+</div>
+

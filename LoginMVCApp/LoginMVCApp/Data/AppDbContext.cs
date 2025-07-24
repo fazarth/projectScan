@@ -9,5 +9,6 @@ namespace LoginMVCApp.Data
 
         public DbSet<Users> Users { get; set; }
         public DbSet<Inventories> Inventories { get; set; }
+        public DbSet<Lines> Lines { get; set; } 
     }
 }

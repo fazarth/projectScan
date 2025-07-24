@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Administrator\\Source\\Repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {}
+    "C:\\Users\\Administrator\\Documents\\#Project\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Administrator\\Source\\Repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {
+    "C:\\Users\\Administrator\\Documents\\#Project\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Administrator\\Source\\Repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
+        "projectUniqueName": "C:\\Users\\Administrator\\Documents\\#Project\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
         "projectName": "LoginMVCApp",
-        "projectPath": "C:\\Users\\Administrator\\Source\\Repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
+        "projectPath": "C:\\Users\\Administrator\\Documents\\#Project\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Administrator\\Source\\Repos\\projectScan\\LoginMVCApp\\LoginMVCApp\\obj\\",
+        "outputPath": "C:\\Users\\Administrator\\Documents\\#Project\\projectScan\\LoginMVCApp\\LoginMVCApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -56,7 +56,7 @@ namespace LoginMVCApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Project,InvId,Warna,PartNo,PartName,Barcode,CreatedAt,CreatedBy")] Inventories Inventories)
+        public async Task<IActionResult> Create([Bind("Id,Project,InvId,Warna,Tipe,PartNo,PartName,Barcode,CreatedAt,CreatedBy")] Inventories Inventories)
         {
             if (ModelState.IsValid)
             {
