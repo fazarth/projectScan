@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - LoginMVCApp</title>
+    <title>@ViewData["Title"] - Scan Project</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LoginMVCApp.styles.css" asp-append-version="true" />
@@ -26,7 +26,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        @if (Context.Session.GetString("Role") == "Admin")
+                        @{
+                            var role = "";
+                            try { role = Context?.Session?.GetString("Role") ?? ""; }
+                            catch { role = ""; }
+                        }
+                        @if (role == "Admin")
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Inventories" asp-action="Index">Inventories</a>
@@ -45,7 +50,14 @@
                                     <div><strong>FACTORY:</strong> CIKARANG 3A</div>
                                 </div>
                                 <div class="col-auto">
-                                    <div><strong>PIC:</strong> @Context.Session.GetString("FullName")</div>
+                                    @* <div><strong>PIC:</strong>@Context.Session.GetString("FullName")</div> *@
+                                    @{
+                                        var fullName = "";
+                                        try { fullName = Context?.Session?.GetString("FullName") ?? "-"; }
+                                        catch { fullName = "-"; }
+                                    }
+                                    <div><strong>PIC:</strong> @fullName</div>
+
                                 </div>
                                 <div class="col-auto">
                                     <div><strong>DATE:</strong> <span id="clock-date"></span></div>

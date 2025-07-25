@@ -1,4 +1,5 @@
-﻿@model LoginMVCApp.Models.Users
+﻿
+@model LoginMVCApp.Models.Users
 
 @{
     ViewData["Title"] = "Create";
@@ -12,7 +13,7 @@
             <div class="bg-white shadow rounded p-4">
                 <h3 class="mb-4 text-center text-primary">Add New User</h3>
 
-                <form asp-action="Create" novalidate>
+                <form asp-action="Create" method="post" novalidate>
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                     <div class="form-floating mb-3">
@@ -46,25 +47,36 @@
                     </div>
 
                     <div class="form-floating mb-3">
+<<<<<<< HEAD
                         @* <input asp-for="LineId" class="form-control" placeholder="Line" /> *@
                         @*<label asp-for="LineId"></label>*@
                         <select asp-for="LineId" class="form-control" asp-items="ViewBag.Lines">
                             <option value="">-- Pilih Line --</option>
                             <option>1</option>
                             <option>2</option>
+=======
+                        <select asp-for="LineId" class="form-select" asp-items="ViewBag.Lines">
+                            <option value="">Pilih Line</option>
+>>>>>>> 8a343f54c251570793ee45164deb33bcbd03ce6c
                         </select>
+                        <label asp-for="LineId"></label>
                         <span asp-validation-for="LineId" class="text-danger small"></span>
                     </div>
 
+
                     <div class="form-floating mb-3">
+<<<<<<< HEAD
                         @* <input asp-for="Role" class="form-control" placeholder="Role" /> *@
                         @*<label asp-for="Role"></label>*@
+=======
+>>>>>>> 8a343f54c251570793ee45164deb33bcbd03ce6c
                         <select asp-for="Role" class="form-select">
                             <option value="">Pilih Role</option>
                             <option>Admin</option>
                             <option>Checker</option>
                             <option>Poles</option>
                         </select>
+                        <label asp-for="Role"></label>
                         <span asp-validation-for="Role" class="text-danger small"></span>
                     </div>
 
@@ -76,7 +88,7 @@
                     <input asp-for="CreatedBy" type="hidden" value="@fullname" />
 
                     <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg">Create</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Simpan</button>
                     </div>
 
                     <div class="text-center">
@@ -94,6 +106,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+<<<<<<< HEAD
 
 
 @* @model LoginMVCApp.Models.Users
@@ -176,3 +189,5 @@
     <partial name="_ValidationScriptsPartial" />
 }
  *@
+=======
+>>>>>>> 8a343f54c251570793ee45164deb33bcbd03ce6c

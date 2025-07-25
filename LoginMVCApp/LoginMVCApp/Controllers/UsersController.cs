@@ -2,6 +2,7 @@
 using LoginMVCApp.Models;
 using LoginMVCApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoginMVCApp.Controllers
@@ -27,24 +28,24 @@ namespace LoginMVCApp.Controllers
             return View(_context.Users.ToList());
         }
 
-        // create new data users
-        [HttpGet]
+        [HttpGet("Users/Create", Name = "UserCreateForm")]
         public IActionResult Create()
         {
-            if (HttpContext.Session.GetString("Role") != "Admin")
+            if (!IsAdmin())
                 return RedirectToAction("AccessDenied", "Account");
 
+            PopulateLines();
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("Users/Create")]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Users users)
         {
-            var role = HttpContext.Session.GetString("Role");
-            if (role != "Admin")
-                return RedirectToAction("AccessDenied");
+            if (!IsAdmin())
+                return RedirectToAction("AccessDenied", "Account");
 
+<<<<<<< HEAD
             // Jika CreatedBy kosong dari form, isi dari Session
             if (string.IsNullOrEmpty(users.CreatedBy))
                 users.CreatedBy = HttpContext.Session.GetString("FullName") ?? "system";
@@ -56,13 +57,22 @@ namespace LoginMVCApp.Controllers
                 return View(users);
 
             // Cek apakah Email sudah ada
+=======
+>>>>>>> 8a343f54c251570793ee45164deb33bcbd03ce6c
             if (_context.Users.Any(u => u.Email == users.Email))
             {
                 ModelState.AddModelError("Email", "Email sudah digunakan");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                PopulateLines();
                 return View(users);
             }
 
-            // Hash password
+            users.CreatedBy = HttpContext.Session.GetString("Email") ?? "system";
+            users.CreatedAt = DateTime.Now;
+            users.UpdatedAt = DateTime.Now;
             users.Password = BCrypt.Net.BCrypt.HashPassword(users.Password);
 
             try
@@ -70,13 +80,12 @@ namespace LoginMVCApp.Controllers
                 _context.Users.Add(users);
                 _context.SaveChanges();
                 TempData["success"] = "User Berhasil Ditambahkan.";
-                ModelState.Clear();
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                ModelState.AddModelError("", "Gagal Menyimpan User: " + ex.Message);
+                ModelState.AddModelError("", "Gagal Menyimpan: " + ex.Message);
+                PopulateLines();
                 return View(users);
             }
         }
@@ -111,6 +120,8 @@ namespace LoginMVCApp.Controllers
                 IsActive = user.IsActive
             };
 
+            ViewBag.Lines = new SelectList(_context.Lines, "Id", "Name", user.LineId);
+
             return View(viewModel);
         }
 
@@ -143,6 +154,8 @@ namespace LoginMVCApp.Controllers
                 return RedirectToAction("Index");
             }
 
+            // Ini penting saat kembali ke View setelah gagal validasi
+            ViewBag.Lines = new SelectList(_context.Lines.ToList(), "Id", "Name", model.LineId);
             return View(model);
         }
 
@@ -172,5 +185,18 @@ namespace LoginMVCApp.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        private void PopulateLines()
+        {
+            var lines = _context.Lines
+                .Select(l => new SelectListItem
+                {
+                    Value = l.Id.ToString(),
+                    Text = l.Nama
+                }).ToList();
+
+            ViewBag.Lines = new SelectList(lines, "Value", "Text");
+        }
+
     }
 }
