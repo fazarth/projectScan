@@ -1,0 +1,55 @@
+﻿@model LoginMVCApp.Models.Inventories
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="bg-white shadow rounded p-4">
+                <h3 class="mb-4 text-center text-primary">Inventory Details</h3>
+
+                <div class="mb-3">
+                    <strong>Project:</strong>
+                    <div class="form-control-plaintext">@Model.Project</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Inventory ID:</strong>
+                    <div class="form-control-plaintext">@Model.InvId</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Warna:</strong>
+                    <div class="form-control-plaintext">@Model.Warna</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Tipe:</strong>
+                    <div class="form-control-plaintext">@Model.Tipe</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Part No:</strong>
+                    <div class="form-control-plaintext">@Model.PartNo</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Part Name:</strong>
+                    <div class="form-control-plaintext">@Model.PartName</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Barcode:</strong>
+                    <div class="form-control-plaintext">@Model.Barcode</div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

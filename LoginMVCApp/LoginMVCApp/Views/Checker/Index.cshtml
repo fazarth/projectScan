@@ -1,23 +1,90 @@
-﻿@{
-    ViewData["Title"] = "Scan Inventory - Checker";
+﻿@model LoginMVCApp.Models.Inventories
+
+@{
+    ViewData["Title"] = "Checker Line - Scan Inventory";
 }
-<div class="container mt-4">
-    <h2>Selamat Datang, Checker!</h2>
-    <p>Ini adalah halaman untuk role Checker.</p>
-</div>
 
-<div class="container mt-4">
-    <h3>Scan Inventory Checker</h3>
-
-    <form method="post" asp-action="ScanInventory" class="d-flex mb-3">
-        <input type="text" name="inventoryId" class="form-control me-2" placeholder="Scan atau ketik Inventory ID" autofocus />
-        <button type="submit" class="btn btn-primary">SCAN</button>
-    </form>
-
-    @if (TempData["Message"] != null)
-    {
-        <div class="p-4 text-center rounded bg-info text-dark fw-bold border border-dark">
-            @TempData["Message"]
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="row mb-4">
+            <div class="col-8">
+                <h3>Scan Inventory Checker</h3>
+                <form method="post" asp-action="ScanInventory" class="d-flex mb-3">
+                    <input type="text" name="inventoryId" class="form-control me-2" placeholder="Scan atau ketik Inventory ID" autofocus />
+                    <button type="submit" class="btn btn-primary">SCAN</button>
+                </form>
+            </div>
         </div>
-    }
-</div>    
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="p-4 text-center rounded bg-info text-dark fw-bold border border-dark">
+                @TempData["Message"]
+            </div>
+        }
+
+        @if (Model != null)
+        {
+            <div class="row mb-4">
+                <div class="col-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-success text-white text-center">
+                            <h4 class="mb-0">@Model.PartName - @Model.Tipe [@Model.Project]</h4> 
+                        </div>
+                        <div class="card-body bg-light">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>Inventory ID:</strong> <span>@Model.InvId</span>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <strong>Type:</strong> <span>@Model.Tipe</span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>Color:</strong> <span>@Model.Warna</span>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <strong>Barcode:</strong> <span>@Model.Barcode</span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>Part No:</strong> <span>@Model.PartNo</span>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <strong>Part Name:</strong> <span>@Model.PartName</span>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <strong>Total Qty OK:</strong> <span class="text-success"> pcs</span>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <strong>Total Qty POLES:</strong> <span class="text-danger"> pcs</span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button class="btn btn-success btn-lg w-48">OK <span class="ms-2">50.0%</span></button>
+                                <button class="btn btn-danger btn-lg w-48">POLES <span class="ms-2">50.0%</span></button>
+                            </div>
+                            @* <div class="d-flex justify-content-between mt-3">
+                                <a href="#" class="btn btn-primary">Check Detail</a>
+                                <a href="#" class="btn btn-secondary">Report</a>
+                            </div> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-info btn-lg">Download Barcode</button>
+                    <button class="btn btn-info btn-lg ms-2">Download PDF</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>

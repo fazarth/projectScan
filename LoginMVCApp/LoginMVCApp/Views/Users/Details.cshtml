@@ -4,46 +4,56 @@
     ViewBag.Title = "Detail Pengguna";
 }
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-0">
-        <div class="card-header bg-dark text-white">
-            <h4 class="mb-0">Detail Users</h4>
-        </div>
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-4">Email</dt>
-                <dd class="col-sm-8">@Model.Email</dd>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="bg-white shadow rounded p-4">
+                <h3 class="mb-4 text-center text-primary">Users Details</h3>
 
-                <dt class="col-sm-4">Full Name</dt>
-                <dd class="col-sm-8">@Model.FullName</dd>
+                <div class="mb-3">
+                    <strong>Fullname:</strong>
+                    <div class="form-control-plaintext">@Model.FullName</div>
+                </div>
 
-                <dt class="col-sm-4">Phone</dt>
-                <dd class="col-sm-8">@Model.PhoneNumber</dd>
+                <div class="mb-3">
+                    <strong>Email:</strong>
+                    <div class="form-control-plaintext">@Model.Email</div>
+                </div>
 
-                <dt class="col-sm-4">Role</dt>
-                <dd class="col-sm-8">@Model.Role</dd>
+                <div class="mb-3">
+                    <strong>PhoneNumber:</strong>
+                    <div class="form-control-plaintext">@Model.PhoneNumber</div>
+                </div>
 
-                <dt class="col-sm-4">Line</dt>
-                <dd class="col-sm-8">@Model.LineId</dd>
+                <div class="mb-3">
+                    <strong>Line:</strong>
+                    <div class="form-control-plaintext">@Model.LineId</div>
+                </div>
 
-                <dt class="col-sm-4">Status</dt>
-                <dd class="col-sm-8">
-                    @if (Model.IsActive)
-                    {
-                        <span class="badge bg-success">Aktif</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Nonaktif</span>
-                    }
-                </dd>
+                <div class="mb-3">
+                    <strong>Role:</strong>
+                    <div class="form-control-plaintext">@Model.Role</div>
+                </div>
 
-                <dt class="col-sm-4">Created By</dt>
-                <dd class="col-sm-8">@Model.CreatedBy</dd>
-            </dl>
-        </div>
-        <div class="card-footer text-end">
-            <a asp-action="Index" class="btn btn-outline-secondary">Kembali</a>
+                <div class="mb-3">
+                    <strong>Status:</strong>
+                    <div class="form-control-plaintext">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Nonaktif</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

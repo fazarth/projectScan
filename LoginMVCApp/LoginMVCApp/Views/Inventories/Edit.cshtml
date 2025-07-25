@@ -1,0 +1,81 @@
+﻿@model LoginMVCApp.Models.Inventories
+
+@{
+    ViewData["Title"] = "Edit";
+    var fullname = Context.Session.GetString("nama") ?? "system";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="bg-white shadow rounded p-4">
+                <h3 class="mb-4 text-center text-primary">Edit Inventory</h3>
+
+                <form asp-action="Edit">
+                    <input type="hidden" asp-for="Id" />
+                    <input asp-for="CreatedBy" type="hidden" value="@fullname" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Project" class="form-control" placeholder="Project" />
+                        <label asp-for="Project"></label>
+                        <span asp-validation-for="Project" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="InvId" class="form-control" placeholder="Inventory ID" />
+                        <label asp-for="InvId">Inventory ID</label>
+                        <span asp-validation-for="InvId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Warna" class="form-control" placeholder="Warna" />
+                        <label asp-for="Warna">Color</label>
+                        <span asp-validation-for="Warna" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Tipe" class="form-control" placeholder="Tipe" />
+                        <label asp-for="Tipe">Type</label>
+                        <span asp-validation-for="Tipe" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="PartNo" class="form-control" placeholder="Part Number" />
+                        <label asp-for="PartNo">Part Number</label>
+                        <span asp-validation-for="PartNo" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="PartName" class="form-control" placeholder="Part Name" />
+                        <label asp-for="PartName">Part Name</label>
+                        <span asp-validation-for="PartName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Barcode" class="form-control" placeholder="Barcode" />
+                        <label asp-for="Barcode"></label>
+                        <span asp-validation-for="Barcode" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a asp-action="Index" class="text-muted small">← Back to List</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
