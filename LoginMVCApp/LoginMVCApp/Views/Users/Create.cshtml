@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Create";
-    var fullname = Context.Session.GetString("nama") ?? "system";
+    var fullname = Context.Session.GetString("FullName") ?? "system";
 }
 
 <div class="container py-5">
@@ -47,7 +47,7 @@
 
                     <div class="form-floating mb-3">
                         @* <input asp-for="LineId" class="form-control" placeholder="Line" /> *@
-                        <label asp-for="LineId"></label>
+                        @*<label asp-for="LineId"></label>*@
                         <select asp-for="LineId" class="form-control" asp-items="ViewBag.Lines">
                             <option value="">-- Pilih Line --</option>
                             <option>1</option>
@@ -58,7 +58,7 @@
 
                     <div class="form-floating mb-3">
                         @* <input asp-for="Role" class="form-control" placeholder="Role" /> *@
-                        <label asp-for="Role"></label>
+                        @*<label asp-for="Role"></label>*@
                         <select asp-for="Role" class="form-select">
                             <option value="">Pilih Role</option>
                             <option>Admin</option>
