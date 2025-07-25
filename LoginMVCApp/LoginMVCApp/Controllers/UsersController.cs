@@ -47,7 +47,7 @@ namespace LoginMVCApp.Controllers
 
             // Jika CreatedBy kosong dari form, isi dari Session
             if (string.IsNullOrEmpty(users.CreatedBy))
-                users.CreatedBy = HttpContext.Session.GetString("Email") ?? "system";
+                users.CreatedBy = HttpContext.Session.GetString("FullName") ?? "system";
 
             users.CreatedAt = DateTime.Now;
             users.UpdatedAt = DateTime.Now;
