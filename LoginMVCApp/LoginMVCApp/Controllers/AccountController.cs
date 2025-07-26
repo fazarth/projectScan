@@ -59,7 +59,8 @@ namespace LoginMVCApp.Controllers
                     case "Admin":
                         return RedirectToAction("Index", "Home");
                     case "Checker":
-                        return RedirectToAction("Index", "Checker");
+                        return RedirectToAction("Index", "Checker1");
+                        //return RedirectToAction("Index", "Checker");
                     case "Poles":
                         return RedirectToAction("Index", "Poles");
                     default:
