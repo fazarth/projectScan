@@ -45,6 +45,20 @@ namespace LoginMVCApp.Controllers
             if (!IsAdmin())
                 return RedirectToAction("AccessDenied", "Account");
 
+            // Jika CreatedBy kosong dari form, isi dari Session
+            if (string.IsNullOrEmpty(users.CreatedBy))
+                users.CreatedBy = HttpContext.Session.GetString("FullName") ?? "system";
+
+            users.CreatedAt = DateTime.Now;
+            users.UpdatedAt = DateTime.Now;
+
+            if (!ModelState.IsValid)
+            {
+                PopulateLines(users.LineId);
+                return View(users);
+            }
+
+            // Cek apakah Email sudah ada
             if (_context.Users.Any(u => u.Email == users.Email))
             {
                 ModelState.AddModelError("Email", "Email sudah digunakan");
@@ -52,11 +66,11 @@ namespace LoginMVCApp.Controllers
 
             if (!ModelState.IsValid)
             {
-                PopulateLines();
+                PopulateLines(users.LineId);
                 return View(users);
             }
 
-            users.CreatedBy = HttpContext.Session.GetString("Email") ?? "system";
+            //users.CreatedBy = HttpContext.Session.GetString("Email") ?? "system";
             users.CreatedAt = DateTime.Now;
             users.UpdatedAt = DateTime.Now;
             users.Password = BCrypt.Net.BCrypt.HashPassword(users.Password);
@@ -71,7 +85,7 @@ namespace LoginMVCApp.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Gagal Menyimpan: " + ex.Message);
-                PopulateLines();
+                PopulateLines(users.LineId);
                 return View(users);
             }
         }
@@ -81,7 +95,7 @@ namespace LoginMVCApp.Controllers
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id == null) return NotFound();
 
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            var user = _context.Users.Include(u => u.Line).FirstOrDefault(u => u.Id == id);
             if (user == null) return NotFound();
 
             return View(user);
@@ -92,7 +106,10 @@ namespace LoginMVCApp.Controllers
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id == null) return NotFound();
 
-            var user = _context.Users.Find(id);
+            //var user = _context.Users.Find(id);
+            var user = _context.Users
+                       .Include(u => u.Line)
+                       .FirstOrDefault(u => u.Id == id);
             if (user == null) return NotFound();
 
             var viewModel = new EditUserViewModel
@@ -106,7 +123,8 @@ namespace LoginMVCApp.Controllers
                 IsActive = user.IsActive
             };
 
-            ViewBag.Lines = new SelectList(_context.Lines, "Id", "Name", user.LineId);
+            PopulateLines(user.LineId);
+            //ViewBag.Lines = new SelectList(_context.Lines, "Id", "Name", user.LineId);
 
             return View(viewModel);
         }
@@ -118,7 +136,7 @@ namespace LoginMVCApp.Controllers
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id != model.Id) return NotFound();
 
-            var existingUser = _context.Users.FirstOrDefault(u => u.Id == id);
+            var existingUser = _context.Users.Include(u => u.Line).FirstOrDefault(u => u.Id == id);
             if (existingUser == null) return NotFound();
 
             if (ModelState.IsValid)
@@ -140,8 +158,7 @@ namespace LoginMVCApp.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Ini penting saat kembali ke View setelah gagal validasi
-            ViewBag.Lines = new SelectList(_context.Lines.ToList(), "Id", "Name", model.LineId);
+            PopulateLines(existingUser.LineId);
             return View(model);
         }
 
@@ -150,7 +167,7 @@ namespace LoginMVCApp.Controllers
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id == null) return NotFound();
 
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            var user = _context.Users.Include(u => u.Line).FirstOrDefault(u => u.Id == id);
             if (user == null) return NotFound();
 
             return View(user);
@@ -172,16 +189,9 @@ namespace LoginMVCApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private void PopulateLines()
+        private void PopulateLines(long? selectedId = null)
         {
-            var lines = _context.Lines
-                .Select(l => new SelectListItem
-                {
-                    Value = l.Id.ToString(),
-                    Text = l.Nama
-                }).ToList();
-
-            ViewBag.Lines = new SelectList(lines, "Value", "Text");
+            ViewBag.Lines = new SelectList(_context.Lines, "Id", "Nama", selectedId);
         }
 
     }

@@ -1,4 +1,5 @@
-﻿@model LoginMVCApp.Models.Inventories
+﻿@*@model LoginMVCApp.Models.Inventories*@
+@model LoginMVCApp.ViewModels.CheckerViewModel
 
 @{
     ViewData["Title"] = "Checker Line - Scan Inventory";
@@ -25,62 +26,84 @@
 
         @if (Model != null)
         {
-            <div class="row mb-4">
-                <div class="col-8">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-success text-white text-center">
-                            <h4 class="mb-0">@Model.PartName - @Model.Tipe [@Model.Project]</h4>
-                        </div>
-                        <div class="card-body bg-light">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <strong>Inventory ID:</strong> <span>@Model.InvId</span>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <strong>Type:</strong> <span>@Model.Tipe</span>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <strong>Color:</strong> <span>@Model.Warna</span>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <strong>Barcode:</strong> <span>@Model.Barcode</span>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <strong>Part No:</strong> <span>@Model.PartNo</span>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <strong>Part Name:</strong> <span>@Model.PartName</span>
-                                </div>
-                            </div>
+            <form method="post" asp-action="SubmitTransaction">
+                <input type="hidden" name="InvId" value="@Model.Inventory.Id" />
+                <input type="hidden" name="InventoryId" value="@Model.Inventory.InvId" />
 
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <strong>Total Qty OK:</strong> <span class="text-success"> pcs</span>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-success text-white text-center">
+                                <h4 class="mb-0">@Model.Inventory.PartName - @Model.Inventory.Tipe [@Model.Inventory.Project]</h4>
+                            </div>
+                            <div class="card-body bg-light">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <strong>Inventory ID:</strong> <span>@Model.Inventory.InvId</span>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <strong>Type:</strong> <span>@Model.Inventory.Tipe</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Color:</strong> <span>@Model.Inventory.Warna</span>
+                                    </div>
                                 </div>
-                                <div class="col-md-6 text-end">
-                                    <strong>Total Qty NG:</strong> <span class="text-danger"> pcs</span>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 text-end">
+                                        <div class="form-floating mb-3">
+                                            <select name="RobotId" class="form-select" asp-items="ViewBag.RobotList">
+                                                <option value="">Pilih Robot</option>
+                                            </select>
+                                            <label for="RobotId">Nama Robot</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <strong>Barcode:</strong> <span>@Model.Inventory.Barcode</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Part No:</strong> <span>@Model.Inventory.PartNo</span>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <strong>Part Name:</strong> <span>@Model.Inventory.PartName</span>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <strong>Total Qty OK:</strong> <span class="text-success"> pcs</span>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <strong>Total Qty NG:</strong> <span class="text-danger"> pcs</span>
+                                    </div>
+                                </div>
+
+                                <br>
+                                <br>
+                                <div class="d-flex justify-content-between mt-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <button name="status" value="OK" class="btn btn-success d-flex align-items-center justify-content-center"
+                                                style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
+                                            OK
+                                        </button>
+                                        <div class="bg-success text-white text-center rounded mx-2 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
+                                            50.0%
+                                        </div>
+                                    </div>
+                                    <button name="status" value="POLESH" class="btn btn-danger btn-lg w-48">POLESH <span class="ms-2">%</span></button>
                                 </div>
                             </div>
-
-                            <div class="d-flex justify-content-between mt-4">
-                                <button class="btn btn-success btn-lg w-48">OK <span class="ms-2">%</span></button>
-                                <button class="btn btn-danger btn-lg w-48">NG <span class="ms-2">%</span></button>
+                            <div class="row mt-4">
+                                <div class="col-12 text-center">
+                                    <a asp-controller="Inventory" asp-action="DownloadBarcode" asp-route-id="@Model.Inventory.InvId" class="btn btn-info btn-lg">Download Barcode</a>
+                                    <a asp-controller="Inventory" asp-action="DownloadPDF" asp-route-id="@Model.Inventory.InvId" class="btn btn-info btn-lg ms-2">Download PDF</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="row mt-4">
-                <div class="col-12 text-center">
-                    <a asp-controller="Inventory" asp-action="DownloadBarcode" asp-route-id="@Model.InvId" class="btn btn-info btn-lg">Download Barcode</a>
-                    <a asp-controller="Inventory" asp-action="DownloadPDF" asp-route-id="@Model.InvId" class="btn btn-info btn-lg ms-2">Download PDF</a>
-                </div>
-            </div>
+            </form>
         }
     </div>
 </div>

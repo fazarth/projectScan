@@ -9,6 +9,17 @@ namespace LoginMVCApp.Data
 
         public DbSet<Users> Users { get; set; }
         public DbSet<Inventories> Inventories { get; set; }
-        public DbSet<Lines> Lines { get; set; } 
+        public DbSet<Lines> Lines { get; set; }
+        public DbSet<Robots> Robots { get; set; }
+        public DbSet<Transactions> Transactions { get; set; }
+
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    modelBuilder.Entity<Robots>()
+        //        .HasOne(r => r.Line)
+        //        .WithMany(l => l.Robots)
+        //        .HasForeignKey(r => r.LineId)
+        //        .OnDelete(DeleteBehavior.Restrict);
+        //}
     }
 }

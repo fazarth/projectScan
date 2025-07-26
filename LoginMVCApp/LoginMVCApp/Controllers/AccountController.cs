@@ -21,6 +21,7 @@ namespace LoginMVCApp.Controllers
                 return RedirectToAction("Login", "Account");
 
             HttpContext.Session.GetString("FullName");
+
             return View();
         }
 
@@ -51,6 +52,7 @@ namespace LoginMVCApp.Controllers
             {
                 HttpContext.Session.SetString("Email", user.Email);
                 HttpContext.Session.SetString("FullName", user.FullName ?? "");
+                HttpContext.Session.SetString("LineId", user.LineId.ToString());
                 HttpContext.Session.SetString("Role", user.Role);
                 switch (user.Role)
                 {

@@ -1,2 +1,8 @@
+# Ignore Visual Studio user-specific files
 .vs/
-.github
+*.suo
+
+# Ignore build outputs
+bin/
+obj/
+*.cache

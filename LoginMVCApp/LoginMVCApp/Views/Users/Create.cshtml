@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Create";
-    var fullname = Context.Session.GetString("nama") ?? "system";
+    var fullname = Context.Session.GetString("FullName") ?? "system";
 }
 
 <div class="container py-5">
@@ -50,10 +50,9 @@
                         <select asp-for="LineId" class="form-select" asp-items="ViewBag.Lines">
                             <option value="">Pilih Line</option>
                         </select>
-                        <label asp-for="LineId"></label>
+                        <label asp-for="Line"></label>
                         <span asp-validation-for="LineId" class="text-danger small"></span>
                     </div>
-
 
                     <div class="form-floating mb-3">
                         <select asp-for="Role" class="form-select">
@@ -72,7 +71,7 @@
                     </div>
 
                     <input asp-for="CreatedBy" type="hidden" value="@fullname" />
-
+                    <br />
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">Simpan</button>
                     </div>
