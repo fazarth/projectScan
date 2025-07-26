@@ -14,7 +14,6 @@ namespace LoginMVCApp.Models
         public string? Project { get; set; }
 
         [Column("inv_id")]
-        [StringLength(50)]
         public string? InvId { get; set; }
 
         [Column("warna")]

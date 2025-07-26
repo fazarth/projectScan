@@ -47,17 +47,8 @@
                     </div>
 
                     <div class="form-floating mb-3">
-<<<<<<< HEAD
-                        @* <input asp-for="LineId" class="form-control" placeholder="Line" /> *@
-                        @*<label asp-for="LineId"></label>*@
-                        <select asp-for="LineId" class="form-control" asp-items="ViewBag.Lines">
-                            <option value="">-- Pilih Line --</option>
-                            <option>1</option>
-                            <option>2</option>
-=======
                         <select asp-for="LineId" class="form-select" asp-items="ViewBag.Lines">
                             <option value="">Pilih Line</option>
->>>>>>> 8a343f54c251570793ee45164deb33bcbd03ce6c
                         </select>
                         <label asp-for="LineId"></label>
                         <span asp-validation-for="LineId" class="text-danger small"></span>
@@ -65,11 +56,6 @@
 
 
                     <div class="form-floating mb-3">
-<<<<<<< HEAD
-                        @* <input asp-for="Role" class="form-control" placeholder="Role" /> *@
-                        @*<label asp-for="Role"></label>*@
-=======
->>>>>>> 8a343f54c251570793ee45164deb33bcbd03ce6c
                         <select asp-for="Role" class="form-select">
                             <option value="">Pilih Role</option>
                             <option>Admin</option>
@@ -86,7 +72,7 @@
                     </div>
 
                     <input asp-for="CreatedBy" type="hidden" value="@fullname" />
-
+                    <br />
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">Simpan</button>
                     </div>
@@ -106,88 +92,3 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-<<<<<<< HEAD
-
-
-@* @model LoginMVCApp.Models.Users
-
-@{
-    ViewData["Title"] = "Tambah User";
-    var fullname = Context.Session.GetString("FullName") ?? "system";
-}
-
-<h3>Tambah User Baru</h3>
-
-<form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
-
-    <div class="mb-3">
-        <label asp-for="FullName"></label>
-        <input asp-for="FullName" class="form-control" />
-        <span asp-validation-for="FullName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" type="email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="PhoneNumber"></label>
-        <input asp-for="PhoneNumber" class="form-control" />
-        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" type="password" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label for="LineId">Line</label>
-        <select asp-for="LineId" class="form-control" asp-items="ViewBag.Lines">
-            <option value="">-- Pilih Line --</option>
-            <option>1</option>
-            <option>2</option>
-        </select>
-        <span asp-validation-for="LineId" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Role"></label>
-        <select asp-for="Role" class="form-select">
-            <option value="">Pilih Role</option>
-            <option>Admin</option>
-            <option>Checker</option>
-            <option>Poles</option>
-        </select>
-        <span asp-validation-for="Role" class="text-danger"></span>
-    </div>
-    <div class="form-group" type="hidden">
-        <input asp-for="CreatedBy" type="hidden" class="form-control" value="@fullname" readonly />
-        <span asp-validation-for="CreatedBy" class="text-danger"></span>
-    </div>
-
-    <div class="form-check mb-3">
-        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
-        <label asp-for="IsActive" class="form-check-label"></label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Simpan</button>
-    <a asp-action="Index" class="btn btn-secondary">Batal</a>
-</form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
- *@
-=======
->>>>>>> 8a343f54c251570793ee45164deb33bcbd03ce6c

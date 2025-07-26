@@ -12,5 +12,6 @@ namespace LoginMVCApp.Models
         [Column("nama")]
         [StringLength(50)]
         public string? Nama { get; set; }
+        public virtual ICollection<Robots>? Robots { get; set; }
     }
 }
