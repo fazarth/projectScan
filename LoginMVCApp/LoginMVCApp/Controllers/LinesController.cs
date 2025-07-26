@@ -3,11 +3,11 @@ using LoginMVCApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-public class UsersController : Controller
+public class LinesController : Controller
 {
     private readonly AppDbContext _context;
 
-    public UsersController(AppDbContext context)
+    public LinesController(AppDbContext context)
     {
         _context = context;
     }

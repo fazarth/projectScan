@@ -42,5 +42,7 @@ namespace LoginMVCApp.Models
         public DateTime CreatedAt { get; set; }
         [Column("createdby")]
         public string CreatedBy { get; set; }
+
+        public virtual Lines? Line { get; set; }
     }
 }
