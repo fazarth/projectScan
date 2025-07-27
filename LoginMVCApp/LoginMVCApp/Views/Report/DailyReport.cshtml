@@ -1,0 +1,63 @@
+﻿@model List<LoginMVCApp.Models.Transactions>
+@{
+    ViewData["Title"] = "Daily Report";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Daily Report</h2>
+        @if (TempData["success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+                @TempData["success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Robot</th>
+                        <th>Part</th>
+                        <th>Project</th>
+                        <th>Type</th>
+                        <th>Color</th>
+                        <th>QTY OK</th>
+                        <th>% OK</th>
+                        <th>QTY NG</th>
+                        <th>Detail NG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var trans = Model[i];
+                        <tr>
+                            <td class="text-center">@(@i + 1)</td>
+                            <td>@trans.Robot</td>
+                            <td>PART</td>
+                            <td>PROJECT</td>
+                            <td>TYPE</td>
+                            <td>COLOR</td>
+                            <td>QTY OK</td>
+                            <td>% OK</td>
+                            <td>QTY NG</td>
+                            <td>DETAIL NG</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            Belum ada data transentori yang tersedia.
+        </div>
+    }
+</div>
+

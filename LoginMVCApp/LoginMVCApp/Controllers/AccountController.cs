@@ -46,13 +46,14 @@ namespace LoginMVCApp.Controllers
                 ViewBag.Error = "Email dan Password wajib diisi!";
                 return View(users);
             }
+
             var user = _context.Users.FirstOrDefault(u => u.Email == users.Email);
 
             if (user == null)
             {
                 // Email tidak ditemukan
                 ViewBag.Error = "Email tidak ditemukan!";
-                return View();               
+                return View();
             }
 
             if (!BCrypt.Net.BCrypt.Verify(users.Password, user.Password))
@@ -73,25 +74,27 @@ namespace LoginMVCApp.Controllers
             HttpContext.Session.SetString("Email", user.Email);
             HttpContext.Session.SetString("FullName", user.FullName ?? "");
             HttpContext.Session.SetString("LineId", user.LineId.ToString());
+            HttpContext.Session.SetString("UserId", user.Id.ToString());
             HttpContext.Session.SetString("Role", user.Role);
+
             switch (user.Role)
             {
                 case "Admin":
                     return RedirectToAction("Index", "Home");
                 case "Checker":
                     return RedirectToAction("Index", "Checker1");
-                //return RedirectToAction("Index", "Checker");
                 case "Poles":
                     return RedirectToAction("Index", "Poles");
                 default:
                     return RedirectToAction("AccessDenied", "Account");
             }
 
-            // Jika tidak ada yang valid, tampilkan pesan kesalahan
+            // Fallback jika semua gagal (harusnya tidak sampai sini)
             ViewBag.Error = "Terjadi kesalahan, silakan coba lagi.";
             return View();
-
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Logout()

@@ -41,8 +41,8 @@ namespace LoginMVCApp.Models
 
         [Required]
         [Column("shift")]
-        [StringLength(1)]
-        public string Shift { get; set; } = "1";
+        [StringLength(10)]
+        public string Shift { get; set; } = "0";
 
         [Column("opposite_shift")]
         public bool OppositeShift { get; set; } = false;

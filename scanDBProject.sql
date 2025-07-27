@@ -5,6 +5,14 @@ GO
 -- Gunakan database
 USE scanDBProject;
 GO
+
+select * from inventories
+select line_id,* from users
+select * from transactions
+
+select u.line_id, r.nama, * from users u
+join robots r on u.line_id = r.line_id
+
 -- Tabel lini
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='lines' and xtype='U')
 CREATE TABLE lines (
