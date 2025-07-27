@@ -53,6 +53,7 @@ namespace LoginMVCApp.Controllers
                 HttpContext.Session.SetString("Email", user.Email);
                 HttpContext.Session.SetString("FullName", user.FullName ?? "");
                 HttpContext.Session.SetString("LineId", user.LineId.ToString());
+                HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("Role", user.Role);
                 switch (user.Role)
                 {

@@ -6,15 +6,20 @@
 
 <div class="container-fluid py-5">
     <div class="row justify-content-center">
-        <div class="row mb-4">
+        <div class="row justify-content-center mb-3">
+            <div class="col-12 text-center">
+                <h3>CHECKER LINE</h3>
+            </div>
+        </div>
+        <div class="row justify-content-center">
             <div class="col-8">
-                <h3>Scan Inventory Checker</h3>
                 <form method="post" asp-action="ScanInventory1" class="d-flex mb-3">
                     <input type="text" name="inventoryId" class="form-control me-2" placeholder="Scan atau ketik Inventory ID" autofocus required />
                     <button type="submit" class="btn btn-primary">SCAN</button>
                 </form>
             </div>
         </div>
+
         @if (TempData["Message"] != null)
         {
             <div class="p-4 text-center rounded bg-info text-dark fw-bold border border-dark">
@@ -24,74 +29,112 @@
         @if (Model != null)
         {
             <form method="post" asp-action="SubmitTransaction">
+                <input type="hidden" name="InventoryId" value="@Model.InvId" />
+                <input type="hidden" name="InvId" value="@ViewBag.InvId" />
+                <input type="hidden" id="statusInput" name="status" value="" />
+                <input type="hidden" id="selectedRobotId" name="RobotId" value="" />
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="card shadow-sm border-1">
-                            <div class="card-header bg-success text-white text-center">
-                                <h4 class="mb-0">@Model.PartName - @Model.Tipe [@Model.Project]</h4>
+                        <div class="card shadow-sm bg-dark border-1">
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0 fw-bold text-uppercase" style="margin-left: 33%;">
+                                    @Model.PartName - @Model.Tipe
+                                </h4>
+                                <div class="ms-auto">
+                                    <span class="bg-light text-dark fw-bold px-3 py-1 border border-dark rounded fs-4">
+                                        @Model.Project
+                                    </span>
+                                </div>
                             </div>
-                            <div class="card-body bg-light">
-                                <div class="row mb-3">
+                            <div class="card-body" style="background-color:lightblue">
+                                <div class="row">
                                     <div class="col-md-4">
-                                        <strong>Inventory ID:</strong> <span>@Model.InvId</span>
+                                        <strong><h5>Inventory ID:<span>@Model.InvId</span></h5></strong>
                                     </div>
-                                    <div class="col-md-4 text-end">
-                                        <strong>Type:</strong> <span>@Model.Tipe</span>
+                                    <div class="col-md-2 text-end">
+                                        <strong><h5>Type: <span>@Model.Tipe</span></h5></strong>
                                     </div>
-                                    <div class="col-md-4">
-                                        <strong>Color:</strong> <span>@Model.Warna</span>
+                                    <div class="col-md-1">
+                                        <strong><h5>Color: <span>@Model.Warna</span></h5></strong>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control mb-2 rounded" style="width: 80px; height: 40px;" />
+                                        <div>Jumlah QR:</div>
+                                    </div>
+                                    <div class="col-md-3 text-end">
+                                        <strong>Barcode:</strong> <span>@Model.Barcode</span>
+                                        <a asp-controller="Inventory" asp-action="DownloadBarcode" asp-route-id="@Model.InvId" class="btn btn-info btn-lg">Download Barcode PDF</a>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-md-6 text-end">
-                                        <div class="form-floating mb-3">
+                                    <div class="col-md-5">
+                                        <div class="form-floating">
                                             <select name="RobotId" class="form-select" asp-items="ViewBag.RobotList">
                                                 <option value="">Pilih Nama Robot</option>
                                             </select>
                                             <label for="RobotId">Nama Robot</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 text-end">
-                                        <strong>Barcode:</strong> <span>@Model.Barcode</span>
-                                    </div>
                                 </div>
-                                <div class="row mb-3">
+                               @* <div class="row mb-3">
                                     <div class="col-md-6">
                                         <strong>Part No:</strong> <span>@Model.PartNo</span>
                                     </div>
                                     <div class="col-md-6 text-end">
                                         <strong>Part Name:</strong> <span>@Model.PartName</span>
                                     </div>
-                                </div>
+                                </div>*@
+                                <div class="row mb-4 text-center">
+                                    <!-- OK Section -->
+                                    <div class="col-md-4 mb-3">
+                                        <strong><h5>Total Qty OK:</h5></strong>
+                                        <div class="bg-success text-white rounded py-2 fw-bold mt-1">
+                                            <h5 id="ok-count">0 pcs</h5>
+                                        </div>
 
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <strong>Total Qty OK:</strong> <span class="text-success"> pcs</span>
-                                    </div>
-                                    <div class="col-md-6 text-end">
-                                        <strong>Total Qty NG:</strong> <span class="text-danger"> pcs</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between mt-4">
-                                    <div class="d-flex align-items-center gap-3">
-                                        @{
-                                            var percentOK = TempData["PercentOK"]?.ToString() ?? "0.0";
-                                        }
-                                        <button name="status" value="OK" class="btn btn-success d-flex align-items-center justify-content-center"
-                                                style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
-                                            OK
-                                        </button>
-                                        <div class="bg-success text-white text-center rounded mx-2 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
-                                            @percentOK%
+                                        <div class="mt-2" style="margin-bottom: 20%;"></div>
+
+                                        <div class="d-flex gap-2 mt-4">
+                                            <button onclick="incrementOK(); submitStatus('OK');" class="btn btn-success"
+                                                    style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
+                                                OK
+                                            </button>
+
+                                            <div id="percent-ok-box"
+                                                 class="bg-success text-white rounded d-flex align-items-center justify-content-center"
+                                                 style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
+                                                50%
+                                            </div>
                                         </div>
                                     </div>
-                                    <button name="status" value="POLESH" class="btn btn-danger btn-lg w-48">POLESH</button>
-                                </div>
-                            </div>
-                            <div class="row mt-4">
-                                <div class="col-12 text-center mb-5">
-                                    <a asp-controller="Inventory" asp-action="DownloadBarcode" asp-route-id="@Model.InvId" class="btn btn-info btn-lg">Download Barcode</a>
-                                    <a asp-controller="Inventory" asp-action="DownloadPDF" asp-route-id="@Model.InvId" class="btn btn-info btn-lg ms-2">Download PDF</a>
+
+                                    <!-- POLESH Section -->
+                                    <div class="col-md-4 mb-3">
+                                        <strong><h5>Total Qty POLESH:</h5></strong>
+                                        <div class="bg-danger text-white rounded py-2 fw-bold mt-1">
+                                            <h5 id="polesh-count">0 pcs</h5>
+                                        </div>
+
+                                        <!-- Buttons Detail -->
+                                        <div class="mt-2 d-flex justify-content-center gap-2">
+                                            <button class="btn btn-primary">Check Detail</button>
+                                            <button class="btn btn-secondary">Report</button>
+                                        </div>
+
+                                        <!-- Button + Percent -->
+                                        <div class="mt-4 d-flex gap-2">
+                                            <button onclick="moveToPolesh();submitStatus('POLESH');" class="btn btn-danger d-flex align-items-center justify-content-center"
+                                                    style="width: 90px; height: 80px; font-weight: bold; font-size: 20px;">
+                                                POLESH
+                                            </button>
+
+                                            <div id="percent-polesh"
+                                                 class="bg-danger text-white rounded d-flex align-items-center justify-content-center"
+                                                 style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
+                                                0%
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -101,3 +144,50 @@
         }
     </div>
 </div>
+
+<script>
+    let okCount = 5;
+    let poleshCount = 0;
+    const totalTarget = 10;
+
+    function updateDisplay() {
+        // Update pcs
+        document.getElementById("ok-count").innerText = `${okCount} pcs`;
+        document.getElementById("polesh-count").innerText = `${poleshCount} pcs`;
+
+        // Update percent OK
+        const percent = ((okCount / totalTarget) * 100).toFixed(1);
+        document.getElementById("percent-ok-box").innerText = `${percent}%`;
+    }
+
+    function incrementOK() {
+        if (okCount + poleshCount < totalTarget) {
+            okCount++;
+            updateDisplay();
+        }
+    }
+
+    function moveToPolesh() {
+        if (okCount > 0) {
+            okCount--;
+            poleshCount++;
+            updateDisplay();
+        }
+    }
+    function submitStatus(status) {
+        const robotSelect = document.querySelector("select[name='RobotId']");
+        const selectedRobot = robotSelect.value;
+
+        if (!selectedRobot) {
+            alert("Pilih Nama Robot terlebih dahulu.");
+            return;
+        }
+
+        document.getElementById("statusInput").value = status;
+        document.getElementById("selectedRobotId").value = selectedRobot;
+
+        robotSelect.disabled = false; // pastikan enabled dulu
+
+        document.forms[1].submit(); // form ke-2 di halaman
+    }
+</script>
