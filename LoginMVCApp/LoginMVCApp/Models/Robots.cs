@@ -16,7 +16,7 @@ namespace LoginMVCApp.Models
 
         [Required]
         [StringLength(50)]
-        public string Nama { get; set; }
+        public string Nama { get; set; } = string.Empty;
 
         [ForeignKey("LineId")]
         public virtual Lines? Line { get; set; }

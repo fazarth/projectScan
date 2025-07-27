@@ -9,11 +9,11 @@ namespace LoginMVCApp.Models
         public long Id { get; set; }
         [Required]
         [Column("nama")]
-        public string FullName { get; set; }
+        public string FullName { get; set; } = string.Empty;
 
         [Required, EmailAddress]
         [Column("email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
         [Column("phonenumber")]
         public string PhoneNumber { get; set; }
 

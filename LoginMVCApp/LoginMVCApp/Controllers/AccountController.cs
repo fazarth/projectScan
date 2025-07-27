@@ -93,6 +93,8 @@ namespace LoginMVCApp.Controllers
             ViewBag.Error = "Terjadi kesalahan, silakan coba lagi.";
             return View();
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Logout()
