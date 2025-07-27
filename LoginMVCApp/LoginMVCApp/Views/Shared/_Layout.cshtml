@@ -64,9 +64,14 @@
                                         var fullName = "";
                                         try { fullName = Context?.Session?.GetString("FullName") ?? "-"; }
                                         catch { fullName = "-"; }
+
+                                        var lineIdStr = Context?.Session?.GetString("LineId");
+                                        var lineId = lineIdStr ?? "-";
                                     }
                                     <div><strong>PIC:</strong> @fullName</div>
-
+                                </div>
+                                <div class="col-auto">
+                                    <div><strong>Line:</strong> @lineId</div>
                                 </div>
                                 <div class="col-auto">
                                     <div><strong>DATE:</strong> <span id="clock-date"></span></div>

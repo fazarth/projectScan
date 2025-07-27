@@ -21,6 +21,7 @@ namespace LoginMVCApp.Controllers
                 return RedirectToAction("Login", "Account");
 
             HttpContext.Session.GetString("FullName");
+
             return View();
         }
 
@@ -51,7 +52,7 @@ namespace LoginMVCApp.Controllers
             {
                 // Email tidak ditemukan
                 ViewBag.Error = "Email tidak ditemukan!";
-                return View();
+                return View();               
             }
 
             if (!BCrypt.Net.BCrypt.Verify(users.Password, user.Password))
@@ -71,15 +72,15 @@ namespace LoginMVCApp.Controllers
             // Jika semua pengecekan berhasil, simpan data ke session
             HttpContext.Session.SetString("Email", user.Email);
             HttpContext.Session.SetString("FullName", user.FullName ?? "");
+            HttpContext.Session.SetString("LineId", user.LineId.ToString());
             HttpContext.Session.SetString("Role", user.Role);
-
-            // Redirect berdasarkan role
             switch (user.Role)
             {
                 case "Admin":
                     return RedirectToAction("Index", "Home");
                 case "Checker":
-                    return RedirectToAction("Index", "Checker");
+                    return RedirectToAction("Index", "Checker1");
+                //return RedirectToAction("Index", "Checker");
                 case "Poles":
                     return RedirectToAction("Index", "Poles");
                 default:
