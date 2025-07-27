@@ -31,13 +31,22 @@
                             try { role = Context?.Session?.GetString("Role") ?? ""; }
                             catch { role = ""; }
                         }
+                        @if (role == "Checker")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Checker" asp-action="Index">Checker</a>
+                            </li>
+                        }
                         @if (role == "Admin")
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Inventories" asp-action="Index">Inventories</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Index">User</a>
+                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Index">Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Report" asp-action="Index">Reports</a>
                             </li>
                         }
                     </ul>
@@ -117,7 +126,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - LoginMVCApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 - PT. Takagi Sari Multi Utama - <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LoginMVCApp.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LoginMVCApp.ViewModels
@@ -34,5 +35,6 @@ namespace LoginMVCApp.ViewModels
 
         [Column("isactive")]
         public bool IsActive { get; set; } = true;
+
     }
 }

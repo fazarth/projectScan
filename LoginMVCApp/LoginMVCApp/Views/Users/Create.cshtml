@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Create";
-    var fullname = Context.Session.GetString("nama") ?? "system";
+    var fullname = Context.Session.GetString("FullName") ?? "system";
 }
 
 <div class="container py-5">
@@ -72,7 +72,7 @@
                     </div>
 
                     <input asp-for="CreatedBy" type="hidden" value="@fullname" />
-
+                    <br />
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">Simpan</button>
                     </div>

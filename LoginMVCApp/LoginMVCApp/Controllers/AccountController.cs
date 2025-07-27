@@ -47,26 +47,49 @@ namespace LoginMVCApp.Controllers
             }
             var user = _context.Users.FirstOrDefault(u => u.Email == users.Email);
 
-            if (user != null && BCrypt.Net.BCrypt.Verify(users.Password, user.Password))
+            if (user == null)
             {
-                HttpContext.Session.SetString("Email", user.Email);
-                HttpContext.Session.SetString("FullName", user.FullName ?? "");
-                HttpContext.Session.SetString("Role", user.Role);
-                switch (user.Role)
-                {
-                    case "Admin":
-                        return RedirectToAction("Index", "Home");
-                    case "Checker":
-                        return RedirectToAction("Index", "Checker");
-                    case "Poles":
-                        return RedirectToAction("Index", "Poles");
-                    default:
-                        return RedirectToAction("AccessDenied", "Account");
-                }
+                // Email tidak ditemukan
+                ViewBag.Error = "Email tidak ditemukan!";
+                return View();
             }
 
-            ViewBag.Error = "Email atau Password salah!";
+            if (!BCrypt.Net.BCrypt.Verify(users.Password, user.Password))
+            {
+                // Password salah
+                ViewBag.Error = "Password salah!";
+                return View();
+            }
+
+            if (!user.IsActive)
+            {
+                // Akun tidak aktif
+                ViewBag.Error = "Akun Anda tidak aktif. Silakan hubungi administrator.";
+                return View();
+            }
+
+            // Jika semua pengecekan berhasil, simpan data ke session
+            HttpContext.Session.SetString("Email", user.Email);
+            HttpContext.Session.SetString("FullName", user.FullName ?? "");
+            HttpContext.Session.SetString("Role", user.Role);
+
+            // Redirect berdasarkan role
+            switch (user.Role)
+            {
+                case "Admin":
+                    return RedirectToAction("Index", "Home");
+                case "Checker":
+                    return RedirectToAction("Index", "Checker");
+                case "Poles":
+                    return RedirectToAction("Index", "Poles");
+                default:
+                    return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Jika tidak ada yang valid, tampilkan pesan kesalahan
+            ViewBag.Error = "Terjadi kesalahan, silakan coba lagi.";
             return View();
+
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
