@@ -5,6 +5,7 @@ using LoginMVCApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata;
 
 namespace LoginMVCApp.Controllers
 {
@@ -116,7 +117,21 @@ namespace LoginMVCApp.Controllers
 
             var lineId = long.Parse(HttpContext.Session.GetString("LineId") ?? "0");
             var role = HttpContext.Session.GetString("Role") ?? "Checker";
-            var shift = HttpContext.Session.GetString("Shift") ?? "1";
+            var now = DateTime.Now.TimeOfDay;
+
+            var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
+            {
+                ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
+                ("2", new TimeSpan(21, 0, 0), new TimeSpan(5, 0, 0)),
+                //("3", new TimeSpan(21, 0, 0), new TimeSpan(5, 0, 0))
+            };
+
+            string shift = shiftDefinitions
+                .FirstOrDefault(s =>
+                    s.Start <= s.End
+                        ? now >= s.Start && now <= s.End
+                        : now >= s.Start || now <= s.End
+                ).ShiftName ?? "Unknown";
 
             if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
             {
@@ -140,12 +155,22 @@ namespace LoginMVCApp.Controllers
             _context.Transactions.Add(transaction);
             _context.SaveChanges();
 
-            // hitung total OK & POLESH
+            // Gunakan parameter InvId langsung
             var totalTrans = _context.Transactions.Count(t => t.InvId == InvId);
-            var totalOk = _context.Transactions.Count(t => t.InvId == InvId && t.Status == "OK");
-            double percentOk = totalTrans == 0 ? 0 : ((double)totalOk / totalTrans) * 100;
-            TempData["PercentOK"] = percentOk.ToString("F1");
 
+            // Hitung total OK dan POLESH
+            var totalOk = _context.Transactions.Count(t => t.InvId == InvId && t.Status == "OK");
+            var totalPolesh = _context.Transactions.Count(t => t.InvId == InvId && t.Status == "POLESH");
+
+            // Hitung persentase OK dan POLESH
+            double percentOk = totalTrans == 0 ? 0 : ((double)totalOk / totalTrans) * 100;
+            double percentPolesh = totalTrans == 0 ? 0 : ((double)totalPolesh / totalTrans) * 100;
+
+            // Kirim ke View (meskipun setelah ini redirect, jadi ViewBag ini tidak terpakai di sini)
+            ViewBag.TotalOk = totalOk;
+            ViewBag.TotalPolesh = totalPolesh;
+            ViewBag.PercentOk = percentOk.ToString("F1");
+            ViewBag.PercentPolesh = percentPolesh.ToString("F1");
             return RedirectToAction("Index", new { inventoryId = InventoryId });
         }
 
