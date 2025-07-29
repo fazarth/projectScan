@@ -13,5 +13,6 @@ namespace LoginMVCApp.Models
         [StringLength(50)]
         public string? Nama { get; set; }
         public virtual ICollection<Robots>? Robots { get; set; }
+        public virtual ICollection<Transactions> Transactions { get; set; } = new List<Transactions>();
     }
 }

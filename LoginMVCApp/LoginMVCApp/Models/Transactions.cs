@@ -14,6 +14,10 @@ namespace LoginMVCApp.Models
         public long InvId { get; set; }
 
         [Required]
+        [Column("barcode")]
+        public string Barcode { get; set; }
+
+        [Required]
         [Column("line_id")]
         public long LineId { get; set; }
 
@@ -35,6 +39,9 @@ namespace LoginMVCApp.Models
         [StringLength(10)]
         public string Status { get; set; } = "OK"; // atau POLESH / NG
 
+        [Column("ng_detail_id")]
+        public long? NgDetailId { get; set; }
+
         [Required]
         [Column("qty")]
         public int Qty { get; set; }
@@ -46,9 +53,6 @@ namespace LoginMVCApp.Models
 
         [Column("opposite_shift")]
         public bool OppositeShift { get; set; } = false;
-
-        [Column("checker_id")]
-        public long? CheckerId { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -66,8 +70,6 @@ namespace LoginMVCApp.Models
 
         [ForeignKey("UserId")]
         public virtual Users? User { get; set; }
-
-        [ForeignKey("CheckerId")]
-        public virtual Transactions? Checker { get; set; }
+        //public virtual Transactions? Checker { get; set; }
     }
 }

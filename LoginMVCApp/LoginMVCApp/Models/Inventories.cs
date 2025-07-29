@@ -32,15 +32,13 @@ namespace LoginMVCApp.Models
         [StringLength(50)]
         public string? PartName { get; set; }
 
-        [Column("barcode")]
-        [StringLength(50)]
-        public string? Barcode { get; set; }
-
         [Column("created_at")]
         public DateTime? CreatedAt { get; set; }
 
         [Column("created_by")]
         [StringLength(50)]
         public string? CreatedBy { get; set; }
+        public virtual ICollection<Transactions> Transactions { get; set; } = new List<Transactions>();
     }
+
 }

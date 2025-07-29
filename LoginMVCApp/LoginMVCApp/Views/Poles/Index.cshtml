@@ -6,85 +6,314 @@
 
 <div class="container-fluid py-5">
     <div class="row justify-content-center">
-        <div class="row mb-4">
+        <div class="row justify-content-center mb-3">
+            <div class="col-12 text-center">
+                <h3>CHECKER LINE</h3>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
             <div class="col-8">
-                <h3>Scan Inventory Polesh</h3>
-                <form method="post" asp-action="ScanInventoryPoles" class="d-flex mb-3">
-                    <input type="text" name="inventoryId" class="form-control me-2" placeholder="Scan atau ketik Inventory ID" autofocus />
-                    <button type="submit" class="btn btn-primary">SCAN</button>
+                <form method="post" asp-action="ScanTransaction" class="d-flex mb-3">
+                    <input type="text" name="barcode" class="form-control me-2" placeholder="Scan atau ketik Inventory ID" autofocus required />
+                    <button type="submit" class="btn btn-primary" style="width: 120px;">SCAN</button>
                 </form>
             </div>
         </div>
 
-        @if (TempData["Message"] != null)
-        {
-            <div class="p-4 text-center rounded bg-info text-dark fw-bold border border-dark">
-                @TempData["Message"]
-            </div>
-        }
-
         @if (Model != null)
         {
-            <div class="row mb-4">
-                <div class="col-8">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-success text-white text-center">
-                            <h4 class="mb-0">@Model.PartName - @Model.Tipe [@Model.Project]</h4>
-                        </div>
-                        <div class="card-body bg-light">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <strong>Inventory ID:</strong> <span>@Model.InvId</span>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <strong>Type:</strong> <span>@Model.Tipe</span>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <strong>Color:</strong> <span>@Model.Warna</span>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <strong>Barcode:</strong> <span>@Model.Barcode</span>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <strong>Part No:</strong> <span>@Model.PartNo</span>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <strong>Part Name:</strong> <span>@Model.PartName</span>
-                                </div>
-                            </div>
+            <form method="post" asp-action="SubmitTransaction" id="submitForm">
+                <input type="hidden" name="InventoryId" value="@Model.InvId" />
+                <input type="hidden" name="InvId" value="@ViewBag.InvId" />
+                <input type="hidden" id="statusInput" name="Status" />
+                <input type="hidden" id="selectedRobotId" name="RobotId" />
+                <input type="hidden" id="ngDetailInput" name="NgDetailId" />
 
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <strong>Total Qty OK:</strong> <span class="text-success"> pcs</span>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <strong>Total Qty NG:</strong> <span class="text-danger"> pcs</span>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card shadow-sm bg-dark border-1">
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0 fw-bold text-uppercase" style="margin-left: 33%;">
+                                    @Model.PartName - @Model.Tipe
+                                </h4>
+                                <div class="ms-auto">
+                                    <span class="bg-light text-dark fw-bold px-3 py-1 border border-dark rounded fs-4">
+                                        @Model.Project
+                                    </span>
                                 </div>
                             </div>
+                            <div class="card-body" style="background-color:lightblue">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong><h5>Inventory ID: <span>@Model.InvId</span></h5></strong>
+                                    </div>
+                                    <div class="col-md-3 text-end">
+                                        <strong><h5>Type: <span>@Model.Tipe</span></h5></strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong><h5>Color: <span>@Model.Warna</span></h5></strong>
+                                    </div>
+                                </div>
 
-                            <div class="d-flex justify-content-between mt-4">
-                                <button class="btn btn-success btn-lg w-48">OK <span class="ms-2">50.0%</span></button>
-                                <button class="btn btn-danger btn-lg w-48">NG <span class="ms-2">50.0%</span></button>
-                            </div>
-                            <div class="d-flex justify-content-between mt-3">
-                                <a href="#" class="btn btn-primary">Check Detail</a>
-                                <a href="#" class="btn btn-secondary">Report</a>
+                                <div class="row mb-3">
+                                    <div class="col-md-5">
+                                        <div class="form-floating" style="width: 300px;">
+                                            <select id="robotSelect" class="form-select" asp-items="ViewBag.RobotList">
+                                                <option value="">Pilih Nama Robot</option>
+                                            </select>
+                                            <label for="RobotId">Nama Robot</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4 text-center">
+                                    <div class="col-md-3 mb-3">
+                                        <strong><h5>Total Qty OK:</h5></strong>
+                                        <div class="bg-success text-white rounded py-2 fw-bold mt-1">
+                                            <h5 id="ok-count">@ViewBag.TotalOk pcs</h5>
+                                        </div>
+                                        <div class="mt-2" style="margin-bottom: 65px;"></div>
+                                        <div class="d-flex gap-4 mt-8">
+                                            <button type="button" onclick="submitStatus('OK');" class="btn btn-success" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                OK
+                                            </button>
+                                            <div id="percent-ok-box" class="bg-success text-white rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                @ViewBag.PercentOk%
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <strong><h5>Total Qty POLESH:</h5></strong>
+                                        <div class="bg-danger text-white rounded py-2 fw-bold mt-1">
+                                            <h5 id="polesh-count">@ViewBag.TotalPolesh pcs</h5>
+                                        </div>
+                                        <div class="mt-2 d-flex gap-2">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ngDetailModal">Check Detail</button>
+                                            <a asp-controller="DailyReport" asp-action="DailyReport" class="btn btn-secondary">Report</a>
+                                        </div>
+                                        <div class="mt-2" style="margin-bottom: 20px;"></div>
+
+                                        @* Tampilkan Kuota *@
+                                        @* @if (ViewBag.TotalPoleshExpected != null && ViewBag.TotalPoleshProcessed != null)
+                                        {
+                                            <div class="mb-3">
+                                                <strong><h5>Kuota Poles Hari Ini:</h5></strong>
+                                                <div class="bg-info text-white rounded py-2 fw-bold mt-1">
+                                                    <h6>Checker Poles: @ViewBag.TotalPoleshExpected</h6>
+                                                    <h6>Poles Diproses: @ViewBag.TotalPoleshProcessed</h6>
+                                                    <h6>Sisa Kuota: @ViewBag.PoleshRemaining</h6>
+                                                </div>
+                                            </div>
+                                        } *@
+
+                                        <div class="mt-8 d-flex gap-4">
+                                            <button type="button" onclick="submitStatus('NG');" class="btn btn-danger d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                POLESH
+                                            </button>
+                                            <div id="percent-polesh" class="bg-danger text-white rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                @ViewBag.PercentPolesh%
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-4">
+                                        <div id="ng-section" style="display:none;">
+                                            <h5><strong>Pilih Kategori NG:</strong></h5>
+                                            <div id="ng-category-container" class="d-flex flex-wrap gap-2">
+                                                @foreach (var cat in (ViewBag.Categories as List<string> ?? new List<string>()))
+                                                {
+                                                    <button type="button" class="btn btn-warning" onclick="showSubCategory('@cat')">@cat</button>
+                                                }
+                                            </div>
+                                            <div id="sub-category-section" class="mt-3" style="display:none;">
+                                                <h5><strong>Sub Kategori:</strong></h5>
+                                                <div id="subCategoryContainer" class="d-flex flex-wrap gap-2"></div>
+                                                <div class="mt-3 d-flex gap-2">
+                                                    <button type="button" class="btn btn-secondary" onclick="backToCategory()">Back</button>
+                                                    <button type="button" class="btn btn-success" onclick="confirmNG()">Confirm</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
+        }
 
-            <div class="row mt-4">
-                <div class="col-12 text-center">
-                    <button class="btn btn-info btn-lg">Download Barcode</button>
-                    <button class="btn btn-info btn-lg ms-2">Download PDF</button>
+        <div class="modal fade" id="ngDetailModal" tabindex="-1" aria-labelledby="ngDetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ngDetailModalLabel">Detail NG Transaksi Hari Ini</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (ViewBag.NgDetailsForDisplay != null && (ViewBag.NgDetailsForDisplay as List<LoginMVCApp.ViewModels.NgSummaryViewModel>).Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var detail in ViewBag.NgDetailsForDisplay as List<LoginMVCApp.ViewModels.NgSummaryViewModel>)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        @detail.Category - @detail.SubCategory
+                                        <span class="badge bg-primary rounded-pill">@detail.Count pcs (@detail.Role)</span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p>Tidak ada detail NG yang tercatat untuk inventory ini hari ini.</p>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    </div>
                 </div>
             </div>
-        }
+        </div>
+
+        <div class="toast-container position-fixed top-0 end-0 p-3">
+            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        @if (TempData["Message"] != null)
+                        {
+                            @TempData["Message"]
+                        }
+                        else
+                        {
+                            @:Pilih Nama Robot terlebih dahulu.
+                        }
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const subCategories = @Html.Raw(Json.Serialize(ViewBag.SubCategories));
+        let selectedNgDetailId = null; // Variabel baru untuk menyimpan ID sub-kategori yang dipilih
+
+        function submitStatus(status) {
+            const robotSelect = document.getElementById("robotSelect");
+            const selectedRobot = robotSelect.value;
+
+            if (!selectedRobot) {
+                const toastElement = document.getElementById("errorToast");
+                const toastBody = toastElement.querySelector(".toast-body");
+                toastBody.innerText = "Pilih Nama Robot terlebih dahulu.";
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+                return;
+            }
+
+            document.getElementById("selectedRobotId").value = selectedRobot;
+
+            if (status === "NG") {
+                // Reset selectedNgDetailId saat membuka bagian NG
+                selectedNgDetailId = null;
+                document.getElementById("ngDetailInput").value = ""; // Pastikan hidden input juga bersih
+
+                // Pastikan kategori ditampilkan saat masuk ke NG section
+                document.getElementById("sub-category-section").style.display = "none";
+                document.getElementById("ng-category-container").style.display = "flex";
+
+                document.getElementById("ng-section").style.display = "block";
+                return;
+            }
+
+            document.getElementById("statusInput").value = status;
+            // robotSelect.disabled = false; // Baris ini sepertinya tidak diperlukan
+            document.getElementById("submitForm").submit();
+        }
+
+        function showSubCategory(category) {
+            const container = document.getElementById("subCategoryContainer");
+            const ngCategoryContainer = document.getElementById("ng-category-container");
+            container.innerHTML = "";
+
+            // Reset selectedNgDetailId saat memilih kategori baru
+            selectedNgDetailId = null;
+            document.getElementById("ngDetailInput").value = "";
+
+            subCategories[category].forEach(sub => {
+                const btn = document.createElement("button");
+                btn.className = "btn btn-outline-dark";
+                btn.textContent = sub.name;
+                btn.type = "button";
+                btn.onclick = () => {
+
+                    selectedNgDetailId = sub.id;
+                    document.getElementById("ngDetailInput").value = sub.id;
+                    Array.from(container.children).forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    console.log("Selected SubCategory ID (JS variable):", selectedNgDetailId);
+                    console.log("NgDetailInput value:", document.getElementById("ngDetailInput").value);
+                };
+                container.appendChild(btn);
+            });
+            ngCategoryContainer.style.display = "none"; // Hide NG category list
+            document.getElementById("sub-category-section").style.display = "block"; // Show subcategory section
+        }
+
+        function backToCategory() {
+            document.getElementById("sub-category-section").style.display = "none"; // Hide subcategory section
+            document.getElementById("ng-category-container").style.display = "flex"; // Show NG category list
+            selectedNgDetailId = null; // Reset saat kembali
+            document.getElementById("ngDetailInput").value = "";
+        }
+
+        function confirmNG() {
+            const robotSelect = document.getElementById("robotSelect"); // Get robotSelect here too for toast
+            const selectedRobot = robotSelect.value;
+
+            // Validasi nama robot lagi (redundant tapi aman)
+            if (!selectedRobot) {
+                const toastElement = document.getElementById("errorToast");
+                const toastBody = toastElement.querySelector(".toast-body");
+                toastBody.innerText = "Pilih Nama Robot terlebih dahulu.";
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+                return;
+            }
+
+            // Validasi NG Detail
+            if (!selectedNgDetailId || selectedNgDetailId === "") { // Cek selectedNgDetailId dari JS
+                const toastElement = document.getElementById("errorToast");
+                const toastBody = toastElement.querySelector(".toast-body");
+                toastBody.innerText = "Detail NG harus dipilih!";
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+                return; // Hentikan proses jika validasi gagal
+            }
+
+            // Set hidden inputs sebelum submit
+            document.getElementById("statusInput").value = "NG";
+            document.getElementById("selectedRobotId").value = selectedRobot; // Pastikan ini terisi juga
+            document.getElementById("ngDetailInput").value = selectedNgDetailId; // Penting: mengisi dari variabel JS
+
+            // robotSelect.disabled = false; // Baris ini sepertinya tidak diperlukan
+            document.getElementById("submitForm").submit();
+        }
+
+        window.onload = function () {
+            @if (TempData["Message"] != null)
+            {
+                    <text>
+                    const toastElement = document.getElementById("errorToast");
+                    const toast = new bootstrap.Toast(toastElement);
+                    toast.show();
+                    </text>
+            }
+        };
+    </script>
+}

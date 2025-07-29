@@ -20,5 +20,7 @@ namespace LoginMVCApp.Models
 
         [ForeignKey("LineId")]
         public virtual Lines? Line { get; set; }
+
+        public virtual ICollection<Transactions> Transactions { get; set; } = new List<Transactions>();
     }
 }

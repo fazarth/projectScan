@@ -111,6 +111,7 @@ namespace LoginMVCApp.Controllers
             var transaction = new Transactions
             {
                 InvId = InvId,
+                Barcode = InventoryId,
                 RobotId = RobotId,
                 UserId = userId,
                 LineId = lineId,

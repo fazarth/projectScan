@@ -12,6 +12,7 @@ namespace LoginMVCApp.Data
         public DbSet<Lines> Lines { get; set; }
         public DbSet<Robots> Robots { get; set; }
         public DbSet<Transactions> Transactions { get; set; }
+        public DbSet<Ng_Categories> Ng_Categories { get; set; }
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
