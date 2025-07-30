@@ -41,30 +41,35 @@
                             </div>
                             <div class="card-body" style="background-color:lightblue">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-8">
                                         <strong><h5>Inventory ID: <span>@Model.InvId</span></h5></strong>
                                     </div>
-                                    <div class="col-md-3 text-end">
+                                    <div class="col-md-2">
                                         <strong><h5>Type: <span>@Model.Tipe</span></h5></strong>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <strong><h5>Color: <span>@Model.Warna</span></h5></strong>
                                     </div>
-                                    @* <div class="col-md-2">
-                                        <input type="text" class="form-control mb-2 rounded" style="width: 80px; height: 40px;" />
-                                        <div>Jumlah QR:</div>
-                                    </div> *@
                                 </div>
+                                @* <div class="row mb-3">
+                                    
+                                </div> *@
                                 <div class="row mb-3">
-                                    <div class="col-md-5">
+                                    <div class="col-md-9">
                                         <div class="form-floating" style="width: 300px">
                                             <select id="robotSelect" class="form-select" asp-items="ViewBag.RobotList">
                                                 <option value="">Pilih Nama Robot</option>
                                             </select>
-
                                             <label for="RobotId">Nama Robot</label>
                                         </div>
                                     </div>
+                                    <div class="col-md-1">
+                                        <input type="number" id="jumlahQrInput" name="jumlahQr" class="form-control mb-2 rounded" style="width: 80px; height: 40px;" value="1" min="1" />
+                                        <div>Jumlah QR:</div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" style="width: 90px; height: 70px;" onclick="printQRCodePdf()">
+                                        Print PDF QR
+                                    </button>
                                 </div>
                                 <div class="row mb-4 text-center">
                                     <!-- OK Section -->
@@ -127,7 +132,7 @@
         }
     </div>
     <!-- Toast Container -->
-    <div class="toast-container position-fixed top-0 end-0 p-3">
+    @* <div class="toast-container position-fixed top-0 end-0 p-3">
         <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
             <div class="d-flex">
                 <div class="toast-body">
@@ -143,41 +148,7 @@
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
-    </div>
+    </div> *@
 </div>
 
-<script>
-    function submitStatus(status) {
-        const robotSelect = document.getElementById("robotSelect");
-        const selectedRobot = robotSelect.value;
 
-        // Set nilai selectedRobotId
-        document.getElementById("selectedRobotId").value = selectedRobot;
-
-        // Validasi
-        if (!selectedRobot) {
-            // Tampilkan Toast
-            const toastElement = document.getElementById("errorToast");
-            const toast = new bootstrap.Toast(toastElement);
-            toast.show();
-            return;
-        }
-
-        // Set status dan submit form
-        document.getElementById("statusInput").value = status;
-        robotSelect.disabled = false; // Pastikan select enabled
-        document.getElementById("submitForm").submit();
-    }
-
-    // Cek TempData["Message"] saat halaman dimuat
-    window.onload = function () {
-        @if (TempData["Message"] != null)
-        {
-                <text>
-                    const toastElement = document.getElementById("errorToast");
-                    const toast = new bootstrap.Toast(toastElement);
-                    toast.show();
-                </text>
-        }
-    };
-</script>
