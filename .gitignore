@@ -1,8 +1,13 @@
-# Ignore Visual Studio user-specific files
+# Build folders
+**/bin/
+**/obj/
+
+# Visual Studio files
 .vs/
+*.user
 *.suo
 
-# Ignore build outputs
-bin/
-obj/
+# Temporary files
 *.cache
+*.log
+*.tmp
