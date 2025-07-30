@@ -1,4 +1,8 @@
+# Visual Studio
 .vs/
-.github
+*.user
+*.suo
+
+# Build outputs
 bin/
 obj/
