@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,7 +56,7 @@ namespace LoginMVCApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Project,InvId,Warna,Tipe,PartNo,PartName,Barcode,CreatedAt,CreatedBy")] Inventories Inventories)
+        public async Task<IActionResult> Create([Bind("Id,Project,InvId,Warna,Tipe,PartNo,PartName,CreatedAt,CreatedBy")] Inventories Inventories)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +88,7 @@ namespace LoginMVCApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Project,InvId,Warna,Tipe,PartNo,PartName,Barcode,CreatedAt,CreatedBy")] Inventories Inventories)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,Project,InvId,Warna,Tipe,PartNo,PartName,CreatedAt,CreatedBy")] Inventories Inventories)
         {
             if (id != Inventories.Id)
             {

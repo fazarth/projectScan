@@ -74,6 +74,7 @@ namespace LoginMVCApp.Controllers
                 Text = r.Nama
             }).ToList();
 
+
             inventoryData = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
 
             var vm = new CheckerViewModel

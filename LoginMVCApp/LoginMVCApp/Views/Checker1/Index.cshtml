@@ -1,5 +1,4 @@
 ﻿@model LoginMVCApp.Models.Inventories
-
 @{
     ViewData["Title"] = "Checker Line - Scan Inventory";
 }
@@ -15,20 +14,14 @@
             <div class="col-8">
                 <form method="post" asp-action="ScanInventory1" class="d-flex mb-3">
                     <input type="text" name="inventoryId" class="form-control me-2" placeholder="Scan atau ketik Inventory ID" autofocus required />
-                    <button type="submit" class="btn btn-primary">SCAN</button>
+                    <button type="submit" class="btn btn-primary" style="width: 120px;">SCAN</button>
                 </form>
             </div>
         </div>
 
-        @if (TempData["Message"] != null)
-        {
-            <div class="p-4 text-center rounded bg-info text-dark fw-bold border border-dark">
-                @TempData["Message"]
-            </div>
-        }
         @if (Model != null)
         {
-            <form method="post" asp-action="SubmitTransaction">
+            <form method="post" asp-action="SubmitTransaction" id="submitForm">
                 <input type="hidden" name="InventoryId" value="@Model.InvId" />
                 <input type="hidden" name="InvId" value="@ViewBag.InvId" />
                 <input type="hidden" id="statusInput" name="status" value="" />
@@ -48,94 +41,84 @@
                             </div>
                             <div class="card-body" style="background-color:lightblue">
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <strong><h5>Inventory ID:<span>@Model.InvId</span></h5></strong>
-                                    </div>
-                                    <div class="col-md-2 text-end">
-                                        <strong><h5>Type: <span>@Model.Tipe</span></h5></strong>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <strong><h5>Color: <span>@Model.Warna</span></h5></strong>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="text" class="form-control mb-2 rounded" style="width: 80px; height: 40px;" />
-                                        <div>Jumlah QR:</div>
+                                    <div class="col-md-6">
+                                        <strong><h5>Inventory ID: <span>@Model.InvId</span></h5></strong>
                                     </div>
                                     <div class="col-md-3 text-end">
-                                        <strong>Barcode:</strong> <span>@Model.Barcode</span>
-                                        <a asp-controller="Inventory" asp-action="DownloadBarcode" asp-route-id="@Model.InvId" class="btn btn-info btn-lg">Download Barcode PDF</a>
+                                        <strong><h5>Type: <span>@Model.Tipe</span></h5></strong>
                                     </div>
+                                    <div class="col-md-3">
+                                        <strong><h5>Color: <span>@Model.Warna</span></h5></strong>
+                                    </div>
+                                    @* <div class="col-md-2">
+                                        <input type="text" class="form-control mb-2 rounded" style="width: 80px; height: 40px;" />
+                                        <div>Jumlah QR:</div>
+                                    </div> *@
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-5">
-                                        <div class="form-floating">
+                                        <div class="form-floating" style="width: 300px">
                                             <select id="robotSelect" class="form-select" asp-items="ViewBag.RobotList">
                                                 <option value="">Pilih Nama Robot</option>
                                             </select>
+
                                             <label for="RobotId">Nama Robot</label>
                                         </div>
                                     </div>
                                 </div>
-                               @* <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <strong>Part No:</strong> <span>@Model.PartNo</span>
-                                    </div>
-                                    <div class="col-md-6 text-end">
-                                        <strong>Part Name:</strong> <span>@Model.PartName</span>
-                                    </div>
-                                </div>*@
                                 <div class="row mb-4 text-center">
                                     <!-- OK Section -->
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-3 mb-3">
                                         <strong><h5>Total Qty OK:</h5></strong>
                                         <div class="bg-success text-white rounded py-2 fw-bold mt-1">
                                             <h5 id="ok-count">@ViewBag.TotalOk pcs</h5>
                                         </div>
 
-                                        <div class="mt-2" style="margin-bottom: 20%;"></div>
+                                        <div class="mt-2" style="margin-bottom: 65px;"></div>
 
-                                        <div class="d-flex gap-2 mt-4">
+                                        <div class="d-flex gap-4 mt-8">
                                             <button onclick="submitStatus('OK');" class="btn btn-success"
-                                                    style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
+                                                    style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
                                                 OK
                                             </button>
 
                                             <div id="percent-ok-box"
                                                  class="bg-success text-white rounded d-flex align-items-center justify-content-center"
-                                                 style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
+                                                 style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
                                                 @ViewBag.PercentOk%
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- POLESH Section -->
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-3 mb-3">
                                         <strong><h5>Total Qty POLESH:</h5></strong>
                                         <div class="bg-danger text-white rounded py-2 fw-bold mt-1">
                                             <h5 id="polesh-count">@ViewBag.TotalPolesh pcs</h5>
                                         </div>
 
                                         <!-- Buttons Detail -->
-                                        <div class="mt-2 d-flex justify-content-center gap-2">
+                                        <div class="mt-2 d-flex gap-2">
                                             <button class="btn btn-primary">Check Detail</button>
-                                            <button class="btn btn-secondary">Report</button>
+                                            <button class="btn btn-secondary" asp-controller="DailyReport" asp-action="DailyReport">Report</button>
                                         </div>
 
+                                        <div class="mt-2" style="margin-bottom: 20px;"></div>
+
                                         <!-- Button + Percent -->
-                                        <div class="mt-4 d-flex gap-2">
+                                        <div class="mt-8 d-flex gap-4">
                                             <button onclick="submitStatus('POLESH');" class="btn btn-danger d-flex align-items-center justify-content-center"
-                                                    style="width: 90px; height: 80px; font-weight: bold; font-size: 20px;">
+                                                    style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
                                                 POLESH
                                             </button>
 
                                             <div id="percent-polesh"
                                                  class="bg-danger text-white rounded d-flex align-items-center justify-content-center"
-                                                 style="width: 80px; height: 80px; font-weight: bold; font-size: 20px;">
+                                                 style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
                                                 @ViewBag.PercentPolesh%
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -143,25 +126,58 @@
             </form>
         }
     </div>
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @if (TempData["Message"] != null)
+                    {
+                        @TempData["Message"]
+                    }
+                    else
+                    {
+                        @:Pilih Nama Robot terlebih dahulu.
+                    }
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    
     function submitStatus(status) {
         const robotSelect = document.getElementById("robotSelect");
         const selectedRobot = robotSelect.value;
+
+        // Set nilai selectedRobotId
         document.getElementById("selectedRobotId").value = selectedRobot;
 
+        // Validasi
         if (!selectedRobot) {
-            alert("Pilih Nama Robot terlebih dahulu.");
+            // Tampilkan Toast
+            const toastElement = document.getElementById("errorToast");
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
             return;
         }
 
+        // Set status dan submit form
         document.getElementById("statusInput").value = status;
-        document.getElementById("selectedRobotId").value = selectedRobot;
-
-        robotSelect.disabled = false; // pastikan enabled dulu
-
-        document.forms[1].submit(); // form ke-2 di halaman
+        robotSelect.disabled = false; // Pastikan select enabled
+        document.getElementById("submitForm").submit();
     }
+
+    // Cek TempData["Message"] saat halaman dimuat
+    window.onload = function () {
+        @if (TempData["Message"] != null)
+        {
+                <text>
+                    const toastElement = document.getElementById("errorToast");
+                    const toast = new bootstrap.Toast(toastElement);
+                    toast.show();
+                </text>
+        }
+    };
 </script>

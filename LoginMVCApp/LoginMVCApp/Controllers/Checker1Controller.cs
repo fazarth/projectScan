@@ -1,58 +1,52 @@
 ﻿using LoginMVCApp.Data;
 using LoginMVCApp.Models;
-using LoginMVCApp.ViewModels;
-//using LoginMVCApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata;
 
 namespace LoginMVCApp.Controllers
 {
     public class Checker1Controller : Controller
     {
         private readonly AppDbContext _context;
+
         public Checker1Controller(AppDbContext context)
         {
             _context = context;
         }
+
         public IActionResult Index(string inventoryId)
         {
             var role = HttpContext.Session.GetString("Role");
             if (role != "Checker") return RedirectToAction("AccessDenied", "Account");
 
-            if (string.IsNullOrEmpty(inventoryId)) return View();
+            if (string.IsNullOrEmpty(inventoryId)) return View(); // belum scan
 
             var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
             if (inventory == null) return View();
 
-            PopulateRobotDropdown();
+            var invDbId = inventory.Id;
+            var start = DateTime.Today;
+            var end = start.AddDays(1);
 
+            var todayTrans = _context.Transactions
+                .Where(t => t.InvId == invDbId && t.CreatedAt >= start && t.CreatedAt < end);
+
+            var totalOk = todayTrans.Count(t => t.Status == "OK");
+            var totalPolesh = todayTrans.Count(t => t.Status == "POLESH");
+            var totalTrans = totalOk + totalPolesh;
+
+            ViewBag.TotalOk = totalOk;
+            ViewBag.TotalPolesh = totalPolesh;
+            ViewBag.PercentOk = totalTrans == 0 ? 0 : Math.Round((double)totalOk / totalTrans * 100, 1);
+            ViewBag.PercentPolesh = totalTrans == 0 ? 0 : Math.Round((double)totalPolesh / totalTrans * 100, 1);
+
+            var selectedRobotId = HttpContext.Session.GetString("SelectedRobotId");
+            PopulateRobotDropdown(selectedRobotId);
+
+            ViewBag.InvId = invDbId;
             return View(inventory);
         }
-
-
-        // POST: Checker/ScanInventory
-        //[HttpPost]
-        //public IActionResult ScanInventory1(string inventoryId)
-        //{
-        //    if (string.IsNullOrEmpty(inventoryId))
-        //    {
-        //        TempData["Message"] = "Inventory ID is required.";
-        //        return RedirectToAction("Scan");
-        //    }
-
-        //    var inventoryData = _context.Inventories.Where(i => i.InvId == inventoryId).FirstOrDefault();
-
-        //    if (inventoryData == null)
-        //    {
-        //        TempData["Message"] = "Data not found for the given Inventory ID.";
-        //        return RedirectToAction("Scan");
-        //    }
-
-        //    PopulateRobotDropdown();
-        //    return View("Index", inventoryData);
-        //}
 
         [HttpPost]
         public IActionResult ScanInventory1(string inventoryId)
@@ -64,51 +58,26 @@ namespace LoginMVCApp.Controllers
             }
 
             var inventoryData = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
-
             if (inventoryData == null)
             {
                 TempData["Message"] = "Data not found for the given Inventory ID.";
                 return RedirectToAction("Scan");
             }
 
-            // Ini penting untuk keperluan input hidden di view (SubmitTransaction)
-            ViewBag.InvId = inventoryData.Id;
-
-            PopulateRobotDropdown();
-            return View("Index", inventoryData);
-        }
-
-        private void PopulateRobotDropdown()
-        {
-            var lineIdString = HttpContext.Session.GetString("LineId");
-            if (string.IsNullOrEmpty(lineIdString)) return;
-
-            long lineId = long.Parse(lineIdString);
-
-            var robots = _context.Robots
-                .Where(r => r.LineId == lineId)
-                .Select(r => new SelectListItem
-                {
-                    Value = r.Id.ToString(),
-                    Text = r.Nama
-                }).ToList();
-
-            ViewBag.RobotList = robots;
+            // PRG pattern: redirect ke Index supaya proses perhitungan OK/POLESH tetap konsisten
+            return RedirectToAction(nameof(Index), new { inventoryId });
         }
 
         [HttpPost]
         public IActionResult SubmitTransaction(long InvId, string InventoryId, string status, long RobotId)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
-            long userId;
-
-            if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out userId) || userId == 0)
+            if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out long userId) || userId == 0)
             {
                 TempData["Message"] = "Session UserId tidak valid.";
                 return RedirectToAction("Index", new { inventoryId = InventoryId });
             }
 
-            // Validasi keberadaan user di DB
             if (!_context.Users.Any(u => u.Id == userId))
             {
                 TempData["Message"] = "User tidak ditemukan di database.";
@@ -122,15 +91,15 @@ namespace LoginMVCApp.Controllers
             var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
             {
                 ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
-                ("2", new TimeSpan(21, 0, 0), new TimeSpan(5, 0, 0)),
-                //("3", new TimeSpan(21, 0, 0), new TimeSpan(5, 0, 0))
+                ("1", new TimeSpan(16, 0, 1), new TimeSpan(20, 59, 59)),
+                ("2", new TimeSpan(21, 0, 0), new TimeSpan(23, 59, 59)),
+                ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
             };
 
             string shift = shiftDefinitions
-                .FirstOrDefault(s =>
-                    s.Start <= s.End
-                        ? now >= s.Start && now <= s.End
-                        : now >= s.Start || now <= s.End
+                .FirstOrDefault(s => s.Start <= s.End
+                    ? now >= s.Start && now <= s.End
+                    : now >= s.Start || now <= s.End
                 ).ShiftName ?? "Unknown";
 
             if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
@@ -142,6 +111,7 @@ namespace LoginMVCApp.Controllers
             var transaction = new Transactions
             {
                 InvId = InvId,
+                Barcode = InventoryId,
                 RobotId = RobotId,
                 UserId = userId,
                 LineId = lineId,
@@ -155,25 +125,30 @@ namespace LoginMVCApp.Controllers
             _context.Transactions.Add(transaction);
             _context.SaveChanges();
 
-            // Gunakan parameter InvId langsung
-            var totalTrans = _context.Transactions.Count(t => t.InvId == InvId);
+            HttpContext.Session.SetString("SelectedRobotId", RobotId.ToString());
 
-            // Hitung total OK dan POLESH
-            var totalOk = _context.Transactions.Count(t => t.InvId == InvId && t.Status == "OK");
-            var totalPolesh = _context.Transactions.Count(t => t.InvId == InvId && t.Status == "POLESH");
-
-            // Hitung persentase OK dan POLESH
-            double percentOk = totalTrans == 0 ? 0 : ((double)totalOk / totalTrans) * 100;
-            double percentPolesh = totalTrans == 0 ? 0 : ((double)totalPolesh / totalTrans) * 100;
-
-            // Kirim ke View (meskipun setelah ini redirect, jadi ViewBag ini tidak terpakai di sini)
-            ViewBag.TotalOk = totalOk;
-            ViewBag.TotalPolesh = totalPolesh;
-            ViewBag.PercentOk = percentOk.ToString("F1");
-            ViewBag.PercentPolesh = percentPolesh.ToString("F1");
-            return RedirectToAction("Index", new { inventoryId = InventoryId });
+            // Redirect agar Index hitung ulang
+            return RedirectToAction(nameof(Index), new { inventoryId = InventoryId });
         }
 
+        private void PopulateRobotDropdown(string? selectedRobotId = null)
+        {
+            var lineIdString = HttpContext.Session.GetString("LineId");
+            if (string.IsNullOrEmpty(lineIdString)) return;
 
+            long lineId = long.Parse(lineIdString);
+
+            var robots = _context.Robots
+                .Where(r => r.LineId == lineId)
+                .Select(r => new SelectListItem
+                {
+                    Value = r.Id.ToString(),
+                    Text = r.Nama,
+                    Selected = selectedRobotId != null && selectedRobotId == r.Id.ToString()
+                })
+                .ToList();
+
+            ViewBag.RobotList = robots;
+        }
     }
 }

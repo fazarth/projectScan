@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Production Dashboard";
+}
+
+<!-- Keterangan -->
+<div class="fullscreen-tip">Tekan <b>F</b> untuk fullscreen • Halaman akan refresh otomatis tiap 60 detik</div>
+
+<!-- Script -->
+<script>
+    // Auto-refresh per 60 detik
+    setTimeout(() => {
+        window.location.reload();
+    }, 60000);
+
+    // Tekan F untuk fullscreen
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "f" || e.key === "F") {
+            document.documentElement.requestFullscreen();
+        }
+    });
+</script>
