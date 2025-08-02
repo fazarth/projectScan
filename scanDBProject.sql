@@ -74,9 +74,9 @@ CREATE TABLE users (
 ALTER TABLE users
 ADD user_group NVARCHAR(50) NULL;
 
-UPDATE users
-SET user_group = '1'
-WHERE user_group IS NULL;
+--UPDATE users
+--SET user_group = 'A'
+--WHERE user_group = '1';
 
 -- Tambahkan user
 IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'Administrator')

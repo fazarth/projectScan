@@ -1,4 +1,4 @@
-﻿@model LoginMVCApp.Models.Users
+@model LoginMVCApp.Models.Users
 
 @{
     ViewBag.Title = "Detail Pengguna";
@@ -33,6 +33,11 @@
                 <div class="mb-3">
                     <strong>Role:</strong>
                     <div class="form-control-plaintext">@Model.Role</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>UserGroup:</strong>
+                    <div class="form-control-plaintext">@Model.UserGroup</div>
                 </div>
 
                 <div class="mb-3">
