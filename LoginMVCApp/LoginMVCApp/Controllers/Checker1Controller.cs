@@ -3,6 +3,12 @@ using LoginMVCApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using QRCoder;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System.Diagnostics.Metrics;
+using System.Drawing.Imaging;
 
 namespace LoginMVCApp.Controllers
 {
@@ -64,7 +70,6 @@ namespace LoginMVCApp.Controllers
                 return RedirectToAction("Scan");
             }
 
-            // PRG pattern: redirect ke Index supaya proses perhitungan OK/POLESH tetap konsisten
             return RedirectToAction(nameof(Index), new { inventoryId });
         }
 
@@ -150,5 +155,80 @@ namespace LoginMVCApp.Controllers
 
             ViewBag.RobotList = robots;
         }
+        public IActionResult PrintQrPdf(string invId, string project, string color, string robot, int jumlahQr = 1)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            if (string.IsNullOrEmpty(invId) || string.IsNullOrEmpty(project) ||
+                string.IsNullOrEmpty(color) || string.IsNullOrEmpty(robot) || jumlahQr <= 0)
+            {
+                TempData["Message"] = "Data tidak lengkap atau tidak valid untuk generate QR/PDF.";
+                return RedirectToAction("Index", new { inventoryId = invId });
+            }
+
+            var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == invId);
+            if (inventory == null)
+            {
+                TempData["Message"] = "Inventory ID tidak ditemukan di database.";
+                return RedirectToAction("Index", new { inventoryId = invId });
+            }
+            var lineId = HttpContext.Session.GetString("LineId");
+            var userGroup = HttpContext.Session.GetString("UserGroup");
+
+            var QRCombine = "";
+
+            // Ambil counter terakhir dari DB
+            var counter = _context.Qr_Counter.FirstOrDefault(q => q.Id == 1);
+            if (counter == null)
+            {
+                counter = new Qr_Counter { Id = 1, LastNumber = 0 };
+                _context.Qr_Counter.Add(counter);
+                _context.SaveChanges();
+            }
+
+            // Tambahkan jumlah QR yang akan di-generate
+            int startNumber = counter.LastNumber + 1;
+            counter.LastNumber += jumlahQr; // update total
+            _context.SaveChanges(); // simpan ke DB
+
+
+            var pdfStream = new MemoryStream();
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(20);
+                    page.Content().Column(mainColumn =>
+                    {
+                        for (int i = 0; i < jumlahQr; i++)
+                        {
+                            int nomorUrut = startNumber + i;
+                            var tanggal = DateTime.Now.ToString("yyyyMMdd");
+                            string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
+                            QRCombine += qrDataString + "\n";
+                            using var qrGenerator = new QRCodeGenerator();
+                            using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
+                            var qrCodePngByte = new PngByteQRCode(qrCodeData);
+                            byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
+
+                            mainColumn.Item().Column(itemColumn =>
+                            {
+                                itemColumn.Item()
+                                    .AlignCenter()
+                                    .Width(150)
+                                    .Height(150)
+                                    .Image(qrImageBytes); // Hapus FitWidth(), atur ukuran langsung
+                            });
+                        }
+                    });
+                });
+            }).GeneratePdf(pdfStream);
+
+            pdfStream.Position = 0;
+            string fileName = $"QR_Codes_{invId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+            return File(pdfStream.ToArray(), "application/pdf", fileName);
+        }
     }
+
 }

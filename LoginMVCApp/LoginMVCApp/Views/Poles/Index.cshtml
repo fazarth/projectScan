@@ -45,19 +45,18 @@
                             </div>
                             <div class="card-body" style="background-color:lightblue">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-8">
                                         <strong><h5>Inventory ID: <span>@Model.InvId</span></h5></strong>
                                     </div>
-                                    <div class="col-md-3 text-end">
+                                    <div class="col-md-2">
                                         <strong><h5>Type: <span>@Model.Tipe</span></h5></strong>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <strong><h5>Color: <span>@Model.Warna</span></h5></strong>
                                     </div>
                                 </div>
-
                                 <div class="row mb-3">
-                                    <div class="col-md-5">
+                                    <div class="col-md-9">
                                         <div class="form-floating" style="width: 300px;">
                                             <select id="robotSelect" class="form-select" asp-items="ViewBag.RobotList">
                                                 <option value="">Pilih Nama Robot</option>
@@ -65,8 +64,14 @@
                                             <label for="RobotId">Nama Robot</label>
                                         </div>
                                     </div>
+                                    <div class="col-md-1">
+                                        <input type="number" id="jumlahQrInput" name="jumlahQr" class="form-control mb-2 rounded" style="width: 80px; height: 40px;" value="1" min="1" />
+                                        <div>Jumlah QR:</div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" style="width: 90px; height: 70px;" onclick="printQRCodePdf()">
+                                        Print PDF QR
+                                    </button>
                                 </div>
-
                                 <div class="row mb-4 text-center">
                                     <div class="col-md-3 mb-3">
                                         <strong><h5>Total Qty OK:</h5></strong>
@@ -83,7 +88,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="col-md-3 mb-3">
                                         <strong><h5>Total Qty POLESH:</h5></strong>
                                         <div class="bg-danger text-white rounded py-2 fw-bold mt-1">
@@ -94,30 +98,15 @@
                                             <a asp-controller="DailyReport" asp-action="DailyReport" class="btn btn-secondary">Report</a>
                                         </div>
                                         <div class="mt-2" style="margin-bottom: 20px;"></div>
-
-                                        @* Tampilkan Kuota *@
-                                        @* @if (ViewBag.TotalPoleshExpected != null && ViewBag.TotalPoleshProcessed != null)
-                                        {
-                                            <div class="mb-3">
-                                                <strong><h5>Kuota Poles Hari Ini:</h5></strong>
-                                                <div class="bg-info text-white rounded py-2 fw-bold mt-1">
-                                                    <h6>Checker Poles: @ViewBag.TotalPoleshExpected</h6>
-                                                    <h6>Poles Diproses: @ViewBag.TotalPoleshProcessed</h6>
-                                                    <h6>Sisa Kuota: @ViewBag.PoleshRemaining</h6>
-                                                </div>
-                                            </div>
-                                        } *@
-
                                         <div class="mt-8 d-flex gap-4">
                                             <button type="button" onclick="submitStatus('NG');" class="btn btn-danger d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
-                                                POLESH
+                                                NG
                                             </button>
                                             <div id="percent-polesh" class="bg-danger text-white rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
                                                 @ViewBag.PercentPolesh%
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="col-md-6 mb-4">
                                         <div id="ng-section" style="display:none;">
                                             <h5><strong>Pilih Kategori NG:</strong></h5>
@@ -176,144 +165,107 @@
                 </div>
             </div>
         </div>
-
-        <div class="toast-container position-fixed top-0 end-0 p-3">
-            <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        @if (TempData["Message"] != null)
-                        {
-                            @TempData["Message"]
-                        }
-                        else
-                        {
-                            @:Pilih Nama Robot terlebih dahulu.
-                        }
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
         const subCategories = @Html.Raw(Json.Serialize(ViewBag.SubCategories));
-        let selectedNgDetailId = null; // Variabel baru untuk menyimpan ID sub-kategori yang dipilih
+        let selectedNgDetailId = null;
+
+        function setButtonStates(allowedButtons) {
+            const allButtons = document.querySelectorAll("button");
+            const reportButton = document.querySelector("a.btn-secondary"); // Tombol Report adalah <a>, bukan <button>
+            allButtons.forEach(btn => {
+                btn.disabled = !allowedButtons.some(allowed =>
+                    allowed === btn ||
+                    allowed === btn.id ||
+                    allowed === btn.innerText.trim() ||
+                    btn.classList.contains(allowed)
+                ) && btn !== reportButton; // Pastikan tombol Report tidak di-disable
+            });
+        }
 
         function submitStatus(status) {
             const robotSelect = document.getElementById("robotSelect");
-            const selectedRobot = robotSelect.value;
-
-            if (!selectedRobot) {
-                const toastElement = document.getElementById("errorToast");
-                const toastBody = toastElement.querySelector(".toast-body");
-                toastBody.innerText = "Pilih Nama Robot terlebih dahulu.";
-                const toast = new bootstrap.Toast(toastElement);
-                toast.show();
+            if (!robotSelect.value) {
+                alert("Pilih Nama Robot terlebih dahulu.");
                 return;
             }
 
-            document.getElementById("selectedRobotId").value = selectedRobot;
+            document.getElementById("selectedRobotId").value = robotSelect.value;
 
             if (status === "NG") {
-                // Reset selectedNgDetailId saat membuka bagian NG
                 selectedNgDetailId = null;
-                document.getElementById("ngDetailInput").value = ""; // Pastikan hidden input juga bersih
-
-                // Pastikan kategori ditampilkan saat masuk ke NG section
-                document.getElementById("sub-category-section").style.display = "none";
-                document.getElementById("ng-category-container").style.display = "flex";
-
+                document.getElementById("ngDetailInput").value = "";
                 document.getElementById("ng-section").style.display = "block";
+                document.getElementById("ng-category-container").style.display = "flex";
+                document.getElementById("sub-category-section").style.display = "none";
+
+                const categoryButtons = document.querySelectorAll("#ng-category-container button");
+                setButtonStates([...categoryButtons, "Back", "Report"]); // Izinkan tombol kategori, Back, dan Report
                 return;
             }
 
             document.getElementById("statusInput").value = status;
-            // robotSelect.disabled = false; // Baris ini sepertinya tidak diperlukan
             document.getElementById("submitForm").submit();
         }
 
         function showSubCategory(category) {
             const container = document.getElementById("subCategoryContainer");
-            const ngCategoryContainer = document.getElementById("ng-category-container");
             container.innerHTML = "";
-
-            // Reset selectedNgDetailId saat memilih kategori baru
             selectedNgDetailId = null;
             document.getElementById("ngDetailInput").value = "";
 
             subCategories[category].forEach(sub => {
                 const btn = document.createElement("button");
-                btn.className = "btn btn-outline-dark";
+                btn.className = "btn btn-outline-dark subcategory-btn";
                 btn.textContent = sub.name;
                 btn.type = "button";
                 btn.onclick = () => {
-
                     selectedNgDetailId = sub.id;
                     document.getElementById("ngDetailInput").value = sub.id;
-                    Array.from(container.children).forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-
-                    console.log("Selected SubCategory ID (JS variable):", selectedNgDetailId);
-                    console.log("NgDetailInput value:", document.getElementById("ngDetailInput").value);
+                    container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
                 };
                 container.appendChild(btn);
             });
-            ngCategoryContainer.style.display = "none"; // Hide NG category list
-            document.getElementById("sub-category-section").style.display = "block"; // Show subcategory section
+
+            document.getElementById("ng-category-container").style.display = "none"; // Hide kategori
+            document.getElementById("sub-category-section").style.display = "block"; // Tampilkan subkategori
+
+            const subCategoryButtons = document.querySelectorAll("#subCategoryContainer button");
+            setButtonStates([...subCategoryButtons, "Back", "Confirm", "Report"]); // Izinkan subkategori, Back, Confirm, dan Report
         }
 
         function backToCategory() {
-            document.getElementById("sub-category-section").style.display = "none"; // Hide subcategory section
-            document.getElementById("ng-category-container").style.display = "flex"; // Show NG category list
-            selectedNgDetailId = null; // Reset saat kembali
+            document.getElementById("ng-section").style.display = "none";
+            document.getElementById("ng-category-container").style.display = "none";
+            document.getElementById("sub-category-section").style.display = "none";
+            selectedNgDetailId = null;
             document.getElementById("ngDetailInput").value = "";
+            setButtonStates([]); // Enable semua tombol
         }
 
         function confirmNG() {
-            const robotSelect = document.getElementById("robotSelect"); // Get robotSelect here too for toast
-            const selectedRobot = robotSelect.value;
-
-            // Validasi nama robot lagi (redundant tapi aman)
-            if (!selectedRobot) {
-                const toastElement = document.getElementById("errorToast");
-                const toastBody = toastElement.querySelector(".toast-body");
-                toastBody.innerText = "Pilih Nama Robot terlebih dahulu.";
-                const toast = new bootstrap.Toast(toastElement);
-                toast.show();
+            const robotSelect = document.getElementById("robotSelect");
+            if (!robotSelect.value) {
+                alert("Pilih Nama Robot terlebih dahulu.");
                 return;
             }
 
-            // Validasi NG Detail
-            if (!selectedNgDetailId || selectedNgDetailId === "") { // Cek selectedNgDetailId dari JS
-                const toastElement = document.getElementById("errorToast");
-                const toastBody = toastElement.querySelector(".toast-body");
-                toastBody.innerText = "Detail NG harus dipilih!";
-                const toast = new bootstrap.Toast(toastElement);
-                toast.show();
-                return; // Hentikan proses jika validasi gagal
+            if (!selectedNgDetailId) {
+                alert("Detail NG harus dipilih!");
+                return;
             }
 
-            // Set hidden inputs sebelum submit
             document.getElementById("statusInput").value = "NG";
-            document.getElementById("selectedRobotId").value = selectedRobot; // Pastikan ini terisi juga
-            document.getElementById("ngDetailInput").value = selectedNgDetailId; // Penting: mengisi dari variabel JS
-
-            // robotSelect.disabled = false; // Baris ini sepertinya tidak diperlukan
+            document.getElementById("selectedRobotId").value = robotSelect.value;
+            document.getElementById("ngDetailInput").value = selectedNgDetailId;
             document.getElementById("submitForm").submit();
         }
-
-        window.onload = function () {
-            @if (TempData["Message"] != null)
-            {
-                    <text>
-                    const toastElement = document.getElementById("errorToast");
-                    const toast = new bootstrap.Toast(toastElement);
-                    toast.show();
-                    </text>
-            }
-        };
+        allButtons.forEach(btn => {
+            console.log(btn.innerText, btn.disabled ? "disabled" : "enabled");
+        });
     </script>
 }

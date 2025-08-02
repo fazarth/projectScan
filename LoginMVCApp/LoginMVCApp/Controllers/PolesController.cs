@@ -188,21 +188,44 @@ public class PolesController : Controller
 
         var lineId = long.Parse(HttpContext.Session.GetString("LineId") ?? "0");
         var role = HttpContext.Session.GetString("Role") ?? "Checker";
-        var now = DateTime.Now.TimeOfDay;
+        //var now = DateTime.Now.TimeOfDay;
+
+        //var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
+        //    {
+        //        ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
+        //        ("1", new TimeSpan(16, 0, 1), new TimeSpan(20, 59, 59)),
+        //        ("2", new TimeSpan(21, 0, 0), new TimeSpan(23, 59, 59)),
+        //        ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
+        //    };
+
+        //string shift = shiftDefinitions
+        //    .FirstOrDefault(s => s.Start <= s.End
+        //        ? now >= s.Start && now <= s.End
+        //        : now >= s.Start || now <= s.End
+        //    ).ShiftName ?? "Unknown";
+
+        var now = DateTime.Now;
+        var time = now.TimeOfDay;
 
         var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
-            {
-                ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
-                ("1", new TimeSpan(16, 0, 1), new TimeSpan(20, 59, 59)),
-                ("2", new TimeSpan(21, 0, 0), new TimeSpan(23, 59, 59)),
-                ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
-            };
+        {
+            ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
+            ("1", new TimeSpan(16, 0, 1), new TimeSpan(20, 59, 59)),
+            ("2", new TimeSpan(21, 0, 0), new TimeSpan(23, 59, 59)),
+            ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
+        };
 
-        string shift = shiftDefinitions
+        var matchedShift = shiftDefinitions
             .FirstOrDefault(s => s.Start <= s.End
-                ? now >= s.Start && now <= s.End
-                : now >= s.Start || now <= s.End
-            ).ShiftName ?? "Unknown";
+                ? time >= s.Start && time <= s.End
+                : time >= s.Start || time <= s.End);
+
+        string shift = matchedShift.ShiftName ?? "Unknown";
+
+        // Koreksi shiftDate jika jam sekarang < 08:00 dan shift 2
+        DateTime shiftDate = (shift == "2" && now.Hour < 8)
+            ? now.Date.AddDays(-1)
+            : now.Date;
 
         if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
         {
@@ -217,31 +240,58 @@ public class PolesController : Controller
         }
 
         // --- LOGIKA VALIDASI KUOTA POLESH ---
-        if (status == "POLESH")
+        //if (status == "POLESH")
+        //{
+        //    var start = DateTime.Today;
+        //    var end = start.AddDays(1);
+
+        //    var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == InventoryId);
+        //    if (inventory == null)
+        //    {
+        //        TempData["Message"] = "Inventory tidak ditemukan saat validasi kuota.";
+        //        return RedirectToAction("Index");
+        //    }
+        //    var invDbIdForQuota = inventory.Id;
+
+        //    // Hitung total POLESH oleh Checker untuk InvId pada hari ini
+        //    var totalPoleshByChecker = _context.Transactions
+        //        .Count(t => t.InvId == invDbIdForQuota && t.CreatedAt >= start && t.CreatedAt < end && t.Status == "POLESH" && t.Role == "Checker"); // Pastikan Status='POLESH' jika itu yang dicatat checker
+
+        //    // Hitung total POLESH yang sudah di-insert oleh Role "Poles" untuk InvId pada hari ini
+        //    var totalPoleshByPoles = _context.Transactions
+        //        .Count(t => t.InvId == invDbIdForQuota && t.CreatedAt >= start && t.CreatedAt < end && t.Status == "POLESH" && t.Role == "Poles"); // Pastikan Status='POLESH'
+
+        //    // Cek apakah kuota masih tersedia
+        //    if (totalPoleshByPoles >= totalPoleshByChecker)
+        //    {
+        //        TempData["Message"] = $"Kuota POLESH untuk inventory '{InventoryId}' hari ini sudah habis. Total Checker: {totalPoleshByChecker}, Total Poles: {totalPoleshByPoles}.";
+        //        return RedirectToAction("Index", new { inventoryId = InventoryId });
+        //    }
+        //}
+        if (role.ToLower() == "poles" && status == "POLESH")
         {
-            var start = DateTime.Today;
-            var end = start.AddDays(1);
+            var start = shiftDate;
+            var end = shiftDate.AddDays(1);
 
-            var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == InventoryId);
-            if (inventory == null)
+            var allowedPolesh = _context.Transactions.Count(t =>
+                t.InvId == InvId &&
+                t.Status == "POLESH" &&
+                t.Role.ToLower() == "checker" &&
+                t.Shift == shift &&
+                t.CreatedAt >= start && t.CreatedAt < end
+            );
+
+            var currentPolesh = _context.Transactions.Count(t =>
+                t.InvId == InvId &&
+                t.Status == "POLESH" &&
+                t.Role.ToLower() == "poles" &&
+                t.Shift == shift &&
+                t.CreatedAt >= start && t.CreatedAt < end
+            );
+
+            if (currentPolesh >= allowedPolesh)
             {
-                TempData["Message"] = "Inventory tidak ditemukan saat validasi kuota.";
-                return RedirectToAction("Index");
-            }
-            var invDbIdForQuota = inventory.Id; 
-
-            // Hitung total POLESH oleh Checker untuk InvId pada hari ini
-            var totalPoleshByChecker = _context.Transactions
-                .Count(t => t.InvId == invDbIdForQuota && t.CreatedAt >= start && t.CreatedAt < end && t.Status == "POLESH" && t.Role == "Checker"); // Pastikan Status='POLESH' jika itu yang dicatat checker
-
-            // Hitung total POLESH yang sudah di-insert oleh Role "Poles" untuk InvId pada hari ini
-            var totalPoleshByPoles = _context.Transactions
-                .Count(t => t.InvId == invDbIdForQuota && t.CreatedAt >= start && t.CreatedAt < end && t.Status == "POLESH" && t.Role == "Poles"); // Pastikan Status='POLESH'
-
-            // Cek apakah kuota masih tersedia
-            if (totalPoleshByPoles >= totalPoleshByChecker)
-            {
-                TempData["Message"] = $"Kuota POLESH untuk inventory '{InventoryId}' hari ini sudah habis. Total Checker: {totalPoleshByChecker}, Total Poles: {totalPoleshByPoles}.";
+                TempData["Message"] = $"POLES sudah maksimal ({allowedPolesh}) untuk barcode ini di shift saat ini.";
                 return RedirectToAction("Index", new { inventoryId = InventoryId });
             }
         }

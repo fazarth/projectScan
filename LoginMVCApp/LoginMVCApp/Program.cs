@@ -13,6 +13,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession(); // Untuk login session
 
