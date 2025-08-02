@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QRCoder;
+using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using QuestPDF.Fluent;
+using System.Diagnostics.Metrics;
 using System.Drawing.Imaging;
 
 namespace LoginMVCApp.Controllers
@@ -174,6 +175,23 @@ namespace LoginMVCApp.Controllers
             var lineId = HttpContext.Session.GetString("LineId");
             var userGroup = HttpContext.Session.GetString("UserGroup");
 
+            var QRCombine = "";
+
+            // Ambil counter terakhir dari DB
+            var counter = _context.Qr_Counter.FirstOrDefault(q => q.Id == 1);
+            if (counter == null)
+            {
+                counter = new Qr_Counter { Id = 1, LastNumber = 0 };
+                _context.Qr_Counter.Add(counter);
+                _context.SaveChanges();
+            }
+
+            // Tambahkan jumlah QR yang akan di-generate
+            int startNumber = counter.LastNumber + 1;
+            counter.LastNumber += jumlahQr; // update total
+            _context.SaveChanges(); // simpan ke DB
+
+
             var pdfStream = new MemoryStream();
             Document.Create(container =>
             {
@@ -185,12 +203,14 @@ namespace LoginMVCApp.Controllers
                     {
                         for (int i = 0; i < jumlahQr; i++)
                         {
+                            int nomorUrut = startNumber + i;
                             var tanggal = DateTime.Now.ToString("yyyyMMdd");
-                            string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}";
+                            string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
+                            QRCombine += qrDataString + "\n";
                             using var qrGenerator = new QRCodeGenerator();
                             using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
                             var qrCodePngByte = new PngByteQRCode(qrCodeData);
-                            byte[] qrImageBytes = qrCodePngByte.GetGraphic(20);
+                            byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
 
                             mainColumn.Item().Column(itemColumn =>
                             {
