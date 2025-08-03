@@ -1,4 +1,4 @@
-﻿using LoginMVCApp.Data;
+using LoginMVCApp.Data;
 using LoginMVCApp.Models;
 using LoginMVCApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;

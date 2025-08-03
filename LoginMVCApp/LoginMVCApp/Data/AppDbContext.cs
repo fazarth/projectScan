@@ -1,4 +1,4 @@
-﻿using LoginMVCApp.Models;
+using LoginMVCApp.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoginMVCApp.Data

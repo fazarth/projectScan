@@ -1,4 +1,4 @@
-﻿@model List<LoginMVCApp.Models.Inventories>
+@model List<LoginMVCApp.Models.Inventories>
 @{
     ViewData["Title"] = "Manajemen Inventori";
 }
@@ -28,7 +28,7 @@
                         <th>Project</th>
                         <th>Inventory ID</th>
                         <th>Type</th>
-                        <th>Color</th>
+                        <th>Warna</th>
                         <th>Part Number</th>
                         <th>Part Name</th>
                         <th>Action</th>
@@ -54,33 +54,32 @@
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                                 <a href="#" class="btn btn-sm btn-danger"
-                                   data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                   data-bs-toggle="modal" data-bs-target="#deleteModal-@inv.Id">
                                     <i class="bi bi-trash"></i>
                                 </a>
-
                             </td>
                         </tr>
 
-                    <!-- Modal Delete -->
-                    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                        <p>Apakah Anda yakin ingin menghapus data @inv.InvId? Tindakan ini tidak dapat dibatalkan.</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                    <form method="post" asp-action="Delete" asp-route-id="@inv.Id">
-                                        <button type="submit" class="btn btn-danger">Hapus</button>
-                                    </form>
+                        <!-- Modal Delete -->
+                        <div class="modal fade" id="deleteModal-@inv.Id" tabindex="-1" aria-labelledby="deleteModalLabel-@inv.Id" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel-@inv.Id">Konfirmasi Penghapusan</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Apakah Anda yakin ingin menghapus data <strong>@inv.InvId</strong>? Tindakan ini tidak dapat dibatalkan.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                        <form method="post" asp-action="Delete" asp-route-id="@inv.Id">
+                                            <button type="submit" class="btn btn-danger">Hapus</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     }
                 </tbody>
             </table>
@@ -93,4 +92,3 @@
         </div>
     }
 </div>
-

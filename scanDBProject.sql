@@ -13,6 +13,13 @@ select * from transactions
 select u.line_id, r.nama, * from users u
 join robots r on u.line_id = r.line_id
 
+CREATE TABLE qr_counter (
+    Id INT PRIMARY KEY,
+    LastNumber INT
+);
+
+INSERT INTO qr_counter (Id, LastNumber) VALUES (1, 0);
+
 -- Tabel lini
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='lines' and xtype='U')
 CREATE TABLE lines (
@@ -64,6 +71,12 @@ CREATE TABLE users (
     createdby NVARCHAR(50) NULL,
     FOREIGN KEY (line_id) REFERENCES lines(id)
 );
+ALTER TABLE users
+ADD user_group NVARCHAR(50) NULL;
+
+--UPDATE users
+--SET user_group = 'A'
+--WHERE user_group = '1';
 
 -- Tambahkan user
 IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'Administrator')

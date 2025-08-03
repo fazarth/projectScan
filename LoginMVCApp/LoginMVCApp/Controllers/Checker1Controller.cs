@@ -31,6 +31,9 @@ namespace LoginMVCApp.Controllers
             var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
             if (inventory == null) return View();
 
+            HttpContext.Session.SetString("Project", inventory.Project ?? "");
+            HttpContext.Session.SetString("Warna", inventory.Warna ?? "");
+
             var invDbId = inventory.Id;
             var start = DateTime.Today;
             var end = start.AddDays(1);

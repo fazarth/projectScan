@@ -1,4 +1,4 @@
-﻿@model LoginMVCApp.Models.Inventories
+@model LoginMVCApp.Models.Inventories
 
 @{
     ViewData["Title"] = "Create";
@@ -49,6 +49,12 @@
                         <input asp-for="PartName" class="form-control" placeholder="Part Name" />
                         <label asp-for="PartName">Part Name</label>
                         <span asp-validation-for="PartName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Barcode" class="form-control" placeholder="Barcode" />
+                        <label asp-for="Barcode"></label>
+                        <span asp-validation-for="Barcode" class="text-danger small"></span>
                     </div>
 
                     <input asp-for="CreatedBy" type="hidden" value="@fullname" />

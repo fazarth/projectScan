@@ -1,11 +1,11 @@
-# Build folders
-**/bin/
-**/obj/
-
 # Visual Studio files
 .vs/
 *.user
 *.suo
+
+# Build outputs
+bin/
+obj/
 
 # Temporary files
 *.cache
