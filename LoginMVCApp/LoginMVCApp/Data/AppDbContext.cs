@@ -14,6 +14,8 @@ namespace LoginMVCApp.Data
         public DbSet<Transactions> Transactions { get; set; }
         public DbSet<Ng_Categories> Ng_Categories { get; set; }
 
+        public DbSet<Qr_Counter> Qr_Counter { get; set; }
+
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
         //    modelBuilder.Entity<Robots>()

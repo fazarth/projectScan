@@ -120,7 +120,8 @@ namespace LoginMVCApp.Controllers
                 PhoneNumber = user.PhoneNumber,
                 Role = user.Role,
                 LineId = user.LineId,
-                IsActive = user.IsActive
+                IsActive = user.IsActive,
+                UserGroup = user.UserGroup
             };
 
             PopulateLines(user.LineId);
@@ -147,6 +148,7 @@ namespace LoginMVCApp.Controllers
                 existingUser.Role = model.Role;
                 existingUser.LineId = model.LineId;
                 existingUser.IsActive = model.IsActive;
+                existingUser.UserGroup = model.UserGroup;
 
                 if (!string.IsNullOrWhiteSpace(model.Password))
                 {

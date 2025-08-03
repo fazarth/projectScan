@@ -43,6 +43,9 @@ namespace LoginMVCApp.Models
         [Column("createdby")]
         public string CreatedBy { get; set; } = string.Empty;
 
+        [Column("user_group")]
+        public string UserGroup { get; set; }
+
         public virtual Lines? Line { get; set; }
     }
 }

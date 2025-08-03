@@ -1,6 +1,7 @@
 ﻿using LoginMVCApp.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Cryptography.X509Certificates;
 
 namespace LoginMVCApp.ViewModels
 {
@@ -35,6 +36,9 @@ namespace LoginMVCApp.ViewModels
 
         [Column("isactive")]
         public bool IsActive { get; set; } = true;
+
+        [Column("user_group")]
+        public string UserGroup { get; set;  }
 
     }
 }

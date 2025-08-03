@@ -72,11 +72,16 @@
 
                                         var lineIdStr = Context?.Session?.GetString("LineId");
                                         var lineId = lineIdStr ?? "-";
+
+                                        var userGroup = Context?.Session?.GetString("UserGroup");
+                                        var userGroupStr = userGroup ?? "-";
                                     }
                                     <div><strong>PIC:</strong> @fullName</div>
                                 </div>
                                 <div class="col-auto">
                                     <div><strong>Line:</strong> @lineId</div>
+                                    <input type="hidden" name="lineID" value="@lineId" />
+                                    <input type="hidden" name="userGroup" value="@userGroupStr" />
                                 </div>
                                 <div class="col-auto">
                                     <div><strong>DATE:</strong> <span id="clock-date"></span></div>
@@ -163,5 +168,100 @@
             alertBox.classList.add('hide');
         }
     }, 3000); // 3 detik
+</script>
+<script>
+    let selectedNgDetailId = null;
+        function submitStatus(status) {
+        const robotSelect = document.getElementById("robotSelect");
+        const selectedRobot = robotSelect.value;
+
+        if (!selectedRobot) {
+            alert("Pilih Nama Robot terlebih dahulu.");
+            return;
+        }
+
+        document.getElementById("selectedRobotId").value = selectedRobot;
+
+        if (status === "NG") {
+            selectedNgDetailId = null;
+            document.getElementById("ngDetailInput").value = "";
+            document.getElementById("sub-category-section").style.display = "none";
+            document.getElementById("ng-category-container").style.display = "flex";
+
+            document.getElementById("ng-section").style.display = "block";
+            return;
+        }
+
+        document.getElementById("selectedRobotId").value = selectedRobot;
+        document.getElementById("statusInput").value = status;
+        robotSelect.disabled = false;
+        document.getElementById("submitForm").submit();
+    }
+
+        window.onload = function () {
+        @if (TempData["Message"] != null)
+        {
+                    <text>alert("@TempData["Message"]");</text>
+        }
+    };
+
+</script>
+<script>
+    function printQRCodePdf() {
+        const invId = document.querySelector('input[name="InventoryId"]').value;
+        const project = "@Model?.Project";
+        const color = "@Model?.Warna";
+        const robotSelect = document.getElementById("robotSelect");
+        const selectedRobotValue = robotSelect.value;
+        const selectedRobotName = robotSelect.options[robotSelect.selectedIndex]?.text || "";
+        const jumlahQrInput = document.getElementById("jumlahQrInput");
+        const jumlahQr = parseInt(jumlahQrInput.value);
+
+        // Validasi
+        if (!invId) {
+            alert("Scan Inventory ID terlebih dahulu.");
+            return;
+        }
+        if (!project || !color) {
+            alert("Data Project atau Warna tidak lengkap.");
+            return;
+        }
+        if (!selectedRobotValue || !selectedRobotName) {
+            alert("Pilih Nama Robot terlebih dahulu untuk Print PDF QR.");
+            return;
+        }
+        if (isNaN(jumlahQr) || jumlahQr <= 0) {
+            alert("Jumlah QR harus angka positif.");
+            return;
+        }
+
+        // Buat form dinamis
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = '@Url.Action("PrintQrPdf", "Checker1")';
+        form.target = '_blank';
+
+        // Tambahkan hidden inputs
+        const inputs = [
+            { name: 'invId', value: invId },
+            { name: 'project', value: project },
+            { name: 'color', value: color },
+            { name: 'robot', value: selectedRobotName },
+            { name: 'jumlahQr', value: jumlahQr }
+        ];
+
+        inputs.forEach(input => {
+            const inputElement = document.createElement('input');
+            inputElement.type = 'hidden';
+            inputElement.name = input.name;
+            inputElement.value = input.value;
+            form.appendChild(inputElement);
+        });
+
+        // Submit form
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
 </script>
 </html>

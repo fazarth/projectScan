@@ -76,6 +76,7 @@ namespace LoginMVCApp.Controllers
             HttpContext.Session.SetString("LineId", user.LineId.ToString());
             HttpContext.Session.SetString("UserId", user.Id.ToString());
             HttpContext.Session.SetString("Role", user.Role);
+            HttpContext.Session.SetString("UserGroup", user.UserGroup);
 
             switch (user.Role)
             {
