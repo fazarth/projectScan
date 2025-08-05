@@ -1,5 +1,6 @@
 ﻿using LoginMVCApp.Data;
 using LoginMVCApp.Models;
+using LoginMVCApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -26,20 +27,45 @@ namespace LoginMVCApp.Controllers
             var role = HttpContext.Session.GetString("Role");
             if (role != "Checker") return RedirectToAction("AccessDenied", "Account");
 
-            if (string.IsNullOrEmpty(inventoryId)) return View(); // belum scan
+            if (string.IsNullOrEmpty(inventoryId)) return View();
 
+            string dataType = TempData["DataType"] as string;
+
+            // Ambil data Inventory berdasarkan InventoryId
             var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
-            if (inventory == null) return View();
 
-            HttpContext.Session.SetString("Project", inventory.Project ?? "");
-            HttpContext.Session.SetString("Warna", inventory.Warna ?? "");
+            // Ambil data Transaction yang sesuai dengan Barcode
+            var transaction = (from t in _context.Transactions
+                               join i in _context.Inventories on t.InvId equals i.Id
+                               where t.Barcode == inventoryId
+                               select new
+                               {
+                                   Transaction = t,
+                                   Inventory = i
+                               }).FirstOrDefault();
 
-            var invDbId = inventory.Id;
+            var result = "";
+
+            // Tentukan data yang ditemukan (Inventory atau Transaction)
+            if (inventory != null)
+            {
+                result = inventory.InvId;
+                ViewBag.Project = inventory.Project ?? "";
+                ViewBag.Warna = inventory.Warna ?? "";
+            }
+            else if (transaction != null)
+            {
+                result = transaction.Inventory.InvId;
+                HttpContext.Session.SetString("Project", transaction.Inventory.Project ?? "");
+                HttpContext.Session.SetString("Warna", transaction.Inventory.Warna ?? "");
+            }
+
+            var invDbId = result;
             var start = DateTime.Today;
             var end = start.AddDays(1);
 
             var todayTrans = _context.Transactions
-                .Where(t => t.InvId == invDbId && t.CreatedAt >= start && t.CreatedAt < end);
+                .Where(t => t.Barcode == invDbId && t.CreatedAt >= start && t.CreatedAt < end);
 
             var totalOk = todayTrans.Count(t => t.Status == "OK");
             var totalPolesh = todayTrans.Count(t => t.Status == "POLESH");
@@ -54,8 +80,39 @@ namespace LoginMVCApp.Controllers
             PopulateRobotDropdown(selectedRobotId);
 
             ViewBag.InvId = invDbId;
-            return View(inventory);
+            ViewBag.DataType = dataType;
+
+            // Membuat ViewModel dan mengirimkan ke view
+            var viewModel = new InventoryTransactionViewModel
+            {
+                Inventory = inventory,  // Menyertakan data Inventory
+                Transaction = transaction?.Transaction // Menyertakan data Transaction jika ditemukan
+            };
+
+            return View(viewModel);  // Mengirimkan ViewModel ke view
         }
+
+
+
+
+        //[HttpPost]
+        //public IActionResult ScanInventory1(string inventoryId)
+        //{
+        //    if (string.IsNullOrEmpty(inventoryId))
+        //    {
+        //        TempData["Message"] = "Inventory ID is required.";
+        //        return RedirectToAction("Scan");
+        //    }
+
+        //    var inventoryData = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
+        //    if (inventoryData == null)
+        //    {
+        //        TempData["Message"] = "Data not found for the given Inventory ID.";
+        //        return RedirectToAction("Scan");
+        //    }
+
+        //    return RedirectToAction(nameof(Index), new { inventoryId });
+        //}
 
         [HttpPost]
         public IActionResult ScanInventory1(string inventoryId)
@@ -66,14 +123,30 @@ namespace LoginMVCApp.Controllers
                 return RedirectToAction("Scan");
             }
 
-            var inventoryData = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
-            if (inventoryData == null)
-            {
-                TempData["Message"] = "Data not found for the given Inventory ID.";
-                return RedirectToAction("Scan");
-            }
+            var inventoryData = _context.Inventories
+                .FirstOrDefault(i => i.InvId == inventoryId);
 
-            return RedirectToAction(nameof(Index), new { inventoryId });
+            if (inventoryData != null)
+            {
+                TempData["DataType"] = "inventory";
+                return RedirectToAction(nameof(Index), new { inventoryId });
+            }
+            else
+            {
+                var transactionData = _context.Transactions
+                    .FirstOrDefault(t => t.Barcode == inventoryId);
+
+                if (transactionData != null)
+                {
+                    TempData["DataType"] = "transaction";
+                    return RedirectToAction(nameof(Index), new { inventoryId });
+                }
+                else
+                {
+                    TempData["Message"] = "Data not found for the given Inventory ID.";
+                    return RedirectToAction("Scan");
+                }
+            }
         }
 
         [HttpPost]
@@ -96,6 +169,7 @@ namespace LoginMVCApp.Controllers
             var role = HttpContext.Session.GetString("Role") ?? "Checker";
             var now = DateTime.Now.TimeOfDay;
 
+            // Menentukan shift berdasarkan waktu
             var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
             {
                 ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
@@ -110,12 +184,81 @@ namespace LoginMVCApp.Controllers
                     : now >= s.Start || now <= s.End
                 ).ShiftName ?? "Unknown";
 
-            if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
+            // Validasi input
+            //if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
+            //{
+            //    TempData["Message"] = "Data tidak lengkap!";
+            //    return RedirectToAction("Index", new { inventoryId = InventoryId });
+            //}
+
+            // ✅ Cek apakah sudah ada transaksi yang sama
+            var existingTransaction = _context.Transactions
+                .Where(t => t.InvId == InvId && t.UserId == userId)
+                .OrderByDescending(t => t.CreatedAt)
+                .FirstOrDefault();
+
+            if (existingTransaction != null)
             {
-                TempData["Message"] = "Data tidak lengkap!";
-                return RedirectToAction("Index", new { inventoryId = InventoryId });
+                // ❌ Kalau semua data sama, jangan update
+                if (existingTransaction.Status == status &&
+                    existingTransaction.RobotId == RobotId &&
+                    existingTransaction.Barcode == InventoryId &&
+                    existingTransaction.LineId == lineId &&
+                    existingTransaction.Role == role &&
+                    existingTransaction.Shift == shift)
+                {
+                    // Tidak perlu update
+                    TempData["Message"] = "Transaksi sudah tersimpan dengan data yang sama.";
+                    return RedirectToAction("Index", new { inventoryId = InventoryId });
+                }
+
+                // 🔁 Kalau ada yang beda, update field yang berbeda
+                bool updated = false;
+
+                if (existingTransaction.Status != status)
+                {
+                    existingTransaction.Status = status;
+                    updated = true;
+                }
+                if (existingTransaction.RobotId != RobotId)
+                {
+                    existingTransaction.RobotId = RobotId;
+                    updated = true;
+                }
+                if (existingTransaction.Barcode != InventoryId)
+                {
+                    existingTransaction.Barcode = InventoryId;
+                    updated = true;
+                }
+                if (existingTransaction.LineId != lineId)
+                {
+                    existingTransaction.LineId = lineId;
+                    updated = true;
+                }
+                if (existingTransaction.Role != role)
+                {
+                    existingTransaction.Role = role;
+                    updated = true;
+                }
+                if (existingTransaction.Shift != shift)
+                {
+                    existingTransaction.Shift = shift;
+                    updated = true;
+                }
+
+                if (updated)
+                {
+                    existingTransaction.CreatedAt = DateTime.Now;
+                    _context.Transactions.Update(existingTransaction);
+                    _context.SaveChanges();
+                    TempData["Message"] = "Transaksi berhasil diperbarui.";
+                }
+
+                HttpContext.Session.SetString("SelectedRobotId", RobotId.ToString());
+                return RedirectToAction(nameof(Index), new { inventoryId = InventoryId });
             }
 
+            // ➕ Insert baru
             var transaction = new Transactions
             {
                 InvId = InvId,
@@ -125,19 +268,23 @@ namespace LoginMVCApp.Controllers
                 LineId = lineId,
                 Role = role,
                 Status = status,
+                NgDetailId = null, 
                 Qty = 1,
                 Shift = shift,
-                CreatedAt = DateTime.Now
+                OppositeShift = false,  
+                CreatedAt = DateTime.Now,
+                Is_Return = false  
             };
 
             _context.Transactions.Add(transaction);
             _context.SaveChanges();
 
             HttpContext.Session.SetString("SelectedRobotId", RobotId.ToString());
-
-            // Redirect agar Index hitung ulang
+            TempData["Message"] = "Transaksi berhasil ditambahkan.";
             return RedirectToAction(nameof(Index), new { inventoryId = InventoryId });
         }
+
+
 
         private void PopulateRobotDropdown(string? selectedRobotId = null)
         {
@@ -158,25 +305,28 @@ namespace LoginMVCApp.Controllers
 
             ViewBag.RobotList = robots;
         }
-        public IActionResult PrintQrPdf(string invId, string project, string color, string robot, int jumlahQr = 1)
+        public IActionResult PrintQrPdf(long invId, long inventoryId, string project, string color, string robot, int robotId, int jumlahQr = 1)
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
-            if (string.IsNullOrEmpty(invId) || string.IsNullOrEmpty(project) ||
+            if (invId <= 0 || string.IsNullOrEmpty(project) ||
                 string.IsNullOrEmpty(color) || string.IsNullOrEmpty(robot) || jumlahQr <= 0)
             {
                 TempData["Message"] = "Data tidak lengkap atau tidak valid untuk generate QR/PDF.";
                 return RedirectToAction("Index", new { inventoryId = invId });
             }
 
-            var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == invId);
+            var inventory = _context.Inventories.FirstOrDefault(i => i.Id == invId);
             if (inventory == null)
             {
                 TempData["Message"] = "Inventory ID tidak ditemukan di database.";
                 return RedirectToAction("Index", new { inventoryId = invId });
             }
+
             var lineId = HttpContext.Session.GetString("LineId");
             var userGroup = HttpContext.Session.GetString("UserGroup");
+            var role = HttpContext.Session.GetString("Role");
+            var userId = HttpContext.Session.GetString("UserId");
 
             var QRCombine = "";
 
@@ -194,8 +344,45 @@ namespace LoginMVCApp.Controllers
             counter.LastNumber += jumlahQr; // update total
             _context.SaveChanges(); // simpan ke DB
 
-
+            // Buat PDF QR dan simpan ke transaction
             var pdfStream = new MemoryStream();
+            for (int i = 0; i < jumlahQr; i++)
+            {
+                int nomorUrut = startNumber + i;
+                var tanggal = DateTime.Now.ToString("yyyyMMdd");
+                string rawQRDataString = $"{inventory.InvId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
+                string originalString = rawQRDataString;
+                string qrDataString = originalString.Replace(" ", "");
+
+                QRCombine += qrDataString + "\n";
+
+                // Generate QR Code Image
+                using var qrGenerator = new QRCodeGenerator();
+                using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
+                var qrCodePngByte = new PngByteQRCode(qrCodeData);
+                byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
+
+                // Simpan ke transaksi
+                var transaction = new Transactions
+                {
+                    InvId = invId,
+                    Barcode = qrDataString,
+                    LineId = long.Parse(lineId),
+                    RobotId = robotId,
+                    UserId = long.Parse(userId),
+                    Role = role,
+                    Status = "PRINTED",
+                    NgDetailId = null,
+                    Qty = 1,
+                    Shift = "",
+                    OppositeShift = false,
+                    CreatedAt = DateTime.Now,
+                    Is_Return = false
+                };
+                _context.Transactions.Add(transaction);
+                _context.SaveChanges(); // Simpan ke database
+            }
+
             Document.Create(container =>
             {
                 container.Page(page =>
@@ -209,7 +396,6 @@ namespace LoginMVCApp.Controllers
                             int nomorUrut = startNumber + i;
                             var tanggal = DateTime.Now.ToString("yyyyMMdd");
                             string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
-                            QRCombine += qrDataString + "\n";
                             using var qrGenerator = new QRCodeGenerator();
                             using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
                             var qrCodePngByte = new PngByteQRCode(qrCodeData);
@@ -233,5 +419,4 @@ namespace LoginMVCApp.Controllers
             return File(pdfStream.ToArray(), "application/pdf", fileName);
         }
     }
-
 }

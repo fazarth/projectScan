@@ -58,6 +58,9 @@ namespace LoginMVCApp.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
+        [Column("is_return")]
+        public bool Is_Return{ get; set; } = false;
+
         // ======== NAVIGATION PROPERTIES =========
 
         [ForeignKey("InvId")]

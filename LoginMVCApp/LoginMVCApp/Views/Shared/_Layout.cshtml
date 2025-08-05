@@ -232,13 +232,18 @@
 <script>
     function printQRCodePdf() {
         const invId = document.querySelector('input[name="InventoryId"]').value;
-        const project = "@project";
-        const color = "@warna";
+        const inventoryId = '@ViewBag.InvId';
+        const project = '@ViewBag.Project';
+        const color = '@ViewBag.Warna'; 
         const robotSelect = document.getElementById("robotSelect");
         const selectedRobotValue = robotSelect.value;
         const selectedRobotName = robotSelect.options[robotSelect.selectedIndex]?.text || "";
         const jumlahQrInput = document.getElementById("jumlahQrInput");
         const jumlahQr = parseInt(jumlahQrInput.value);
+
+        console.log(inventoryId);  // Debug: Pastikan data sudah ada
+        console.log(project);  // Debug: Pastikan data sudah ada
+        console.log(color);  // Debug: Pastikan data sudah ada
 
         // Validasi
         if (!invId) {
@@ -267,10 +272,12 @@
         // Tambahkan hidden inputs
         const inputs = [
             { name: 'invId', value: invId },
+            { name: 'inventoryId', value: InvId },
             { name: 'project', value: project },
             { name: 'color', value: color },
             { name: 'robot', value: selectedRobotName },
-            { name: 'jumlahQr', value: jumlahQr }
+            { name: 'jumlahQr', value: jumlahQr },
+            { name: 'robotId', value: selectedRobotValue}
         ];
 
         inputs.forEach(input => {
