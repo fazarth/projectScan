@@ -26,20 +26,70 @@ namespace LoginMVCApp.Controllers
             var role = HttpContext.Session.GetString("Role");
             if (role != "Checker") return RedirectToAction("AccessDenied", "Account");
 
-            if (string.IsNullOrEmpty(inventoryId)) return View(); // belum scan
+            if (string.IsNullOrEmpty(inventoryId))
+            {
+                ViewBag.TotalOk = 0;
+                ViewBag.TotalPolesh = 0;
+                ViewBag.PercentOk = 0;
+                ViewBag.PercentPolesh = 0;
+                return View(); // belum scan
+            }
 
             var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
-            if (inventory == null) return View();
+            if (inventory == null)
+            {
+                // Reset jika inventory tidak ditemukan
+                ViewBag.TotalOk = 0;
+                ViewBag.TotalPolesh = 0;
+                ViewBag.PercentOk = 0;
+                ViewBag.PercentPolesh = 0;
+                return View();
+            }
 
             HttpContext.Session.SetString("Project", inventory.Project ?? "");
             HttpContext.Session.SetString("Warna", inventory.Warna ?? "");
 
             var invDbId = inventory.Id;
-            var start = DateTime.Today;
-            var end = start.AddDays(1);
+            var now = DateTime.Now;
+            var time = now.TimeOfDay;
 
+            // Definisi shift
+            var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
+            {
+                ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
+                ("1", new TimeSpan(16, 0, 1), new TimeSpan(20, 59, 59)),
+                ("2", new TimeSpan(21, 0, 0), new TimeSpan(23, 59, 59)),
+                ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
+            };
+
+            // Cari shift sekarang
+            var matchedShift = shiftDefinitions.FirstOrDefault(s =>
+                s.Start <= s.End ? time >= s.Start && time <= s.End : time >= s.Start || time <= s.End);
+
+            string currentShift = matchedShift.ShiftName ?? "Unknown";
+
+            // Tentukan tanggal shift, khusus shift 2 subuh mundur sehari
+            DateTime shiftDate = (currentShift == "2" && now.Hour < 8)
+                ? now.Date.AddDays(-1)
+                : now.Date;
+
+            // Batas shiftStart dan shiftEnd
+            DateTime shiftStart, shiftEnd;
+
+            if (currentShift == "1")
+            {
+                shiftStart = shiftDate.AddHours(8);        // 08:00
+                shiftEnd = shiftDate.AddHours(21);         // 20:59:59
+            }
+            else
+            {
+                shiftStart = shiftDate.AddHours(21);       // 21:00 malam
+                shiftEnd = shiftDate.AddDays(1).AddHours(8); // 07:59 esok hari
+            }
+
+            // Ganti query total transaksi agar pakai waktu shift
             var todayTrans = _context.Transactions
-                .Where(t => t.InvId == invDbId && t.CreatedAt >= start && t.CreatedAt < end);
+                .Where(t => t.InvId == invDbId && t.CreatedAt >= shiftStart && t.CreatedAt < shiftEnd);
 
             var totalOk = todayTrans.Count(t => t.Status == "OK");
             var totalPolesh = todayTrans.Count(t => t.Status == "POLESH");
@@ -94,7 +144,8 @@ namespace LoginMVCApp.Controllers
 
             var lineId = long.Parse(HttpContext.Session.GetString("LineId") ?? "0");
             var role = HttpContext.Session.GetString("Role") ?? "Checker";
-            var now = DateTime.Now.TimeOfDay;
+            var now = DateTime.Now;
+            var time = now.TimeOfDay;
 
             var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
             {
@@ -104,11 +155,17 @@ namespace LoginMVCApp.Controllers
                 ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
             };
 
-            string shift = shiftDefinitions
+            var matchedShift = shiftDefinitions
                 .FirstOrDefault(s => s.Start <= s.End
-                    ? now >= s.Start && now <= s.End
-                    : now >= s.Start || now <= s.End
-                ).ShiftName ?? "Unknown";
+                    ? time >= s.Start && time <= s.End
+                    : time >= s.Start || time <= s.End);
+
+            string shift = matchedShift.ShiftName ?? "Unknown";
+
+            // Koreksi CreatedAt jika shift 2 dini hari
+            DateTime createdAt = (shift == "2" && now.Hour < 8)
+                ? now.AddDays(-1)
+                : now;
 
             if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
             {
@@ -127,7 +184,8 @@ namespace LoginMVCApp.Controllers
                 Status = status,
                 Qty = 1,
                 Shift = shift,
-                CreatedAt = DateTime.Now
+                CreatedAt = createdAt
+                //CreatedAt = DateTime.Now
             };
 
             _context.Transactions.Add(transaction);
