@@ -8,7 +8,7 @@ GO
 
 select * from inventories
 select line_id,* from users
-select * from transactions
+select * from transactions order by created_at desc
 
 select u.line_id, r.nama, * from users u
 join robots r on u.line_id = r.line_id
@@ -117,28 +117,69 @@ CREATE TABLE ng_categories (
     sub_category VARCHAR(50) NOT NULL,
     created_at DATETIME DEFAULT GETDATE()
 );
+select * from ng_categories
+USE [scanDBProject]
+GO
+INSERT INTO [scanDBProject].[dbo].[ng_categories] ([category], [sub_category], [created_at]) VALUES
+('BINTIK', 'BINTIK CAT', GETDATE()),
+('BINTIK', 'KOTORAN LUAR', GETDATE()),
+('KEBA', 'SERAT BENANG', GETDATE()),
+('HAJIKI', 'OIL', GETDATE()),
+('HAJIKI', 'AIR / BLISTER', GETDATE()),
+('SCRACTH', 'GORES', GETDATE()),
+('SCRACTH', 'EX-MIGAKI', GETDATE()),
+('NG ROBOT', 'SAGING / LELEH', GETDATE()),
+('NG ROBOT', 'ABSORB', GETDATE()),
+('NG ROBOT', 'TIPIS', GETDATE()),
+('NG ROBOT', 'ORANGE PEEL', GETDATE()),
+('NG ROBOT', 'MOTLING / BELANG', GETDATE()),
+('NG ROBOT', 'BEDA WARNA', GETDATE()),
+('NG ROBOT', 'OVER MASKING', GETDATE()),
+('NG ROBOT', 'GALER', GETDATE()),
+('NG ROBOT', 'POPING', GETDATE()),
+('NG ROBOT', 'LIPTING', GETDATE()),
+('NG ROBOT', 'HANDLING', GETDATE()),
+('NG INJECTION', 'OVER CUT', GETDATE()),
+('NG INJECTION', 'FLOW MARK', GETDATE()),
+('NG INJECTION', 'SILVER / NYEREP', GETDATE()),
+('NG INJECTION', 'CRACK / RETAK', GETDATE()),
+('NG INJECTION', 'PIN PATAH', GETDATE()),
+('NG INJECTION', 'BURRY', GETDATE()),
+('NG INJECTION', 'BUBBLE', GETDATE()),
+('NG INJECTION', 'VACUM', GETDATE()),
+('LAIN-LAIN', 'NYAMUK', GETDATE()),
+('LAIN-LAIN', 'RAMBUT', GETDATE())
+GO
 
--- Tabel transaksi
-IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='transactions' and xtype='U')
-CREATE TABLE transactions (
-    id BIGINT IDENTITY(1,1) PRIMARY KEY,
-    inv_id BIGINT NOT NULL,
-    line_id BIGINT NOT NULL,
-    robot_id BIGINT NOT NULL,
-    user_id BIGINT NOT NULL,
-    role VARCHAR(10) NOT NULL CHECK (role IN ('checker', 'poles')),
-    status VARCHAR(10) NOT NULL CHECK (status IN ('OK', 'POLESH', 'NG')),
-    qty INT NOT NULL,
-    shift VARCHAR(1) NOT NULL CHECK (shift IN ('1', '2')),
-    opposite_shift BIT DEFAULT 0,
-    checker_id BIGINT,
-    created_at DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (inv_id) REFERENCES inventories(id),
-    FOREIGN KEY (line_id) REFERENCES lines(id),
-    FOREIGN KEY (robot_id) REFERENCES robots(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (checker_id) REFERENCES transactions(id)
-);
+SELECT *
+FROM inventories
+
+SELECT *
+FROM transactions
+order by created_at desc
+WHERE created_at >= '2025-08-04 21:00:00'
+  AND created_at <  '2025-08-05 08:00:00'
+
+CREATE TABLE [dbo].[transactions](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[inv_id] [bigint] NOT NULL,
+	[barcode] [varchar](50) NOT NULL,
+	[line_id] [bigint] NOT NULL,
+	[robot_id] [bigint] NOT NULL,
+	[user_id] [bigint] NOT NULL,
+	[role] [varchar](10) NOT NULL,
+	[status] [varchar](10) NOT NULL,
+	[ng_detail_id] [bigint] NULL,
+	[qty] [int] NOT NULL,
+	[shift] [varchar](1) NULL,
+	[opposite_shift] [bit] NULL,
+	[created_at] [datetime] NULL,
+ CONSTRAINT [PK_transact_3214EC077AFA8A74] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 
 INSERT INTO [dbo].[inventories] (
     [project],

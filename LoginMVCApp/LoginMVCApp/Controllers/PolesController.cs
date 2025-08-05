@@ -225,10 +225,10 @@ public class PolesController : Controller
 
         string shift = matchedShift.ShiftName ?? "Unknown";
 
-        // Koreksi shiftDate jika jam sekarang < 08:00 dan shift 2
-        DateTime shiftDate = (shift == "2" && now.Hour < 8)
-            ? now.Date.AddDays(-1)
-            : now.Date;
+        // Koreksi CreatedAt jika shift 2 dini hari
+        DateTime createdAt = (shift == "2" && now.Hour < 8)
+            ? now.AddDays(-1)
+            : now;
 
         if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
         {
@@ -273,8 +273,8 @@ public class PolesController : Controller
         //}
         if (role.ToLower() == "poles" && status == "POLESH")
         {
-            var start = shiftDate;
-            var end = shiftDate.AddDays(1);
+            var start = createdAt;
+            var end = createdAt.AddDays(1);
 
             var allowedPolesh = _context.Transactions.Count(t =>
                 t.InvId == InvId &&
@@ -311,7 +311,7 @@ public class PolesController : Controller
             Status = status,
             Qty = 1,
             Shift = shift,
-            CreatedAt = DateTime.Now
+            CreatedAt = createdAt
         };
 
         _context.Transactions.Add(transaction);
