@@ -165,7 +165,6 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>   
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
@@ -190,7 +189,6 @@
     }, 3000); // 3 detik
 </script>
 <script>
-    let selectedNgDetailId = null;
         function submitStatus(status) {
         const robotSelect = document.getElementById("robotSelect");
         const selectedRobot = robotSelect.value;
@@ -202,28 +200,12 @@
 
         document.getElementById("selectedRobotId").value = selectedRobot;
 
-        if (status === "NG") {
-            selectedNgDetailId = null;
-            document.getElementById("ngDetailInput").value = "";
-            document.getElementById("sub-category-section").style.display = "none";
-            document.getElementById("ng-category-container").style.display = "flex";
-
-            document.getElementById("ng-section").style.display = "block";
-            return;
-        }
 
         document.getElementById("selectedRobotId").value = selectedRobot;
         document.getElementById("statusInput").value = status;
         robotSelect.disabled = false;
         document.getElementById("submitForm").submit();
     }
-
-        window.onload = function () {
-        @if (TempData["Message"] != null)
-        {
-           <text>alert("@TempData["Message"]");</text>
-        }
-    };
 
 </script>
 @{

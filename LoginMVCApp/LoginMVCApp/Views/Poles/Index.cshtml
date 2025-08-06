@@ -1,4 +1,4 @@
-@model LoginMVCApp.Models.Inventories
+@model LoginMVCApp.ViewModels.InventoryTransactionViewModel
 
 @{
     ViewData["Title"] = "Polesh Line - Scan Inventory";
@@ -17,54 +17,48 @@
 
         @if (Model != null)
         {
+            var data = Model.Inventory ?? Model.Transaction?.Inventory;
+            if (data != null)
+            {
             <form method="post" asp-action="SubmitTransaction" id="submitForm">
-                <input type="hidden" name="InventoryId" value="@Model.InvId" />
-                <input type="hidden" name="InvId" value="@ViewBag.InvId" />
-                <input type="hidden" id="statusInput" name="Status" />
-                <input type="hidden" id="selectedRobotId" name="RobotId" />
+                <input type="hidden" name="InventoryId" value="@(Model.Inventory?.InvId ?? Model.Transaction?.Barcode)" />
+                <input type="hidden" name="InvId" value="@(Model.Inventory?.Id ?? Model.Transaction?.Id)" />
+                <input type="hidden" id="statusInput" name="status" value="" />
+                <input type="hidden" id="selectedRobotId" name="RobotId" value="" />
+                <input type="hidden" id="isReturnInput" name="isReturn" value="false" />
                 <input type="hidden" id="ngDetailInput" name="NgDetailId" />
 
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="card shadow-sm bg-dark border-1">
                             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                <h4 class="mb-0 fw-bold text-uppercase" style="margin-left: 33%;">
-                                    @Model.PartName - @Model.Tipe
-                                </h4>
+                                <h4 class="mb-0 fw-bold text-uppercase" style="margin-left: 33%;">@data.PartName - @data.Tipe</h4>
                                 <div class="ms-auto">
-                                    <span class="bg-light text-dark fw-bold px-3 py-1 border border-dark rounded fs-4">
-                                        @Model.Project
-                                    </span>
+                                    <span class="bg-light text-dark fw-bold px-3 py-1 border border-dark rounded fs-4">@data.Project</span>
                                 </div>
                             </div>
                             <div class="card-body" style="background-color:lightblue">
                                 <div class="row">
                                     <div class="col-md-8">
-                                        <strong><h5>Inventory ID: <span>@Model.InvId</span></h5></strong>
+                                        <strong><h5>Inventory ID: <span>@(Model.Inventory?.InvId ?? Model.Transaction?.Barcode)</span></h5></strong>
                                     </div>
                                     <div class="col-md-2">
-                                        <strong><h5>Type: <span>@Model.Tipe</span></h5></strong>
+                                        <strong><h5>Type: <span>@data.Tipe</span></h5></strong>
                                     </div>
                                     <div class="col-md-2">
-                                        <strong><h5>Color: <span>@Model.Warna</span></h5></strong>
+                                        <strong><h5>Color: <span>@data.Warna</span></h5></strong>
                                     </div>
                                 </div>
+
                                 <div class="row mb-3">
                                     <div class="col-md-9">
-                                        <div class="form-floating" style="width: 300px;">
+                                        <div class="form-floating" style="width: 300px">
                                             <select id="robotSelect" class="form-select" asp-items="ViewBag.RobotList">
                                                 <option value="">Pilih Nama Robot</option>
                                             </select>
                                             <label for="RobotId">Nama Robot</label>
                                         </div>
                                     </div>
-                                    <div class="col-md-1">
-                                        <input type="number" id="jumlahQrInput" name="jumlahQr" class="form-control mb-2 rounded" style="width: 80px; height: 40px;" value="1" min="1" />
-                                        <div>Jumlah QR:</div>
-                                    </div>
-                                    <button type="button" class="btn btn-primary" style="width: 90px; height: 70px;" onclick="printQRCodePdf()">
-                                        Print PDF QR
-                                    </button>
                                 </div>
                                 <div class="row mb-4 text-center">
                                     <div class="col-md-3 mb-3">
@@ -127,6 +121,7 @@
                 </div>
             </form>
         }
+    }
 
         <div class="modal fade" id="ngDetailModal" tabindex="-1" aria-labelledby="ngDetailModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -180,24 +175,19 @@
             });
         }
 
+        // Fungsi untuk submit status yang dipilih
         function submitStatus(status) {
-            const robotSelect = document.getElementById("robotSelect");
-            if (!robotSelect.value) {
-                alert("Pilih Nama Robot terlebih dahulu.");
-                return;
-            }
-
-            document.getElementById("selectedRobotId").value = robotSelect.value;
 
             if (status === "NG") {
                 selectedNgDetailId = null;
                 document.getElementById("ngDetailInput").value = "";
                 document.getElementById("ng-section").style.display = "block";
                 document.getElementById("ng-category-container").style.display = "flex";
-                document.getElementById("sub-category-section").style.display = "none";
+                document.getElementById("sub-category-section").style.display = "none"; // Hide subcategory section
 
+                // Menampilkan kategori dan tombol Back, Confirm, Report
                 const categoryButtons = document.querySelectorAll("#ng-category-container button");
-                setButtonStates([...categoryButtons, "Back", "Report"]); // Izinkan tombol kategori, Back, dan Report
+                setButtonStates([...categoryButtons, "Back", "Report"]);
                 return;
             }
 
@@ -205,12 +195,14 @@
             document.getElementById("submitForm").submit();
         }
 
+        // Fungsi untuk menampilkan subkategori
         function showSubCategory(category) {
             const container = document.getElementById("subCategoryContainer");
             container.innerHTML = "";
             selectedNgDetailId = null;
             document.getElementById("ngDetailInput").value = "";
 
+            // Menambahkan tombol subkategori dinamis
             subCategories[category].forEach(sub => {
                 const btn = document.createElement("button");
                 btn.className = "btn btn-outline-dark subcategory-btn";
@@ -225,22 +217,25 @@
                 container.appendChild(btn);
             });
 
-            document.getElementById("ng-category-container").style.display = "none"; // Hide kategori
-            document.getElementById("sub-category-section").style.display = "block"; // Tampilkan subkategori
+            // Menyembunyikan kategori dan menampilkan subkategori
+            document.getElementById("ng-category-container").style.display = "none";
+            document.getElementById("sub-category-section").style.display = "block";
 
             const subCategoryButtons = document.querySelectorAll("#subCategoryContainer button");
-            setButtonStates([...subCategoryButtons, "Back", "Confirm", "Report"]); // Izinkan subkategori, Back, Confirm, dan Report
+            setButtonStates([...subCategoryButtons, "Back", "Confirm", "Report"]); // Tombol Back, Confirm, dan Report aktif
         }
 
+        // Fungsi untuk kembali ke kategori
         function backToCategory() {
             document.getElementById("ng-section").style.display = "none";
-            document.getElementById("ng-category-container").style.display = "none";
+            document.getElementById("ng-category-container").style.display = "flex";
             document.getElementById("sub-category-section").style.display = "none";
             selectedNgDetailId = null;
             document.getElementById("ngDetailInput").value = "";
-            setButtonStates([]); // Enable semua tombol
+            setButtonStates([]); // Semua tombol diaktifkan kembali
         }
 
+        // Fungsi untuk konfirmasi pilihan NG
         function confirmNG() {
             const robotSelect = document.getElementById("robotSelect");
             if (!robotSelect.value) {
@@ -253,13 +248,11 @@
                 return;
             }
 
+            // Menyimpan status dan ngDetailId
             document.getElementById("statusInput").value = "NG";
             document.getElementById("selectedRobotId").value = robotSelect.value;
             document.getElementById("ngDetailInput").value = selectedNgDetailId;
             document.getElementById("submitForm").submit();
         }
-        allButtons.forEach(btn => {
-            console.log(btn.innerText, btn.disabled ? "disabled" : "enabled");
-        });
     </script>
 }

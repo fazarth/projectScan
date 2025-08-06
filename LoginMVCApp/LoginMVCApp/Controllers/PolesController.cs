@@ -113,7 +113,17 @@ public class PolesController : Controller
     {
         PopulateNgCategories();
 
-        var inventory = _context.Inventories.FirstOrDefault(x => x.InvId == barcode);
+        //var inventory = _context.Inventories.FirstOrDefault(x => x.InvId == barcode);
+        var inventory = (from t in _context.Transactions
+                           join i in _context.Inventories on t.InvId equals i.Id into inventoryJoin
+                           from i in inventoryJoin.DefaultIfEmpty()
+                           where t.Barcode == barcode
+                           select new InventoryTransactionViewModel
+                           {
+                               Transaction = t,
+                               Inventory = i
+                           }).FirstOrDefault();
+
         var lineIdString = HttpContext.Session.GetString("LineId");
 
         if (inventory == null && lineIdString == null)
@@ -146,17 +156,17 @@ public class PolesController : Controller
             );
 
 
-        ViewBag.InvId = inventory.Id;
+        ViewBag.InvId = inventory.Inventory.Id;
         ViewBag.RobotList = robotList;
         ViewBag.Categories = categories;
         ViewBag.SubCategories = subCategories;
 
-        ViewBag.TotalOk = _context.Transactions.Count(x => x.Barcode == inventory.InvId && x.Status == "OK");
-        ViewBag.TotalPolesh = _context.Transactions.Count(x => x.Barcode == inventory.InvId && x.Status == "NG");
+        //ViewBag.TotalOk = _context.Transactions.Count(x => x.Barcode == inventory.Transaction.Barcode && x.Status == "OK");
+        //ViewBag.TotalPolesh = _context.Transactions.Count(x => x.Barcode == inventory.Transaction.Barcode && x.Status == "NG");
 
-        var total = ViewBag.TotalOk + ViewBag.TotalPolesh;
-        ViewBag.PercentOk = total > 0 ? (ViewBag.TotalOk * 100 / total) : 0;
-        ViewBag.PercentPolesh = total > 0 ? (ViewBag.TotalPolesh * 100 / total) : 0;
+        //var total = ViewBag.TotalOk + ViewBag.TotalPolesh;
+        //ViewBag.PercentOk = total > 0 ? (ViewBag.TotalOk * 100 / total) : 0;
+        //ViewBag.PercentPolesh = total > 0 ? (ViewBag.TotalPolesh * 100 / total) : 0;
 
         return View("Index", inventory);
     }
