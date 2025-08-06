@@ -1,4 +1,5 @@
 ﻿@model LoginMVCApp.ViewModels.InventoryTransactionViewModel
+
 @{
     ViewData["Title"] = "Checker Line - Scan Inventory";
 }
@@ -20,7 +21,7 @@
         {
             <form method="post" asp-action="SubmitTransaction" id="submitForm">
                 <input type="hidden" name="InventoryId" value="@(Model.Inventory?.InvId ?? Model.Transaction?.Barcode)" />
-                <input type="hidden" name="InvId" value="@(Model.Inventory?.Id)" />
+                <input type="hidden" name="InvId" value="@(Model.Inventory?.Id ?? Model.Transaction?.Id)" />
                 <input type="hidden" id="statusInput" name="status" value="" />
                 <input type="hidden" id="selectedRobotId" name="RobotId" value="" />
 
@@ -28,13 +29,9 @@
                     <div class="col-12">
                         <div class="card shadow-sm bg-dark border-1">
                             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                <h4 class="mb-0 fw-bold text-uppercase" style="margin-left: 33%;">
-                                    @data.PartName - @data.Tipe
-                                </h4>
+                                <h4 class="mb-0 fw-bold text-uppercase" style="margin-left: 33%;">@data.PartName - @data.Tipe</h4>
                                 <div class="ms-auto">
-                                    <span class="bg-light text-dark fw-bold px-3 py-1 border border-dark rounded fs-4">
-                                        @data.Project
-                                    </span>
+                                    <span class="bg-light text-dark fw-bold px-3 py-1 border border-dark rounded fs-4">@data.Project</span>
                                 </div>
                             </div>
                             <div class="card-body" style="background-color:lightblue">
@@ -71,6 +68,53 @@
                                         </button>
                                     }
                                 </div>
+                            @if (Model.Inventory != null)
+                            {
+                                <div class="row mb-4 text-center">
+                                    <!-- OK Section -->
+                                    <div class="col-md-3 mb-3">
+                                        <strong><h5>Total Qty OK:</h5></strong>
+                                        <div class="bg-success text-white rounded py-2 fw-bold mt-1">
+                                            <h5 id="ok-count">@ViewBag.TotalOk pcs</h5>
+                                        </div>
+
+                                        <div class="mt-2" style="margin-bottom: 65px;"></div>
+
+                                        <div class="d-flex gap-4 mt-8">
+                                            <div id="percent-ok-box"
+                                                    class="bg-success text-white rounded d-flex align-items-center justify-content-center"
+                                                    style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                @ViewBag.PercentOk%
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- POLESH Section -->
+                                    <div class="col-md-3 mb-3">
+                                        <strong><h5>Total Qty POLESH:</h5></strong>
+                                        <div class="bg-danger text-white rounded py-2 fw-bold mt-1">
+                                            <h5 id="polesh-count">@ViewBag.TotalPolesh pcs</h5>
+                                        </div>
+
+                                        <!-- Buttons Detail -->
+                                        <div class="mt-2 d-flex gap-2">
+                                            <button class="btn btn-primary">Check Detail</button>
+                                            <button class="btn btn-secondary" asp-controller="DailyReport" asp-action="DailyReport">Report</button>
+                                        </div>
+
+                                        <div class="mt-2" style="margin-bottom: 20px;"></div>
+
+                                        <!-- Button + Percent -->
+                                        <div class="mt-8 d-flex gap-4">                                       
+                                            <div id="percent-polesh"
+                                                    class="bg-danger text-white rounded d-flex align-items-center justify-content-center"
+                                                    style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                @ViewBag.PercentPolesh%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
 
                                 @if (Model.Transaction != null)
                                 {
@@ -85,8 +129,7 @@
                                             <div class="mt-2" style="margin-bottom: 65px;"></div>
 
                                             <div class="d-flex gap-4 mt-8">
-                                                <button onclick="submitStatus('OK');" class="btn btn-success"
-                                                        style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                <button onclick="submitStatus('OK');" class="btn btn-success" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
                                                     OK
                                                 </button>
 

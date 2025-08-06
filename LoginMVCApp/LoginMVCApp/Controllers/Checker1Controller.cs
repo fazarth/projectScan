@@ -63,9 +63,47 @@ namespace LoginMVCApp.Controllers
             var invDbId = result;
             var start = DateTime.Today;
             var end = start.AddDays(1);
+            long invDbIdInv = inventory?.Id ?? transaction.Inventory.Id;
+            var now = DateTime.Now;
+            var time = now.TimeOfDay;
 
+            // Definisi shift
+            var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
+            {
+                ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
+                ("1", new TimeSpan(16, 0, 1), new TimeSpan(20, 59, 59)),
+                ("2", new TimeSpan(21, 0, 0), new TimeSpan(23, 59, 59)),
+                ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
+            };
+
+            // Cari shift sekarang
+            var matchedShift = shiftDefinitions.FirstOrDefault(s =>
+                s.Start <= s.End ? time >= s.Start && time <= s.End : time >= s.Start || time <= s.End);
+
+            string currentShift = matchedShift.ShiftName ?? "Unknown";
+
+            // Tentukan tanggal shift, khusus shift 2 subuh mundur sehari
+            DateTime shiftDate = (currentShift == "2" && now.Hour < 8)
+                ? now.Date.AddDays(-1)
+                : now.Date;
+
+            // Batas shiftStart dan shiftEnd
+            DateTime shiftStart, shiftEnd;
+
+            if (currentShift == "1")
+            {
+                shiftStart = shiftDate.AddHours(8);        // 08:00
+                shiftEnd = shiftDate.AddHours(21);         // 20:59:59
+            }
+            else
+            {
+                shiftStart = shiftDate.AddHours(21);       // 21:00 malam
+                shiftEnd = shiftDate.AddDays(1).AddHours(8); // 07:59 esok hari
+            }
+
+            // Ganti query total transaksi agar pakai waktu shift
             var todayTrans = _context.Transactions
-                .Where(t => t.Barcode == invDbId && t.CreatedAt >= start && t.CreatedAt < end);
+                .Where(t => t.InvId == invDbIdInv && t.CreatedAt >= shiftStart && t.CreatedAt < shiftEnd);
 
             var totalOk = todayTrans.Count(t => t.Status == "OK");
             var totalPolesh = todayTrans.Count(t => t.Status == "POLESH");
@@ -80,6 +118,7 @@ namespace LoginMVCApp.Controllers
             PopulateRobotDropdown(selectedRobotId);
 
             ViewBag.InvId = invDbId;
+            ViewBag.invDbIdInv = invDbIdInv;
             ViewBag.DataType = dataType;
 
             // Membuat ViewModel dan mengirimkan ke view
@@ -167,7 +206,8 @@ namespace LoginMVCApp.Controllers
 
             var lineId = long.Parse(HttpContext.Session.GetString("LineId") ?? "0");
             var role = HttpContext.Session.GetString("Role") ?? "Checker";
-            var now = DateTime.Now.TimeOfDay;
+            var now = DateTime.Now;
+            var time = now.TimeOfDay;
 
             // Menentukan shift berdasarkan waktu
             var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
@@ -178,11 +218,17 @@ namespace LoginMVCApp.Controllers
                 ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
             };
 
-            string shift = shiftDefinitions
+            var matchedShift = shiftDefinitions
                 .FirstOrDefault(s => s.Start <= s.End
-                    ? now >= s.Start && now <= s.End
-                    : now >= s.Start || now <= s.End
-                ).ShiftName ?? "Unknown";
+                    ? time >= s.Start && time <= s.End
+                    : time >= s.Start || time <= s.End);
+
+            string shift = matchedShift.ShiftName ?? "Unknown";
+
+            // Koreksi CreatedAt jika shift 2 dini hari
+            DateTime createdAt = (shift == "2" && now.Hour < 8)
+                ? now.AddDays(-1)
+                : now;
 
             // Validasi input
             //if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
@@ -193,7 +239,7 @@ namespace LoginMVCApp.Controllers
 
             // ✅ Cek apakah sudah ada transaksi yang sama
             var existingTransaction = _context.Transactions
-                .Where(t => t.InvId == InvId && t.UserId == userId)
+                .Where(t => t.Barcode == InventoryId&& t.UserId == userId)
                 .OrderByDescending(t => t.CreatedAt)
                 .FirstOrDefault();
 
@@ -225,11 +271,11 @@ namespace LoginMVCApp.Controllers
                     existingTransaction.RobotId = RobotId;
                     updated = true;
                 }
-                if (existingTransaction.Barcode != InventoryId)
-                {
-                    existingTransaction.Barcode = InventoryId;
-                    updated = true;
-                }
+                //if (existingTransaction.Barcode != InventoryId)
+                //{
+                //    existingTransaction.Barcode = InventoryId;
+                //    updated = true;
+                //}
                 if (existingTransaction.LineId != lineId)
                 {
                     existingTransaction.LineId = lineId;
@@ -396,6 +442,7 @@ namespace LoginMVCApp.Controllers
                             int nomorUrut = startNumber + i;
                             var tanggal = DateTime.Now.ToString("yyyyMMdd");
                             string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
+                            QRCombine += qrDataString + "\n";
                             using var qrGenerator = new QRCodeGenerator();
                             using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
                             var qrCodePngByte = new PngByteQRCode(qrCodeData);
