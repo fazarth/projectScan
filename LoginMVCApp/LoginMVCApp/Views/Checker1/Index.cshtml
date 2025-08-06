@@ -24,7 +24,7 @@
                 <input type="hidden" name="InvId" value="@(Model.Inventory?.Id ?? Model.Transaction?.Id)" />
                 <input type="hidden" id="statusInput" name="status" value="" />
                 <input type="hidden" id="selectedRobotId" name="RobotId" value="" />
-
+                <input type="hidden" id="isReturnInput" name="isReturn" value="false" />
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="card shadow-sm bg-dark border-1">
@@ -126,7 +126,14 @@
                                                 <h5 id="ok-count">@ViewBag.TotalOk pcs</h5>
                                             </div>
 
-                                            <div class="mt-2" style="margin-bottom: 65px;"></div>
+                                            <div class="mt-2 d-flex gap-2">
+                                                <input class="form-check-input" type="checkbox" value="true" id="isReturn" onchange="updateReturnStatus()">
+                                                <label class="form-check-label" for="isReturn">
+                                                    Item Balikan?
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="mt-2" style="margin-bottom: 35px;"></div>
 
                                             <div class="d-flex gap-4 mt-8">
                                                 <button onclick="submitStatus('OK');" class="btn btn-success" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
@@ -150,7 +157,7 @@
 
                                             <!-- Buttons Detail -->
                                             <div class="mt-2 d-flex gap-2">
-                                                <button class="btn btn-primary">Check Detail</button>
+                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ngDetailModal">Check Detail</button>
                                                 <button class="btn btn-secondary" asp-controller="DailyReport" asp-action="DailyReport">Report</button>
                                             </div>
 
@@ -177,6 +184,59 @@
                     </div>
                 </div>
             </form>
+
+            @* Modal konfirmasi balikan *@
+            <div class="modal fade" id="returnConfirmationModal" tabindex="-1" aria-labelledby="returnConfirmationModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="returnConfirmationModalLabel">Konfirmasi Barang Balikan</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Apakah Anda yakin ini barang balikan ?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-primary" onclick="confirmReturn()">Konfirmasi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            @* Modal NG Detail *@
+            <div class="modal fade" id="ngDetailModal" tabindex="-1" aria-labelledby="ngDetailModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="ngDetailModalLabel">Detail NG Transaksi Hari Ini</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            @if (ViewBag.NgDetailsForDisplay != null && (ViewBag.NgDetailsForDisplay as List<LoginMVCApp.ViewModels.NgSummaryViewModel>).Any())
+                            {
+                                <ul class="list-group">
+                                    @foreach (var detail in ViewBag.NgDetailsForDisplay as List<LoginMVCApp.ViewModels.NgSummaryViewModel>)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            @detail.Category - @detail.SubCategory
+                                            <span class="badge bg-primary rounded-pill">@detail.Count pcs (@detail.Role)</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p>Tidak ada detail NG yang tercatat untuk inventory ini hari ini.</p>
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
         else
         {
@@ -190,3 +250,4 @@
         <p>No data found.</p>
     }
 </div>
+
