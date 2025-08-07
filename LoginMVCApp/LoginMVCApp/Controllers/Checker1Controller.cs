@@ -252,38 +252,41 @@ namespace LoginMVCApp.Controllers
             counter.LastNumber += jumlahQr; // update total
             _context.SaveChanges(); // simpan ke DB
 
-
             var pdfStream = new MemoryStream();
             Document.Create(container =>
             {
-                container.Page(page =>
+                for (int i = 0; i < jumlahQr; i += 6)
                 {
-                    page.Size(PageSizes.A4);
-                    page.Margin(20);
-                    page.Content().Column(mainColumn =>
+                    container.Page(page =>
                     {
-                        for (int i = 0; i < jumlahQr; i++)
+                        page.Size(PageSizes.A4);
+                        page.Margin(20);
+                        page.Content().Column(mainColumn =>
                         {
-                            int nomorUrut = startNumber + i;
-                            var tanggal = DateTime.Now.ToString("yyyyMMdd");
-                            string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
-                            QRCombine += qrDataString + "\n";
-                            using var qrGenerator = new QRCodeGenerator();
-                            using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
-                            var qrCodePngByte = new PngByteQRCode(qrCodeData);
-                            byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
-
-                            mainColumn.Item().Column(itemColumn =>
+                            mainColumn.Item().Row(row =>
                             {
-                                itemColumn.Item()
-                                    .AlignCenter()
-                                    .Width(150)
-                                    .Height(150)
-                                    .Image(qrImageBytes); // Hapus FitWidth(), atur ukuran langsung
+                                for (int j = 0; j < 6 && (i + j) < jumlahQr; j++)
+                                {
+                                    int nomorUrut = startNumber + i + j;
+                                    var tanggal = DateTime.Now.ToString("yyyyMMdd");
+                                    string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
+                                    QRCombine += qrDataString + "\n";
+
+                                    using var qrGenerator = new QRCodeGenerator();
+                                    using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
+                                    var qrCodePngByte = new PngByteQRCode(qrCodeData);
+                                    byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
+
+                                    row.RelativeItem().AlignCenter().Container()
+                                    .Width(28.35f)
+                                    .Height(28.35f)
+                                    .Image(qrImageBytes);
+                                        }
+                                    });
                             });
-                        }
-                    });
-                });
+
+                        });
+                    }
             }).GeneratePdf(pdfStream);
 
             pdfStream.Position = 0;
