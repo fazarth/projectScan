@@ -35,18 +35,27 @@ public class PolesController : Controller
 
         if (string.IsNullOrEmpty(inventoryId)) return View(); // belum scan
 
-        var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == inventoryId);
-        if (inventory == null)
+        //var inventory = _context.Transactions.FirstOrDefault(i => i.Barcode == inventoryId);
+        var transaction = (from t in _context.Transactions
+                           join i in _context.Inventories on t.InvId equals i.Id into inventoryJoin
+                           from i in inventoryJoin.DefaultIfEmpty()
+                           where t.Barcode == inventoryId
+                           select new
+                           {
+                               Transaction = t,
+                               Inventory = i
+                           }).FirstOrDefault();
+        if (transaction == null)
         {
             TempData["Message"] = "Inventory tidak ditemukan.";
             PopulateRobotDropdown();
             return View();
         }
 
-        HttpContext.Session.SetString("Project", inventory.Project ?? "");
-        HttpContext.Session.SetString("Warna", inventory.Warna ?? "");
+        HttpContext.Session.SetString("Project", transaction.Inventory.Project ?? "");
+        HttpContext.Session.SetString("Warna", transaction.Inventory.Warna ?? "");
 
-        var invDbId = inventory.Id;
+        var invDbId = transaction.Inventory.Id;
         var start = DateTime.Today;
         var end = start.AddDays(1);
 
@@ -96,7 +105,14 @@ public class PolesController : Controller
         PopulateRobotDropdown(selectedRobotId);
 
         ViewBag.InvId = invDbId;
-        return View(inventory);
+        var viewModel = new InventoryTransactionViewModel
+        {
+            Inventory = transaction.Inventory,
+            Transaction = transaction?.Transaction
+        };
+
+        return View(viewModel);
+        //return View(inventory);
     }
 
     [HttpGet]
@@ -109,7 +125,7 @@ public class PolesController : Controller
     }
 
     [HttpPost]
-    public IActionResult ScanTransaction(string barcode)
+    public IActionResult ScanTransaction(string inventoryId)
     {
         PopulateNgCategories();
 
@@ -117,8 +133,8 @@ public class PolesController : Controller
         var inventory = (from t in _context.Transactions
                            join i in _context.Inventories on t.InvId equals i.Id into inventoryJoin
                            from i in inventoryJoin.DefaultIfEmpty()
-                           where t.Barcode == barcode
-                           select new InventoryTransactionViewModel
+                           where t.Barcode == inventoryId
+                         select new InventoryTransactionViewModel
                            {
                                Transaction = t,
                                Inventory = i
@@ -126,7 +142,7 @@ public class PolesController : Controller
 
         var lineIdString = HttpContext.Session.GetString("LineId");
 
-        if (inventory == null && lineIdString == null)
+        if (inventory == null && lineIdString == null && inventory.Transaction.Status != "POLESH")
         {
             TempData["Message"] = "Inventory tidak ditemukan.";
             ViewBag.RobotList = new List<SelectListItem>();
@@ -142,6 +158,15 @@ public class PolesController : Controller
                 Value = r.Id.ToString()
             })
             .ToList();
+
+        var totalOk = _context.Transactions.Count(t => t.InvId == inventory.Inventory.Id && t.Status == "OK");
+        var totalNG = _context.Transactions.Count(t => t.InvId == inventory.Inventory.Id && t.Status == "NG");
+        var totalTrans = totalOk + totalNG;
+
+        ViewBag.TotalOk = totalOk;
+        ViewBag.TotalPolesh = totalNG;
+        ViewBag.PercentOk = totalTrans == 0 ? 0 : Math.Round((double)totalOk / totalTrans * 100, 1);
+        ViewBag.PercentPolesh = totalTrans == 0 ? 0 : Math.Round((double)totalNG / totalTrans * 100, 1);
 
         var categories = _context.Ng_Categories.Select(c => c.Category).Distinct().ToList();
 
@@ -168,7 +193,8 @@ public class PolesController : Controller
         //ViewBag.PercentOk = total > 0 ? (ViewBag.TotalOk * 100 / total) : 0;
         //ViewBag.PercentPolesh = total > 0 ? (ViewBag.TotalPolesh * 100 / total) : 0;
 
-        return View("Index", inventory);
+        //return View("Index", inventory);
+        return RedirectToAction(nameof(Index), new { inventoryId });
     }
 
     [HttpPost]
@@ -184,7 +210,7 @@ public class PolesController : Controller
     //    return View("Index");
     //}
 
-    public IActionResult SubmitTransaction(long InvId, string InventoryId, string status, long RobotId, long? NgDetailId)
+    public IActionResult SubmitTransaction(long InvId, string InventoryId, string status, long RobotId, long? NgDetailId, bool isReturn)
     {
         var userIdStr = HttpContext.Session.GetString("UserId");
         if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out long userId) || userId == 0)
@@ -309,23 +335,93 @@ public class PolesController : Controller
             }
         }
 
-        var transaction = new Transactions
-        {
-            InvId = InvId,
-            Barcode = InventoryId,
-            RobotId = RobotId,
-            UserId = userId,
-            LineId = lineId,
-            NgDetailId = NgDetailId,
-            Role = role,
-            Status = status,
-            Qty = 1,
-            Shift = shift,
-            CreatedAt = createdAt
-        };
+        var existingTransaction = _context.Transactions
+                .Where(t => t.Barcode == InventoryId)
+                .OrderByDescending(t => t.CreatedAt)
+                .FirstOrDefault();
 
-        _context.Transactions.Add(transaction);
-        _context.SaveChanges();
+        //if (existingTransaction != null && !isReturn && (existingTransaction.Status == "OK" || existingTransaction.Status == "POLESH" || existingTransaction.Status == "NG"))
+        //{
+        //    TempData["ShowReturnConfirmation"] = "true";
+        //    TempData["ExistingStatus"] = existingTransaction.Status;
+        //    TempData["InventoryId"] = InventoryId;
+        //    Console.WriteLine("TempData Set: ShowReturnConfirmation = true");
+        //    return RedirectToAction("Index", new { inventoryId = InventoryId });
+        //}
+
+        if (existingTransaction != null)
+        {
+            // Update existing transaction
+            bool updated = false;
+
+            if (existingTransaction.Status != status)
+            {
+                existingTransaction.Status = status;
+                updated = true;
+            }
+            if (existingTransaction.RobotId != RobotId)
+            {
+                existingTransaction.RobotId = RobotId;
+                updated = true;
+            }
+            if (existingTransaction.LineId != lineId)
+            {
+                existingTransaction.LineId = lineId;
+                updated = true;
+            }
+            if (existingTransaction.Role != role)
+            {
+                existingTransaction.Role = role;
+                updated = true;
+            }
+            if (existingTransaction.Shift != shift)
+            {
+                existingTransaction.Shift = shift;
+                updated = true;
+            }
+            if (existingTransaction.Is_Return != isReturn)
+            {
+                existingTransaction.Is_Return = isReturn;
+                updated = true;
+            }
+            if (existingTransaction.NgDetailId != NgDetailId)
+            {
+                existingTransaction.NgDetailId = NgDetailId;
+                updated = true;
+            }
+
+            if (updated)
+            {
+                existingTransaction.CreatedAt = DateTime.Now;
+                _context.Transactions.Update(existingTransaction);
+                _context.SaveChanges();
+                TempData["Message"] = "Transaksi berhasil diperbarui.";
+            }
+        }
+        else
+        {
+            // Insert new transaction
+            var transaction = new Transactions
+            {
+                InvId = InvId,
+                Barcode = InventoryId,
+                RobotId = RobotId,
+                UserId = userId,
+                LineId = lineId,
+                Role = role,
+                Status = status,
+                NgDetailId = null,
+                Qty = 1,
+                Shift = shift,
+                OppositeShift = false,
+                CreatedAt = DateTime.Now,
+                Is_Return = isReturn
+            };
+
+            _context.Transactions.Add(transaction);
+            _context.SaveChanges();
+            TempData["Message"] = "Transaksi berhasil ditambahkan.";
+        }
 
         HttpContext.Session.SetString("SelectedRobotId", RobotId.ToString());
 

@@ -158,8 +158,8 @@
     <footer class="bg-light text-center text-lg-start border-top py-3 mt-auto">
         <div class="container">
             <span class="text-muted">
-                &copy; 2025 - PT. Takagi Sari Multi Utama -
-                <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Home</a>
+                &copy; 2025 - PT. Takagi Sari Multi Utama
+                @* <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Home</a> *@
             </span>
         </div>
     </footer>
@@ -189,7 +189,20 @@
     }, 3000); // 3 detik
 </script>
 <script>
-        function submitStatus(status) {
+    // Fungsi untuk menonaktifkan semua tombol di dalam section
+    function disableButtonsInSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        const buttons = section.querySelectorAll("button");
+
+        // Menonaktifkan semua tombol di dalam section
+        buttons.forEach(btn => {
+            btn.disabled = true;
+        });
+    }
+
+    function submitStatus(status) {
+        // Jika status NG, menonaktifkan tombol lain dan menampilkan kategori dan back
+        document.getElementById("statusInput").value = status;
         const robotSelect = document.getElementById("robotSelect");
         const selectedRobot = robotSelect.value;
 
@@ -199,13 +212,27 @@
         }
 
         document.getElementById("selectedRobotId").value = selectedRobot;
+        
+        if (status === "NG") {
+            // Menonaktifkan tombol-tombol di dalam NG-section dan OK-section
+            disableButtonsInSection("NG-section");
+            disableButtonsInSection("OK-section");
 
-
-        document.getElementById("selectedRobotId").value = selectedRobot;
-        document.getElementById("statusInput").value = status;
-        robotSelect.disabled = false;
+            // Menampilkan kategori dan tombol Back
+            selectedNgDetailId = null;
+            document.getElementById("ngDetailInput").value = "";
+            document.getElementById("ng-section").style.display = "block";
+            document.getElementById("category-section").style.display = "block"; // Tampilkan kategori
+            document.getElementById("ng-category-container").style.display = "flex"; // Tampilkan kategori container
+            document.getElementById("sub-category-section").style.display = "none"; // Sembunyikan subkategori
+            document.getElementById("backBtn").style.display = "flex"; // Tampilkan tombol back
+            document.getElementById("confirmBtn").style.display = "none"; // Sembunyikan tombol confirm
+            return;
+        }
+        
         document.getElementById("submitForm").submit();
     }
+
 
 </script>
 @{
@@ -216,16 +243,9 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         var showReturnConfirmation = '@(TempData["ShowReturnConfirmation"] != null ? TempData["ShowReturnConfirmation"].ToString() : "false")'; 
-
-        console.log(showReturnConfirmation); 
-        console.log("Ini datanya: ", showReturnConfirmation);
-
         if (showReturnConfirmation === 'true') {
-            console.log("Masuk sini");
             var modal = new bootstrap.Modal(document.getElementById('returnConfirmationModal'));
             modal.show();
-        } else {
-            console.log("Tidak masuk ke kondisi karena:", showReturnConfirmation); 
         }
     });
 
@@ -233,8 +253,6 @@
         const isReturnCheckbox = document.getElementById('isReturn');
         const isReturnInput = document.getElementById('isReturnInput');
         isReturnInput.value = isReturnCheckbox.checked.toString();
-        console.log(isReturnCheckbox);
-        console.log(isReturnInput);
     }
 
     function confirmReturn() {
