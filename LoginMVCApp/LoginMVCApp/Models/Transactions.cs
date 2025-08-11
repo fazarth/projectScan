@@ -53,7 +53,7 @@ namespace LoginMVCApp.Models
         public string Shift { get; set; } = "0";
 
         [Column("opposite_shift")]
-        public bool OppositeShift { get; set; } = false;
+        public string OppositeShift { get; set; } = "0";
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;

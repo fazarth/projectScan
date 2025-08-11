@@ -20,106 +20,103 @@
             var data = Model.Inventory ?? Model.Transaction?.Inventory;
             if (data != null)
             {
-            <form method="post" asp-action="SubmitTransaction" id="submitForm">
-                <input type="hidden" name="InventoryId" value="@(Model.Transaction?.Barcode)" />
-                <input type="hidden" name="InvId" value="@(Model.Inventory?.Id ?? Model.Transaction?.InvId)" />
-                <input type="hidden" id="statusInput" name="status" value="" />
-                <input type="hidden" id="selectedRobotId" name="RobotId" value="" />
-                <input type="hidden" id="isReturnInput" name="isReturn" value="false" />
-                <input type="hidden" id="ngDetailInput" name="NgDetailId" />
+                <form method="post" asp-action="SubmitTransaction" id="submitForm">
+                    <input type="hidden" name="InventoryId" value="@(Model.Transaction?.Barcode)" />
+                    <input type="hidden" name="InvId" value="@(Model.Inventory?.Id ?? Model.Transaction?.InvId)" />
+                    <input type="hidden" id="statusInput" name="status" value="@(TempData["NewStatus"]?.ToString() ?? TempData["ExistingStatus"]?.ToString() ?? "")" />
+                    <input type="hidden" id="isReturnInput" name="isReturn" value="false" />
+                    <input type="hidden" id="isOppositeShitInput" name="isOppositeShit" value="false" />
+                    <input type="hidden" id="selectedRobotId" name="RobotId" value="" />
+                    <input type="hidden" id="ngDetailInput" name="NgDetailId" />
 
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card shadow-sm bg-dark border-1">
-                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                <h4 class="mb-0 fw-bold text-uppercase" style="margin-left: 33%;">@data.PartName - @data.Tipe</h4>
-                                <div class="ms-auto">
-                                    <span class="bg-light text-dark fw-bold px-3 py-1 border border-dark rounded fs-4">@data.Project</span>
-                                </div>
-                            </div>
-                            <div class="card-body" style="background-color:lightblue">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <strong><h5>Inventory ID: <span>@(Model.Transaction?.Barcode)</span></h5></strong>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <strong><h5>Type: <span>@data.Tipe</span></h5></strong>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <strong><h5>Color: <span>@data.Warna</span></h5></strong>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card shadow-sm bg-dark border-1">
+                                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                    <h4 class="mb-0 fw-bold text-uppercase" style="margin-left: 33%;">@data.PartName - @data.Tipe</h4>
+                                    <div class="ms-auto">
+                                        <span class="bg-light text-dark fw-bold px-3 py-1 border border-dark rounded fs-4">@data.Project</span>
                                     </div>
                                 </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-9">
-                                        <div class="form-floating" style="width: 300px">
-                                            <select id="robotSelect" class="form-select" asp-items="ViewBag.RobotList">
-                                                <option value="">Pilih Nama Robot</option>
-                                            </select>
-                                            <label for="RobotId">Nama Robot</label>
+                                <div class="card-body" style="background-color:lightblue">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <strong><h5>Inventory ID: <span>@(Model.Transaction?.Barcode)</span></h5></strong>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <strong><h5>Type: <span>@data.Tipe</span></h5></strong>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <strong><h5>Color: <span>@data.Warna</span></h5></strong>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row mb-4 text-center">
-                                    <div class="col-md-3 mb-3" id="OK-section">
-                                        <strong><h5>Total Qty OK:</h5></strong>
-                                        <div class="bg-success text-white rounded py-2 fw-bold mt-1">
-                                            <h5 id="ok-count">@ViewBag.TotalOk pcs</h5>
-                                        </div>
-                                        <div class="mt-2 d-flex gap-2">
-                                            <input class="form-check-input" type="checkbox" value="true" id="isReturn" onchange="updateReturnStatus()">
-                                            <label class="form-check-label" for="isReturn">
-                                                Item Balikan?
-                                            </label>
-                                        </div>
 
-                                        <div class="mt-2" style="margin-bottom: 35px;"></div>
-                                        <div class="d-flex gap-4 mt-8">
-                                            <button type="button" onclick="submitStatus('OK');" class="btn btn-success" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
-                                                OK
-                                            </button>
-                                            <div id="percent-ok-box" class="bg-success text-white rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
-                                                @ViewBag.PercentOk%
+                                    <div class="row mb-4 text-center" style="margin-top: 30px;">
+                                        <div class="col-md-3 mb-3" id="OK-section">
+                                            <strong><h5>Total Qty OK:</h5></strong>
+                                            <div class="bg-success text-white rounded py-2 fw-bold mt-1">
+                                                <h5 id="ok-count">@ViewBag.TotalOk pcs</h5>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 mb-3" id="NG-section">
-                                        <strong><h5>Total Qty NG:</h5></strong>
-                                        <div class="bg-danger text-white rounded py-2 fw-bold mt-1">
-                                            <h5 id="polesh-count">@ViewBag.TotalPolesh pcs</h5>
-                                        </div>
-                                        <div class="mt-2 d-flex gap-2">
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ngDetailModal">Check Detail</button>
-                                            <button asp-controller="DailyReport" asp-action="DailyReport" class="btn btn-secondary">Report</button>
-                                        </div>
-                                        <div class="mt-2" style="margin-bottom: 20px;"></div>
-                                        <div class="mt-8 d-flex gap-4">
-                                            <button type="button" onclick="submitStatus('NG');" class="btn btn-danger d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
-                                                NG
-                                            </button>
-                                            <div id="percent-polesh" class="bg-danger text-white rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
-                                                @ViewBag.PercentPolesh%
+                                            <div class="mt-2 d-flex gap-2">
+                                                <input class="form-check-input" type="checkbox" value="true" id="isReturn" onchange="updateReturnStatus()">
+                                                <label class="form-check-label" for="isReturn">
+                                                    Item Balikan?
+                                                </label>
+                                                <input class="form-check-input" type="checkbox" value="true" id="isOppositeShit" onchange="updateOppositeShit()">
+                                                <label class="form-check-label" for="isOppositeShit">
+                                                    Lawan Shift?
+                                                </label>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <div id="ng-section">
-                                            <div id="category-section" style="display:none">
-                                                <h5><strong>Pilih Kategori NG:</strong></h5>
-                                                <div id="ng-category-container" class="d-flex flex-wrap gap-2">
-                                                    @foreach (var cat in (ViewBag.Categories as List<string> ?? new List<string>()))
-                                                    {
-                                                        <button type="button" class="btn btn-warning" onclick="showSubCategory('@cat')">@cat</button>
-                                                    }
+
+                                            <div class="mt-2" style="margin-bottom: 35px;"></div>
+                                            <div class="d-flex gap-4 mt-8">
+                                                <button type="button" onclick="submitStatus('OK');" class="btn btn-success" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                    OK
+                                                </button>
+                                                <div id="percent-ok-box" class="bg-success text-white rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                    @ViewBag.PercentOk%
                                                 </div>
                                             </div>
-                                            <div id="sub-category-section" class="mt-3" style="display:none;">
-                                                <h5><strong>Sub Kategori:</strong></h5>
-                                                <div id="subCategoryContainer" class="d-flex flex-wrap gap-2"></div>
+                                        </div>
+                                        <div class="col-md-3 mb-3" id="NG-section">
+                                            <strong><h5>Total Qty NG:</h5></strong>
+                                            <div class="bg-danger text-white rounded py-2 fw-bold mt-1">
+                                                <h5 id="polesh-count">@ViewBag.TotalPolesh pcs</h5>
                                             </div>
-                                            <div class="mt-3 d-flex gap-2" id="btnAction" style="display:none">
-                                                <button type="button" id="backBtn" style="display:none;" class="btn btn-secondary" onclick="backToCategory()">Back</button>
-                                                <button type="button" id="confirmBtn" style="display:none;" class="btn btn-success" onclick="confirmNG()">Confirm</button>
+                                            <div class="mt-2 d-flex gap-2">
+                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ngDetailModal">Check Detail</button>
+                                                <button asp-controller="DailyReport" asp-action="DailyReport" class="btn btn-secondary">Report</button>
+                                            </div>
+                                            <div class="mt-2" style="margin-bottom: 20px;"></div>
+                                            <div class="mt-8 d-flex gap-4">
+                                                <button type="button" onclick="submitStatus('NG');" class="btn btn-danger d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                    NG
+                                                </button>
+                                                <div id="percent-polesh" class="bg-danger text-white rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-weight: bold; font-size: 20px;">
+                                                    @ViewBag.PercentPolesh%
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <div id="ng-section">
+                                                <div id="category-section" style="display:none">
+                                                    <h5><strong>Pilih Kategori NG:</strong></h5>
+                                                    <div id="ng-category-container" class="d-flex flex-wrap gap-2">
+                                                        @foreach (var cat in (ViewBag.Categories as List<string> ?? new List<string>()))
+                                                        {
+                                                            <button type="button" class="btn btn-warning" style="width: 240px; height: 40px" onclick="showSubCategory('@cat')">@cat</button>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div id="sub-category-section" class="mt-3" style="display:none;">
+                                                    <h5><strong>Sub Kategori:</strong></h5>
+                                                    <div id="subCategoryContainer" class="d-flex flex-wrap gap-2"></div>
+                                                </div>
+                                                <div class="mt-3 d-flex gap-2" id="btnAction" style="display:none; float: right;">
+                                                    <button type="button" id="cancelBtn" style="display:none; width: 100px; text-align:center" class="btn btn-secondary" onclick="cancelBtnFunc()">Cancel</button>
+                                                    <button type="button" id="backBtn" style="display:none; width: 100px; text-align:center;" class="btn btn-info" onclick="backBtnFunc()">Back</button>
+                                                    <button type="button" id="confirmBtn" style="display:none; width: 100px; text-align:center;" class="btn btn-success" onclick="confirmNG()">Confirm</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -127,10 +124,28 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            }
         }
-    }
+
+        @* Modal konfirmasi balikan *@
+        <div class="modal fade" id="returnConfirmationModal" tabindex="-1" aria-labelledby="returnConfirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="returnConfirmationModalLabel">Konfirmasi Barang Balikan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Apakah Anda yakin ini barang balikan ?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmReturn()">Konfirmasi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="modal fade" id="ngDetailModal" tabindex="-1" aria-labelledby="ngDetailModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -176,22 +191,23 @@
             const container = document.getElementById("subCategoryContainer");
             container.innerHTML = "";
             selectedNgDetailId = null;
-            document.getElementById("ngDetailInput").value = "";
+            document.getElementById("ngDetailInput").value = ""; // Reset NgDetailId
+
             document.getElementById("sub-category-section").style.display = "block"; // Tampilkan subkategori
             document.getElementById("category-section").style.display = "none"; // Sembunyikan kategori
             document.getElementById("confirmBtn").style.display = "block";
-            console.log("ini sub kategori");
+            document.getElementById("backBtn").style.display = "block";
 
             if (subCategories[category]) {
-                console.log("ini button sub kategori");
                 subCategories[category].forEach(sub => {
                     const btn = document.createElement("button");
-                    btn.className = "btn btn-outline-dark subcategory-btn";
+                    btn.className = "btn subcategory-btn btn-warning";
                     btn.textContent = sub.name;
                     btn.type = "button";
+                    btn.style = "width: 180px; height: 40px";
                     btn.onclick = () => {
-                        selectedNgDetailId = sub.id;
-                        document.getElementById("ngDetailInput").value = sub.id;
+                        selectedNgDetailId = sub.id; // Set NgDetailId
+                        document.getElementById("ngDetailInput").value = sub.id; // Set NgDetailId di form
                         container.querySelectorAll("button").forEach(b => b.classList.remove("active"));
                         btn.classList.add("active");
                     };
@@ -203,7 +219,7 @@
         }
 
         // Fungsi untuk kembali ke kategori
-        function backToCategory() {
+        function cancelBtnFunc() {
             document.getElementById("ng-section").style.display = "none";
             document.getElementById("ng-category-container").style.display = "flex"; // Tampilkan kategori lagi
             document.getElementById("sub-category-section").style.display = "none"; // Sembunyikan subkategori
@@ -212,6 +228,18 @@
 
             enableButtonsInSection("NG-section");
             enableButtonsInSection("OK-section");
+        }
+
+        function backBtnFunc() {
+            selectedNgDetailId = null;
+            document.getElementById("ngDetailInput").value = "";
+            document.getElementById("ng-section").style.display = "block";
+            document.getElementById("category-section").style.display = "block"; // Tampilkan kategori
+            document.getElementById("ng-category-container").style.display = "flex"; // Tampilkan kategori container
+            document.getElementById("sub-category-section").style.display = "none"; // Sembunyikan subkategori
+            document.getElementById("cancelBtn").style.display = "block"; // Tampilkan tombol back
+            document.getElementById("confirmBtn").style.display = "none"; // Sembunyikan tombol confirm
+            document.getElementById("backBtn").style.display = "none"; // Sembunyikan tombol confirm
         }
 
         function enableButtonsInSection(sectionId) {
@@ -226,12 +254,6 @@
 
         // Fungsi untuk konfirmasi pilihan NG
         function confirmNG() {
-            const robotSelect = document.getElementById("robotSelect");
-            if (!robotSelect.value) {
-                alert("Pilih Nama Robot terlebih dahulu.");
-                return;
-            }
-
             if (!selectedNgDetailId) {
                 alert("Detail NG harus dipilih!");
                 return;
@@ -239,22 +261,10 @@
 
             // Menyimpan status dan ngDetailId
             document.getElementById("statusInput").value = "NG";
-            document.getElementById("selectedRobotId").value = robotSelect.value;
+            console.log("NgDetailId sebelum submit:", selectedNgDetailId);
             document.getElementById("ngDetailInput").value = selectedNgDetailId;
             document.getElementById("submitForm").submit();
         }
 
-        // Fungsi untuk mengaktifkan tombol sesuai status
-        @* function setButtonStates(allowedButtons) {
-            const allButtons = document.querySelectorAll("button");
-            allButtons.forEach(btn => {
-                // Menonaktifkan tombol jika tidak ada dalam allowedButtons
-                btn.disabled = !allowedButtons.some(allowed =>
-                    allowed === btn.id ||
-                    allowed === btn.innerText.trim() ||
-                    btn.classList.contains(allowed)
-                );
-            });
-        } *@
     </script>
 }

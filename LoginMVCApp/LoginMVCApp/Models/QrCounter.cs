@@ -9,6 +9,12 @@ namespace LoginMVCApp.Models
         [Key]
         public int Id { get; set; }
 
+        [Column("InvId")]
+        public string InvId { get; set; }
+
+        [Column("YearMonth")]
+        public string YearMonth { get; set; }
+
         [Column("LastNumber")]
         public int LastNumber { get; set; }
     }

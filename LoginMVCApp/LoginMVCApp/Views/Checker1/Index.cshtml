@@ -22,9 +22,10 @@
             <form method="post" asp-action="SubmitTransaction" id="submitForm">
                 <input type="hidden" name="InventoryId" value="@(Model.Inventory?.InvId ?? Model.Transaction?.Barcode)" />
                 <input type="hidden" name="InvId" value="@(Model.Inventory?.Id ?? Model.Transaction?.Id)" />
-                <input type="hidden" id="statusInput" name="status" value="" />
-                <input type="hidden" id="selectedRobotId" name="RobotId" value="" />
+                <input type="hidden" id="statusInput" name="status" value="@(TempData["NewStatus"]?.ToString() ?? TempData["ExistingStatus"]?.ToString() ?? "")" />
                 <input type="hidden" id="isReturnInput" name="isReturn" value="false" />
+                <input type="hidden" id="isOppositeShitInput" name="isOppositeShit" value="false" />
+                <input type="hidden" id="selectedRobotId" name="RobotId" value="" />
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="card shadow-sm bg-dark border-1">
@@ -48,17 +49,16 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <div class="col-md-9">
-                                        <div class="form-floating" style="width: 300px">
-                                            <select id="robotSelect" class="form-select" asp-items="ViewBag.RobotList">
-                                                <option value="">Pilih Nama Robot</option>
-                                            </select>
-                                            <label for="RobotId">Nama Robot</label>
-                                        </div>
-                                    </div>
-
                                     @if (Model.Inventory != null)
                                     {
+                                        <div class="col-md-9">
+                                            <div class="form-floating" style="width: 300px">
+                                                <select id="robotSelect" class="form-select" asp-items="ViewBag.RobotList">
+                                                    <option value="">Pilih Nama Robot</option>
+                                                </select>
+                                                <label for="RobotId">Nama Robot</label>
+                                            </div>
+                                        </div>
                                         <div class="col-md-1 me-2">
                                             <input type="number" id="jumlahQrInput" name="jumlahQr" class="form-control mb-2 rounded" style="width: 80px; height: 40px;" value="1" min="1" />
                                             <div>Jumlah QR:</div>
@@ -70,7 +70,7 @@
                                 </div>
                             @if (Model.Inventory != null)
                             {
-                                <div class="row mb-4 text-center">
+                               <div class="row mb-4 text-center" style="margin-top: 30px;">
                                     <!-- OK Section -->
                                     <div class="col-md-3 mb-3">
                                         <strong><h5>Total Qty OK:</h5></strong>
@@ -115,7 +115,7 @@
                                     </div>
                                 </div>
                             }
-
+                                
                                 @if (Model.Transaction != null)
                                 {
                                     <div class="row mb-4 text-center">
@@ -131,8 +131,12 @@
                                                 <label class="form-check-label" for="isReturn">
                                                     Item Balikan?
                                                 </label>
+                                                <input class="form-check-input" type="checkbox" value="true" id="isOppositeShit" onchange="updateOppositeShit()">
+                                                <label class="form-check-label" for="isOppositeShit">
+                                                    Lawan Shift?
+                                                </label>
                                             </div>
-                                            
+
                                             <div class="mt-2" style="margin-bottom: 35px;"></div>
 
                                             <div class="d-flex gap-4 mt-8">
@@ -241,13 +245,19 @@
         else
         {
             <div class="row mb-4">
-                <h3>No Inventory or Transaction Data Found</h3>
+                <script>
+                    console.log("Data tidak ada di Inventory ataupu di Transaction")
+                </script>
             </div>
         }
     }
     else
     {
-        <p>No data found.</p>
+        <div class="row mb-4">
+            <script>
+                console.log("Data tidak ada")
+            </script>
+        </div>
     }
 </div>
 

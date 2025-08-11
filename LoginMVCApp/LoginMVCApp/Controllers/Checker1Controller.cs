@@ -147,7 +147,7 @@ namespace LoginMVCApp.Controllers
         {
             if (string.IsNullOrEmpty(inventoryId))
             {
-                TempData["Message"] = "Inventory ID is required.";
+                TempData["Message"] = "Isi ID Inventory terlebih dahulu";
                 return RedirectToAction("Scan");
             }
 
@@ -167,14 +167,14 @@ namespace LoginMVCApp.Controllers
                 }
                 else
                 {
-                    TempData["Message"] = "Data not found for the given Inventory ID.";
-                    return RedirectToAction("Scan");
+                    TempData["Message"] = "Data inventory tidak ada";
+                    return RedirectToAction("Index");
                 }
             }
         }
 
         [HttpPost]
-        public IActionResult SubmitTransaction(long InvId, string InventoryId, string status, long RobotId, bool isReturn)
+        public IActionResult SubmitTransaction(long InvId, string InventoryId, string status, long RobotId, bool isReturn, bool isOppositeShit)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out long userId) || userId == 0)
@@ -210,34 +210,47 @@ namespace LoginMVCApp.Controllers
             string shift = matchedShift.ShiftName ?? "Unknown";
             DateTime createdAt = (shift == "2" && now.Hour < 8) ? now.AddDays(-1) : now;
 
-            // Check for existing transaction with same Barcode, Role, and Status
+            // Cek transaksi yang sudah ada dengan Barcode, Role, dan Status yang sama
             var existingTransaction = _context.Transactions
                 .Where(t => t.Barcode == InventoryId && t.Role == role)
                 .OrderByDescending(t => t.CreatedAt)
                 .FirstOrDefault();
 
-            if (existingTransaction != null && !isReturn && (existingTransaction.Status == "OK" || existingTransaction.Status == "POLESH" || existingTransaction.Status == "NG"))
-            {
-                TempData["ShowReturnConfirmation"] = "true"; 
-                TempData["ExistingStatus"] = existingTransaction.Status;
-                TempData["InventoryId"] = InventoryId;
-                Console.WriteLine("TempData Set: ShowReturnConfirmation = true");
-                return RedirectToAction("Index", new { inventoryId = InventoryId });
-            }
-
             if (existingTransaction != null)
             {
-                // Update existing transaction
                 bool updated = false;
+
+                if (!isReturn)
+                {
+                    // Pengecekan status yang sama dan status yang memerlukan konfirmasi
+                    if (status == existingTransaction.Status)
+                    {
+                        TempData["ErrorMessage"] = $"Tidak dapat menggunakan status {status} karena sama dengan status sebelumnya.";
+                        TempData["ExistingStatus"] = existingTransaction.Status;
+                        TempData["InventoryId"] = InventoryId;
+                        return RedirectToAction("Index", new { inventoryId = InventoryId });
+                    }
+
+                    if (existingTransaction.Status == "OK" || existingTransaction.Status == "POLESH" || existingTransaction.Status == "NG")
+                    {
+                        TempData["ShowReturnConfirmation"] = "true";
+                        TempData["ExistingStatus"] = existingTransaction.Status;
+                        TempData["NewStatus"] = status;
+                        TempData["InventoryId"] = InventoryId;
+                        return RedirectToAction("Index", new { inventoryId = InventoryId });
+                    }
+                }
+
+                if (isOppositeShit)
+                {
+                    existingTransaction.Shift = existingTransaction.Shift;
+                    existingTransaction.OppositeShift = existingTransaction.Shift == "1" ? "2" : "1";
+                    updated = true;
+                }
 
                 if (existingTransaction.Status != status)
                 {
                     existingTransaction.Status = status;
-                    updated = true;
-                }
-                if (existingTransaction.RobotId != RobotId)
-                {
-                    existingTransaction.RobotId = RobotId;
                     updated = true;
                 }
                 if (existingTransaction.LineId != lineId)
@@ -271,7 +284,7 @@ namespace LoginMVCApp.Controllers
             }
             else
             {
-                // Insert new transaction
+                // Menambahkan transaksi baru
                 var transaction = new Transactions
                 {
                     InvId = InvId,
@@ -281,10 +294,10 @@ namespace LoginMVCApp.Controllers
                     LineId = lineId,
                     Role = role,
                     Status = status,
-                    NgDetailId = null,
+                    NgDetailId = 0,
                     Qty = 1,
                     Shift = shift,
-                    OppositeShift = false,
+                    OppositeShift = "0",
                     CreatedAt = DateTime.Now,
                     Is_Return = isReturn
                 };
@@ -297,6 +310,7 @@ namespace LoginMVCApp.Controllers
             HttpContext.Session.SetString("SelectedRobotId", RobotId.ToString());
             return RedirectToAction(nameof(Index), new { inventoryId = InventoryId });
         }
+
 
         private void PopulateRobotDropdown(string? selectedRobotId = null)
         {
@@ -322,6 +336,7 @@ namespace LoginMVCApp.Controllers
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
+            // Input validation
             if (invId <= 0 || string.IsNullOrEmpty(project) ||
                 string.IsNullOrEmpty(color) || string.IsNullOrEmpty(robot) || jumlahQr <= 0)
             {
@@ -341,34 +356,51 @@ namespace LoginMVCApp.Controllers
             var role = HttpContext.Session.GetString("Role");
             var userId = HttpContext.Session.GetString("UserId");
 
-            var QRCombine = "";
-            var counter = _context.Qr_Counter.FirstOrDefault(q => q.Id == 1);
+            // Get current year and month for counter
+            var currentYearMonth = DateTime.Now.ToString("yyyyMM");
+
+            // Retrieve or create counter for this InvId and YearMonth
+            var counter = _context.Qr_Counter
+                .FirstOrDefault(q => q.InvId == inventory.InvId && q.YearMonth == currentYearMonth);
+
             if (counter == null)
             {
-                counter = new Qr_Counter { Id = 1, LastNumber = 0 };
+                int newId = _context.Qr_Counter.Any() ? _context.Qr_Counter.Max(q => q.Id) + 1 : 1;
+                counter = new Qr_Counter
+                {
+                    Id = newId,
+                    InvId = inventory.InvId,
+                    YearMonth = currentYearMonth,
+                    LastNumber = 0
+                };
                 _context.Qr_Counter.Add(counter);
                 _context.SaveChanges();
             }
 
             int startNumber = counter.LastNumber + 1;
-            counter.LastNumber += jumlahQr; // update total
-            _context.SaveChanges(); // simpan ke DB
+            counter.LastNumber += jumlahQr; // Update counter
+            _context.SaveChanges(); // Save to DB
 
             var pdfStream = new MemoryStream();
+            List<string> QRList = new List<string>();
+
+            // Generate QR codes
             for (int i = 0; i < jumlahQr; i++)
             {
                 int nomorUrut = startNumber + i;
                 var tanggal = DateTime.Now.ToString("yyyyMMdd");
-                string rawQRDataString = $"{inventory.InvId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
+                string rawQRDataString = $"{inventory.InvId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}"; // Pad nomorUrut to 6 digits
                 string qrDataString = rawQRDataString.Replace(" ", "");
 
-                QRCombine += qrDataString + "\n";
+                QRList.Add(qrDataString);
 
+                // Generate QR code image
                 using var qrGenerator = new QRCodeGenerator();
                 using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
                 var qrCodePngByte = new PngByteQRCode(qrCodeData);
                 byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
 
+                // Save transaction
                 var transaction = new Transactions
                 {
                     InvId = invId,
@@ -381,13 +413,19 @@ namespace LoginMVCApp.Controllers
                     NgDetailId = null,
                     Qty = 1,
                     Shift = "",
-                    OppositeShift = false,
+                    OppositeShift = "0",
                     CreatedAt = DateTime.Now,
                     Is_Return = false
                 };
                 _context.Transactions.Add(transaction);
                 _context.SaveChanges();
             }
+
+            // Generate PDF
+            float qrWidth = 73f;
+            float qrHeight = 73f;
+            float spaceX = 15f;   // jarak antar QR horizontal
+            float spaceY = 1f;  // jarak antar QR vertical
 
             Document.Create(container =>
             {
@@ -399,48 +437,32 @@ namespace LoginMVCApp.Controllers
                         page.Margin(20);
                         page.Content().Column(mainColumn =>
                         {
-                            int nomorUrut = startNumber + i;
-                            var tanggal = DateTime.Now.ToString("yyyyMMdd");
-                            string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
-                            using var qrGenerator = new QRCodeGenerator();
-                            using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
-                            var qrCodePngByte = new PngByteQRCode(qrCodeData);
-                            byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
+                            mainColumn.Item()
+                                .PaddingLeft(10f)
+                                .PaddingTop(-24f)
+                                .PaddingBottom(spaceY) // jarak antar baris
+                                .Row(row =>
+                                {
+                                    for (int j = 0; j < 6 && (i + j) < jumlahQr; j++)
+                                    {
+                                        string QRCombine = QRList[i + j];
+                                        using var qrGenerator = new QRCodeGenerator();
+                                        using var qrCodeData = qrGenerator.CreateQrCode(QRCombine, QRCodeGenerator.ECCLevel.Q);
+                                        var qrCodePngByte = new PngByteQRCode(qrCodeData);
+                                        byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
 
-                            mainColumn.Item().Column(itemColumn =>
-                            {
-                                itemColumn.Item()
-                                    .AlignCenter()
-                                    .Width(150)
-                                    .Height(150)
-                                    .Image(qrImageBytes);
-                                //=======
-                                //                            mainColumn.Item().Row(row =>
-                                //                            {
-                                //                                for (int j = 0; j < 6 && (i + j) < jumlahQr; j++)
-                                //                                {
-                                //                                    int nomorUrut = startNumber + i + j;
-                                //                                    var tanggal = DateTime.Now.ToString("yyyyMMdd");
-                                //                                    string qrDataString = $"{invId}{project}{color}{tanggal}{robot}{lineId}{userGroup}{nomorUrut}";
-                                //                                    QRCombine += qrDataString + "\n";
-
-                                //                                    using var qrGenerator = new QRCodeGenerator();
-                                //                                    using var qrCodeData = qrGenerator.CreateQrCode(qrDataString, QRCodeGenerator.ECCLevel.Q);
-                                //                                    var qrCodePngByte = new PngByteQRCode(qrCodeData);
-                                //                                    byte[] qrImageBytes = qrCodePngByte.GetGraphic(10);
-
-                                //                                    row.RelativeItem().AlignCenter().Container()
-                                //                                    .Width(28.35f)
-                                //                                    .Height(28.35f)
-                                //                                    .Image(qrImageBytes);
-                                //                                        }
-                                //                                    });
-                                //>>>>>>> Dev/Muafa
-                            });
+                                        row.ConstantItem(qrWidth + spaceX) // total lebar termasuk jarak
+                                            .AlignCenter()
+                                            .Container()
+                                            .PaddingRight(spaceX)
+                                            .Width(qrWidth)   // lebar QR di dalam
+                                            .Height(qrHeight) // tinggi QR di dalam
+                                            .Image(qrImageBytes);
+                                    }
+                                });
                         });
-
-                        });
-                    }
+                    });
+                }
             }).GeneratePdf(pdfStream);
 
             pdfStream.Position = 0;

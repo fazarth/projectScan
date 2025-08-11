@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using LoginMVCApp.Models;
 using LoginMVCApp.ViewModels;
+using System.Diagnostics.Tracing;
+using Microsoft.CodeAnalysis.Operations;
 
 public class PolesController : Controller
 {
@@ -129,24 +131,41 @@ public class PolesController : Controller
     {
         PopulateNgCategories();
 
-        //var inventory = _context.Inventories.FirstOrDefault(x => x.InvId == barcode);
         var inventory = (from t in _context.Transactions
-                           join i in _context.Inventories on t.InvId equals i.Id into inventoryJoin
-                           from i in inventoryJoin.DefaultIfEmpty()
-                           where t.Barcode == inventoryId
+                         join i in _context.Inventories on t.InvId equals i.Id into inventoryJoin
+                         from i in inventoryJoin.DefaultIfEmpty()
+                         where t.Barcode == inventoryId
                          select new InventoryTransactionViewModel
-                           {
-                               Transaction = t,
-                               Inventory = i
-                           }).FirstOrDefault();
+                         {
+                             Transaction = t,
+                             Inventory = i
+                         }).FirstOrDefault();
 
         var lineIdString = HttpContext.Session.GetString("LineId");
 
-        if (inventory == null && lineIdString == null && inventory.Transaction.Status != "POLESH")
+        if (inventory == null)
         {
-            TempData["Message"] = "Inventory tidak ditemukan.";
-            ViewBag.RobotList = new List<SelectListItem>();
-            return View();
+            TempData["Message"] = "Inventory tidak ditemukan";
+            return RedirectToAction(nameof(Index), new { inventoryId });
+        }
+
+        if (lineIdString == null)
+        {
+            TempData["Message"] = "Line tidak terbaca";
+            return RedirectToAction(nameof(Index), new { inventoryId });
+        }
+
+        if (inventory.Transaction.Role == "Checker")
+        {
+            if (inventory.Transaction.Status == "PRINTED")
+            {
+                TempData["Message"] = "Data ini berstatus PRINTED dan belum di proses oleh Checker";
+                return RedirectToAction("Index");
+            } else if (inventory.Transaction.Status == "OK")
+            {
+                TempData["Message"] = "Data ini berstatus OK dari Checker";
+                return RedirectToAction("Index");
+            }
         }
 
         long lineId = long.Parse(lineIdString);
@@ -185,32 +204,11 @@ public class PolesController : Controller
         ViewBag.RobotList = robotList;
         ViewBag.Categories = categories;
         ViewBag.SubCategories = subCategories;
-
-        //ViewBag.TotalOk = _context.Transactions.Count(x => x.Barcode == inventory.Transaction.Barcode && x.Status == "OK");
-        //ViewBag.TotalPolesh = _context.Transactions.Count(x => x.Barcode == inventory.Transaction.Barcode && x.Status == "NG");
-
-        //var total = ViewBag.TotalOk + ViewBag.TotalPolesh;
-        //ViewBag.PercentOk = total > 0 ? (ViewBag.TotalOk * 100 / total) : 0;
-        //ViewBag.PercentPolesh = total > 0 ? (ViewBag.TotalPolesh * 100 / total) : 0;
-
-        //return View("Index", inventory);
         return RedirectToAction(nameof(Index), new { inventoryId });
     }
 
     [HttpPost]
-    //public IActionResult SubmitTransaction(Transactions detail)
-    //{
-    //    if (ModelState.IsValid)
-    //    {
-    //        _context.Transactions.Add(detail);
-    //        _context.SaveChanges();
-    //        return RedirectToAction("ScanTransaction");
-    //    }
-
-    //    return View("Index");
-    //}
-
-    public IActionResult SubmitTransaction(long InvId, string InventoryId, string status, long RobotId, long? NgDetailId, bool isReturn)
+    public IActionResult SubmitTransaction(long InvId, string InventoryId, string status, long RobotId, long? NgDetailId, bool isReturn, bool isOppositeShit)
     {
         var userIdStr = HttpContext.Session.GetString("UserId");
         if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out long userId) || userId == 0)
@@ -227,21 +225,6 @@ public class PolesController : Controller
 
         var lineId = long.Parse(HttpContext.Session.GetString("LineId") ?? "0");
         var role = HttpContext.Session.GetString("Role") ?? "Checker";
-        //var now = DateTime.Now.TimeOfDay;
-
-        //var shiftDefinitions = new List<(string ShiftName, TimeSpan Start, TimeSpan End)>
-        //    {
-        //        ("1", new TimeSpan(8, 0, 0), new TimeSpan(16, 0, 0)),
-        //        ("1", new TimeSpan(16, 0, 1), new TimeSpan(20, 59, 59)),
-        //        ("2", new TimeSpan(21, 0, 0), new TimeSpan(23, 59, 59)),
-        //        ("2", new TimeSpan(0, 0, 0), new TimeSpan(7, 59, 59)),
-        //    };
-
-        //string shift = shiftDefinitions
-        //    .FirstOrDefault(s => s.Start <= s.End
-        //        ? now >= s.Start && now <= s.End
-        //        : now >= s.Start || now <= s.End
-        //    ).ShiftName ?? "Unknown";
 
         var now = DateTime.Now;
         var time = now.TimeOfDay;
@@ -266,7 +249,7 @@ public class PolesController : Controller
             ? now.AddDays(-1)
             : now;
 
-        if (InvId == 0 || RobotId == 0 || string.IsNullOrEmpty(status))
+        if (InvId == 0 || string.IsNullOrEmpty(status))
         {
             TempData["Message"] = "Data tidak lengkap!";
             return RedirectToAction("Index", new { inventoryId = InventoryId });
@@ -274,39 +257,10 @@ public class PolesController : Controller
 
         if (status == "NG" && (NgDetailId == null || NgDetailId == 0))
         {
-            TempData["Message"] = "Untuk status 'POLESH', detail NG harus dipilih!";
+            TempData["Message"] = "Untuk status 'NG', detail NG harus dipilih!";
             return RedirectToAction("Index", new { inventoryId = InventoryId });
         }
 
-        // --- LOGIKA VALIDASI KUOTA POLESH ---
-        //if (status == "POLESH")
-        //{
-        //    var start = DateTime.Today;
-        //    var end = start.AddDays(1);
-
-        //    var inventory = _context.Inventories.FirstOrDefault(i => i.InvId == InventoryId);
-        //    if (inventory == null)
-        //    {
-        //        TempData["Message"] = "Inventory tidak ditemukan saat validasi kuota.";
-        //        return RedirectToAction("Index");
-        //    }
-        //    var invDbIdForQuota = inventory.Id;
-
-        //    // Hitung total POLESH oleh Checker untuk InvId pada hari ini
-        //    var totalPoleshByChecker = _context.Transactions
-        //        .Count(t => t.InvId == invDbIdForQuota && t.CreatedAt >= start && t.CreatedAt < end && t.Status == "POLESH" && t.Role == "Checker"); // Pastikan Status='POLESH' jika itu yang dicatat checker
-
-        //    // Hitung total POLESH yang sudah di-insert oleh Role "Poles" untuk InvId pada hari ini
-        //    var totalPoleshByPoles = _context.Transactions
-        //        .Count(t => t.InvId == invDbIdForQuota && t.CreatedAt >= start && t.CreatedAt < end && t.Status == "POLESH" && t.Role == "Poles"); // Pastikan Status='POLESH'
-
-        //    // Cek apakah kuota masih tersedia
-        //    if (totalPoleshByPoles >= totalPoleshByChecker)
-        //    {
-        //        TempData["Message"] = $"Kuota POLESH untuk inventory '{InventoryId}' hari ini sudah habis. Total Checker: {totalPoleshByChecker}, Total Poles: {totalPoleshByPoles}.";
-        //        return RedirectToAction("Index", new { inventoryId = InventoryId });
-        //    }
-        //}
         if (role.ToLower() == "poles" && status == "POLESH")
         {
             var start = createdAt;
@@ -340,28 +294,45 @@ public class PolesController : Controller
                 .OrderByDescending(t => t.CreatedAt)
                 .FirstOrDefault();
 
-        //if (existingTransaction != null && !isReturn && (existingTransaction.Status == "OK" || existingTransaction.Status == "POLESH" || existingTransaction.Status == "NG"))
-        //{
-        //    TempData["ShowReturnConfirmation"] = "true";
-        //    TempData["ExistingStatus"] = existingTransaction.Status;
-        //    TempData["InventoryId"] = InventoryId;
-        //    Console.WriteLine("TempData Set: ShowReturnConfirmation = true");
-        //    return RedirectToAction("Index", new { inventoryId = InventoryId });
-        //}
 
         if (existingTransaction != null)
         {
-            // Update existing transaction
             bool updated = false;
+            if (!isReturn)
+            {
+                // Pengecekan status yang sama dan status yang memerlukan konfirmasi
+                if (status == existingTransaction.Status && existingTransaction.NgDetailId == NgDetailId)
+                {
+                    TempData["ErrorMessage"] = $"Tidak dapat menggunakan status {status} karena sama dengan status sebelumnya.";
+                    TempData["ExistingStatus"] = existingTransaction.Status;
+                    TempData["InventoryId"] = InventoryId;
+                    return RedirectToAction("Index", new { inventoryId = InventoryId });
+                }
+
+                if (existingTransaction.Status == "NG" || (existingTransaction.Status == "NG" && existingTransaction.NgDetailId == NgDetailId) || (existingTransaction.Status == "OK" && existingTransaction.Role == "Poles")) 
+                {
+                    TempData["ShowReturnConfirmation"] = "true";
+                    TempData["ExistingStatus"] = existingTransaction.Status;
+                    TempData["NewStatus"] = status;
+                    TempData["InventoryId"] = InventoryId;
+                    if (NgDetailId.HasValue)
+                    {
+                        TempData["NgDetailId"] = NgDetailId.Value.ToString();
+                    }
+                    return RedirectToAction("Index", new { inventoryId = InventoryId });
+                }
+            }
+
+            if (isOppositeShit)
+            {
+                existingTransaction.Shift = existingTransaction.Shift;
+                existingTransaction.OppositeShift = existingTransaction.Shift == "1" ? "2" : "1"; // Menentukan OppositeShift
+                updated = true;
+            }
 
             if (existingTransaction.Status != status)
             {
                 existingTransaction.Status = status;
-                updated = true;
-            }
-            if (existingTransaction.RobotId != RobotId)
-            {
-                existingTransaction.RobotId = RobotId;
                 updated = true;
             }
             if (existingTransaction.LineId != lineId)
@@ -374,15 +345,13 @@ public class PolesController : Controller
                 existingTransaction.Role = role;
                 updated = true;
             }
-            if (existingTransaction.Shift != shift)
-            {
-                existingTransaction.Shift = shift;
-                updated = true;
-            }
             if (existingTransaction.Is_Return != isReturn)
             {
-                existingTransaction.Is_Return = isReturn;
-                updated = true;
+                if (isReturn)
+                {
+                    existingTransaction.Is_Return = isReturn;
+                    updated = true;
+                }
             }
             if (existingTransaction.NgDetailId != NgDetailId)
             {
@@ -398,30 +367,30 @@ public class PolesController : Controller
                 TempData["Message"] = "Transaksi berhasil diperbarui.";
             }
         }
-        else
-        {
-            // Insert new transaction
-            var transaction = new Transactions
-            {
-                InvId = InvId,
-                Barcode = InventoryId,
-                RobotId = RobotId,
-                UserId = userId,
-                LineId = lineId,
-                Role = role,
-                Status = status,
-                NgDetailId = null,
-                Qty = 1,
-                Shift = shift,
-                OppositeShift = false,
-                CreatedAt = DateTime.Now,
-                Is_Return = isReturn
-            };
+        //else
+        //{
+        //    // Insert new transaction
+        //    var transaction = new Transactions
+        //    {
+        //        InvId = InvId,
+        //        Barcode = InventoryId,
+        //        RobotId = RobotId,
+        //        UserId = userId,
+        //        LineId = lineId,
+        //        Role = role,
+        //        Status = status,
+        //        NgDetailId = null,
+        //        Qty = 1,
+        //        Shift = shift,
+        //        OppositeShift = "0",
+        //        CreatedAt = DateTime.Now,
+        //        Is_Return = isReturn
+        //    };
 
-            _context.Transactions.Add(transaction);
-            _context.SaveChanges();
-            TempData["Message"] = "Transaksi berhasil ditambahkan.";
-        }
+        //    _context.Transactions.Add(transaction);
+        //    _context.SaveChanges();
+        //    TempData["Message"] = "Transaksi berhasil ditambahkan.";
+        //}
 
         HttpContext.Session.SetString("SelectedRobotId", RobotId.ToString());
 
