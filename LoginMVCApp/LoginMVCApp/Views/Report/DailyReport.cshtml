@@ -1,63 +1,102 @@
 ﻿@model List<LoginMVCApp.Models.Transactions>
+
 @{
-    ViewData["Title"] = "Daily Report";
+    ViewData["Title"] = "Daily Report - Scan Inventory";
 }
 
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Daily Report</h2>
-        @if (TempData["success"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
-                @TempData["success"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
-    </div>
+    <h2>Daily Report</h2>
 
     @if (Model != null && Model.Count > 0)
     {
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle">
-                <thead class="table-dark text-center">
+        <form method="get" asp-action="DailyReport" class="row g-3 mb-3">
+            <div class="col-md-3">
+                <input type="date" name="startDate" value="@ViewBag.StartDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="endDate" value="@ViewBag.EndDate" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <select name="shift" class="form-select" asp-items="ViewBag.ShiftList">
+                    <option value="">-- Shift --</option>
+                </select>
+
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+            <div class="col-md-2">
+                <a class="btn btn-success" 
+                   asp-action="ExportExcel" 
+                   asp-route-startDate="@ViewBag.StartDate" 
+                   asp-route-endDate="@ViewBag.EndDate" 
+                   asp-route-shift="@ViewBag.Shift">
+                    Export Excel
+                </a>
+            </div>
+        </form>
+
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>No</th>
+                    <th>Inventory Id</th>
+                    <th>Robot</th>
+                    <th>Part</th>
+                    <th>Project</th>
+                    <th>Type</th>
+                    <th>Color</th>
+                    <th>Status</th>
+                    <th>Detail NG</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var trans = Model[i];
                     <tr>
-                        <th>Robot</th>
-                        <th>Part</th>
-                        <th>Project</th>
-                        <th>Type</th>
-                        <th>Color</th>
-                        <th>QTY OK</th>
-                        <th>% OK</th>
-                        <th>QTY NG</th>
-                        <th>Detail NG</th>
+                        <td class="text-center">@( ( (ViewBag.Page - 1) * ViewBag.PageSize ) + i + 1 )</td>
+                        <td>@trans.Barcode</td>
+                        <td>@trans.RobotId</td>
+                        <td>@trans.Inventory?.PartName</td>
+                        <td>@trans.Inventory?.Project</td>
+                        <td>@trans.Inventory?.Tipe</td>
+                        <td>@trans.Inventory?.Warna</td>
+                        <td>@trans.Status</td>
+                        <td>@trans.NgCategory?.SubCategory</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @for (int i = 0; i < Model.Count; i++)
+                }
+            </tbody>
+        </table>
+
+        @if (ViewBag.TotalItems > ViewBag.PageSize)
+        {
+            var totalPages = (int)Math.Ceiling((double)ViewBag.TotalItems / ViewBag.PageSize);
+            <nav>
+                <ul class="pagination">
+                    @for (int i = 1; i <= totalPages; i++)
                     {
-                        var trans = Model[i];
-                        <tr>
-                            <td class="text-center">@(@i + 1)</td>
-                            <td>@trans.Robot</td>
-                            <td>PART</td>
-                            <td>PROJECT</td>
-                            <td>TYPE</td>
-                            <td>COLOR</td>
-                            <td>QTY OK</td>
-                            <td>% OK</td>
-                            <td>QTY NG</td>
-                            <td>DETAIL NG</td>
-                        </tr>
+                        <li class="page-item @(ViewBag.Page == i ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="DailyReport"
+                               asp-route-page="@i"
+                               asp-route-pageSize="@ViewBag.PageSize"
+                               asp-route-startDate="@ViewBag.StartDate"
+                               asp-route-endDate="@ViewBag.EndDate"
+                               asp-route-shift="@ViewBag.Shift">
+                                @i
+                            </a>
+                        </li>
                     }
-                </tbody>
-            </table>
-        </div>
+                </ul>
+            </nav>
+        }
+
     }
     else
     {
         <div class="alert alert-info text-center">
-            Belum ada data transentori yang tersedia.
+            Belum ada data transaksi yang tersedia.
         </div>
     }
 </div>
-
