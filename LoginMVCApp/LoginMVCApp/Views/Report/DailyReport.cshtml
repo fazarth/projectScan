@@ -24,17 +24,17 @@
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary">Filter</button>
-            </div>
-            <div class="col-md-2">
-                <a class="btn btn-success" 
-                   asp-action="ExportExcel" 
-                   asp-route-startDate="@ViewBag.StartDate" 
-                   asp-route-endDate="@ViewBag.EndDate" 
-                   asp-route-shift="@ViewBag.Shift">
-                    Export Excel
-                </a>
+                <a asp-action="DailyReport" class="btn btn-secondary">Clear</a>
             </div>
         </form>
+
+        <form asp-action="ExportDailyReport" method="get" style="display:inline;">
+            <input type="hidden" name="startDate" value="@ViewBag.StartDate" />
+            <input type="hidden" name="endDate" value="@ViewBag.EndDate" />
+            <input type="hidden" name="shift" value="@ViewBag.SelectedShift" />
+            <button type="submit" class="btn btn-success">Export to Excel</button>
+        </form>
+
 
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark text-center">
@@ -57,7 +57,7 @@
                     <tr>
                         <td class="text-center">@( ( (ViewBag.Page - 1) * ViewBag.PageSize ) + i + 1 )</td>
                         <td>@trans.Barcode</td>
-                        <td>@trans.RobotId</td>
+                        <td>@trans.Robot.Nama</td>
                         <td>@trans.Inventory?.PartName</td>
                         <td>@trans.Inventory?.Project</td>
                         <td>@trans.Inventory?.Tipe</td>

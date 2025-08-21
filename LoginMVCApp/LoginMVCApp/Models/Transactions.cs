@@ -69,7 +69,7 @@ namespace LoginMVCApp.Models
         [ForeignKey("LineId")]
         public virtual Lines? Line { get; set; }
 
-        [ForeignKey("Ng_Detail_Id")]
+        [ForeignKey("NgDetailId")]
         public virtual Ng_Categories? NgCategory{ get; set; }
 
         [ForeignKey("RobotId")]

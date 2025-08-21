@@ -1226,7 +1226,12 @@ C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\Login
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\LoginMVCApp.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\LoginMVCApp.pdb
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\BCrypt.Net-Next.dll
+C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\ClosedXML.dll
+C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\ClosedXML.Parser.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\DinkToPdf.dll
+C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\DocumentFormat.OpenXml.dll
+C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\ExcelNumberFormat.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\Humanizer.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\MessagePack.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\MessagePack.Annotations.dll
@@ -1282,6 +1287,8 @@ C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\Login
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\NuGet.Versioning.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\QRCoder.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\QuestPDF.dll
+C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\RBush.dll
+C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\SixLabors.Fonts.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\SQLitePCLRaw.batteries_v2.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\SQLitePCLRaw.core.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\SQLitePCLRaw.provider.e_sqlite3.dll
@@ -1295,6 +1302,7 @@ C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\Login
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\System.Drawing.Common.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\System.Formats.Asn1.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\System.IO.Packaging.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\System.Runtime.Caching.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\tezza\OneDrive\Documents\Work\Code\Github\projectScan\LoginMVCApp\LoginMVCApp\bin\Debug\net6.0\System.Security.Cryptography.ProtectedData.dll
