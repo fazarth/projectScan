@@ -14,14 +14,6 @@ namespace LoginMVCApp.Data
         public DbSet<Transactions> Transactions { get; set; }
         public DbSet<Ng_Categories> Ng_Categories { get; set; }
         public DbSet<Qr_Counter> Qr_Counter { get; set; }
-
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<Robots>()
-        //        .HasOne(r => r.Line)
-        //        .WithMany(l => l.Robots)
-        //        .HasForeignKey(r => r.LineId)
-        //        .OnDelete(DeleteBehavior.Restrict);
-        //}
+        public DbSet<LoginMVCApp.Models.ReportTv>? ReportTv { get; set; }
     }
 }

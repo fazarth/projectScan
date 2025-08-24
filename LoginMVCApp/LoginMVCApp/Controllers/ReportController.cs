@@ -16,68 +16,63 @@ namespace LoginMVCApp.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            return _context.Transactions != null ?
-                          View(await _context.Transactions.ToListAsync()) :
-                          Problem("Entity set 'AppDbContext.Transactions'  is null.");
+        public IActionResult Index()
+        {            
+             return View("Index");
         }
 
-        public async Task<IActionResult> DailyReport(DateTime? startDate, DateTime? endDate, string? shift, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> DailyReport(DateTime? startDate, DateTime? endDate, string? shift)
         {
             var query = _context.Transactions
                 .Include(t => t.Inventory)
                 .Include(t => t.NgCategory)
                 .Include(t => t.Robot)
-                .Include(t => t.Line)
                 .Where(t => t.Status != "PRINTED")
                 .AsQueryable();
 
-            // filter tanggal
             if (startDate.HasValue && endDate.HasValue)
             {
                 var start = startDate.Value.Date;
-                var end = endDate.Value.Date.AddDays(1).AddTicks(-1); // sampai 23:59:59.9999999
-
+                var end = endDate.Value.Date.AddDays(1).AddTicks(-1);
                 query = query.Where(t => t.CreatedAt >= start && t.CreatedAt <= end);
             }
 
-            // filter shift
-            // seharusnya
             if (!string.IsNullOrEmpty(shift))
             {
                 query = query.Where(t => t.Shift == shift);
-                ViewBag.Shift = shift; // biar tetap ke-select di dropdown
+                ViewBag.Shift = shift;
             }
 
+            var data = await query.ToListAsync();
 
-            // total data
-            var totalItems = await query.CountAsync();
-
-            // ambil data sesuai page
-            var data = await query
-                .OrderByDescending(t => t.CreatedAt)
-                .ThenByDescending(t => t.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            ViewBag.Page = page;
-            ViewBag.PageSize = pageSize;
-            ViewBag.TotalItems = totalItems;
-            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
-            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
-            ViewBag.StartIndex = (page - 1) * pageSize;
-
-            ViewBag.ShiftList = new SelectList(
-                new List<SelectListItem>
+            // Grouping data seperti di SS kedua
+            var grouped = data
+                .GroupBy(t => new {
+                    Robot = t.Robot.Nama,
+                    Part = t.Inventory.PartName,
+                    Project = t.Inventory.Project,
+                    Type = t.Inventory.Tipe,
+                    Color = t.Inventory.Warna
+                })
+                .Select(g => new DailyReportDto
                 {
-                    new SelectListItem { Value = "1", Text = "Shift 1" },
-                    new SelectListItem { Value = "2", Text = "Shift 2" }
-                },
-                "Value", "Text", ViewBag.Shift
-            );
-            return View("~/Views/Report/DailyReport.cshtml", data);
+                    Robot = g.Key.Robot,
+                    Part = g.Key.Part,
+                    Project = g.Key.Project,
+                    Type = g.Key.Type,
+                    Color = g.Key.Color,
+                    QtyOk = g.Count(x => x.Status == "OK"),
+                    QtyNg = g.Count(x => x.Status == "NG" || x.Status == "POLESH"),
+                    DetailNg = g.Where(x => x.Status != "OK")
+                                .GroupBy(x => x.NgCategory?.SubCategory ?? x.Status)
+                                .ToDictionary(
+                                    x => x.Key,
+                                    x => x.Count()
+                                )
+                })
+                .ToList();
+
+            return View("~/Views/Report/DailyReport.cshtml", grouped);
         }
 
         [HttpGet]
@@ -87,7 +82,6 @@ namespace LoginMVCApp.Controllers
                 .Include(t => t.Inventory)
                 .Include(t => t.NgCategory)
                 .Include(t => t.Robot)
-                .Include(t => t.Line)
                 .Where(t => t.Status != "PRINTED")
                 .AsQueryable();
 
@@ -100,37 +94,74 @@ namespace LoginMVCApp.Controllers
 
             var data = await query.ToListAsync();
 
+            // --- Grouping ---
+            var grouped = data
+                .GroupBy(t => new {
+                    Robot = t.Robot.Nama,
+                    Part = t.Inventory.PartName,
+                    Project = t.Inventory.Project,
+                    Type = t.Inventory.Tipe,
+                    Color = t.Inventory.Warna
+                })
+                .Select(g => new DailyReportDto
+                {
+                    Robot = g.Key.Robot,
+                    Part = g.Key.Part,
+                    Project = g.Key.Project,
+                    Type = g.Key.Type,
+                    Color = g.Key.Color,
+                    QtyOk = g.Count(x => x.Status == "OK"),
+                    QtyNg = g.Count(x => x.Status == "NG" || x.Status == "POLESH"),
+                    DetailNg = g.Where(x => x.Status != "OK")
+                                .GroupBy(x => x.NgCategory?.SubCategory ?? x.Status)
+                                .ToDictionary(
+                                    x => x.Key,
+                                    x => x.Count()
+                                )
+                })
+                .ToList();
+
+            // --- Buat Excel ---
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("Daily Report");
 
                 // Header
-                worksheet.Cell(1, 1).Value = "No";
-                worksheet.Cell(1, 2).Value = "Inventory Id";
-                worksheet.Cell(1, 3).Value = "Robot";
-                worksheet.Cell(1, 4).Value = "Part";
-                worksheet.Cell(1, 5).Value = "Project";
-                worksheet.Cell(1, 6).Value = "Type";
-                worksheet.Cell(1, 7).Value = "Color";
-                worksheet.Cell(1, 8).Value = "Status";
-                worksheet.Cell(1, 9).Value = "Detail NG";
+                worksheet.Cell(1, 1).Value = "ROBOT";
+                worksheet.Cell(1, 2).Value = "PART";
+                worksheet.Cell(1, 3).Value = "PROJECT";
+                worksheet.Cell(1, 4).Value = "TYPE";
+                worksheet.Cell(1, 5).Value = "COLOR";
+                worksheet.Cell(1, 6).Value = "QTY OK";
+                worksheet.Cell(1, 7).Value = "% OK";
+                worksheet.Cell(1, 8).Value = "QTY NG";
+                worksheet.Cell(1, 9).Value = "DETAIL NG";
 
-                // Data
                 int row = 2;
-                int no = 1;
-                foreach (var t in data)
+                foreach (var item in grouped)
                 {
-                    worksheet.Cell(row, 1).Value = no++;
-                    worksheet.Cell(row, 2).Value = t.Barcode ?? "-";
-                    worksheet.Cell(row, 3).Value = t.Robot?.Nama ?? "-";
-                    worksheet.Cell(row, 4).Value = t.Inventory.PartName ?? "-";
-                    worksheet.Cell(row, 5).Value = t.Inventory.Project ?? "-";
-                    worksheet.Cell(row, 6).Value = t.Inventory.Tipe ?? "-";
-                    worksheet.Cell(row, 7).Value = t.Inventory.Warna?? "-";
-                    worksheet.Cell(row, 8).Value = t.Status ?? "-";
-                    worksheet.Cell(row, 9).Value = t.NgCategory?.SubCategory?? "-";
+                    worksheet.Cell(row, 1).Value = item.Robot;
+                    worksheet.Cell(row, 2).Value = item.Part;
+                    worksheet.Cell(row, 3).Value = item.Project;
+                    worksheet.Cell(row, 4).Value = item.Type;
+                    worksheet.Cell(row, 5).Value = item.Color;
+                    worksheet.Cell(row, 6).Value = item.QtyOk;
+                    worksheet.Cell(row, 7).Value = $"{item.PercentOk:0.0}%";
+                    worksheet.Cell(row, 8).Value = item.QtyNg;
+
+                    // Detail NG dalam 1 cell (multiline)
+                    if (item.DetailNg.Count > 0)
+                    {
+                        worksheet.Cell(row, 9).Value = string.Join(Environment.NewLine,
+                            item.DetailNg.Select(d => $"{d.Key}: {d.Value} pcs ({((double)d.Value / (item.QtyOk + item.QtyNg) * 100):0.0}%)"));
+                        worksheet.Cell(row, 9).Style.Alignment.WrapText = true;
+                    }
+
                     row++;
                 }
+
+                // Auto-fit
+                worksheet.Columns().AdjustToContents();
 
                 string fileName = $"DailyReport_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
                 using (var stream = new MemoryStream())

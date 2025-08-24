@@ -1,0 +1,79 @@
+﻿@model IEnumerable<LoginMVCApp.Models.ReportTv>
+
+@{
+    ViewData["Title"] = "Manajemen Report TV";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Manajemen Report TV</h2>
+        @if (TempData["success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+                @TempData["success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Tambah Report
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>No</th>
+                        <th>Production Plan</th>
+                        <th>Straight Pass</th>
+                        <th>Tamu Straight</th>
+                        <th>Tamu Poles Ok</th>
+                        <th>Tamu Poles Repair</th>
+                        <th>Line</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count(); i++)
+                    {
+                        var item = Model.ElementAt(i);
+                        <tr>
+                            <td class="text-center">@(@i + 1)</td>
+                            <td>@item.ProductionPlan</td>
+                            <td>@item.StraightPass</td>
+                            <td>@item.TamuStraight</td>
+                            <td>@item.TamuPolesOk</td>
+                            <td>@item.TamuPolesRepair</td>
+                            <td>@item.Line</td>
+                            <td class="text-center">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info me-1">
+                                    <i class="bi bi-eye"></i> Details
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus report ini?');">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            Belum ada data report yang tersedia.
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

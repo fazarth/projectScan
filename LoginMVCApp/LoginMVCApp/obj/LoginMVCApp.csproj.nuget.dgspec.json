@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tezza\\OneDrive\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {}
+    "C:\\Users\\tezza\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tezza\\OneDrive\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {
+    "C:\\Users\\tezza\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tezza\\OneDrive\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
+        "projectUniqueName": "C:\\Users\\tezza\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
         "projectName": "LoginMVCApp",
-        "projectPath": "C:\\Users\\tezza\\OneDrive\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
+        "projectPath": "C:\\Users\\tezza\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\LoginMVCApp.csproj",
         "packagesPath": "C:\\Users\\tezza\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tezza\\OneDrive\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\obj\\",
+        "outputPath": "C:\\Users\\tezza\\Documents\\Work\\Code\\Github\\projectScan\\LoginMVCApp\\LoginMVCApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

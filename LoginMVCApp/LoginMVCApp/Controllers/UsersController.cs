@@ -64,12 +64,6 @@ namespace LoginMVCApp.Controllers
                 ModelState.AddModelError("Email", "Email sudah digunakan");
             }
 
-            if (!ModelState.IsValid)
-            {
-                PopulateLines(users.LineId);
-                return View(users);
-            }
-
             //users.CreatedBy = HttpContext.Session.GetString("Email") ?? "system";
             users.CreatedAt = DateTime.Now;
             users.UpdatedAt = DateTime.Now;
@@ -89,6 +83,14 @@ namespace LoginMVCApp.Controllers
                 return View(users);
             }
         }
+
+        //Nambah role harus edit ini di DB, isi role nya di dalam IN () setelah report
+//          ALTER TABLE dbo.users
+//          DROP CONSTRAINT CK__users__role__571DF1D5;
+
+//          ALTER TABLE dbo.users
+//          ADD CONSTRAINT CK__users__role__571DF1D5
+//          CHECK(role IN ('Poles', 'Checker', 'Admin', 'Report'));
 
         public IActionResult Details(long? id)
         {
@@ -155,7 +157,6 @@ namespace LoginMVCApp.Controllers
                     existingUser.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
                 }
 
-                _context.SaveChanges();
                 TempData["success"] = "User Berhasil Diperbarui.";
                 return RedirectToAction("Index");
             }

@@ -1,0 +1,50 @@
+﻿@model LoginMVCApp.Models.ReportTv
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="bg-white shadow rounded p-4">
+                <h3 class="mb-4 text-center text-primary">Report Details</h3>
+
+                <div class="mb-3">
+                    <strong>Production Plan:</strong>
+                    <div class="form-control-plaintext">@Model.ProductionPlan</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Straight Pass:</strong>
+                    <div class="form-control-plaintext">@Model.StraightPass</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Tamu Straight:</strong>
+                    <div class="form-control-plaintext">@Model.TamuStraight</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Tamu Poles Ok:</strong>
+                    <div class="form-control-plaintext">@Model.TamuPolesOk</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Tamu Poles Repair:</strong>
+                    <div class="form-control-plaintext">@Model.TamuPolesRepair</div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Line:</strong>
+                    <div class="form-control-plaintext">@Model.Line</div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+﻿@model LoginMVCApp.Models.ReportTv
+
+@{
+    ViewData["Title"] = "Edit Report";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="bg-white shadow rounded p-4">
+                <h3 class="mb-4 text-center text-primary">Edit Report</h3>
+
+                <form asp-action="Edit" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="ProductionPlan" class="form-control" placeholder="Production Plan" />
+                        <label asp-for="ProductionPlan"></label>
+                        <span asp-validation-for="ProductionPlan" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="StraightPass" class="form-control" placeholder="Straight Pass" />
+                        <label asp-for="StraightPass"></label>
+                        <span asp-validation-for="StraightPass" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="TamuStraight" class="form-control" placeholder="Tamu Straight" />
+                        <label asp-for="TamuStraight"></label>
+                        <span asp-validation-for="TamuStraight" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="TamuPolesOk" class="form-control" placeholder="Tamu Poles Ok" />
+                        <label asp-for="TamuPolesOk"></label>
+                        <span asp-validation-for="TamuPolesOk" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="TamuPolesRepair" class="form-control" placeholder="Tamu Poles Repair" />
+                        <label asp-for="TamuPolesRepair"></label>
+                        <span asp-validation-for="TamuPolesRepair" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Line" class="form-control" placeholder="Line" />
+                        <label asp-for="Line"></label>
+                        <span asp-validation-for="Line" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Save</button>
+                    </div>
+
+                    <div class="text-center">
+                        <a asp-action="Index" class="text-muted small">← Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

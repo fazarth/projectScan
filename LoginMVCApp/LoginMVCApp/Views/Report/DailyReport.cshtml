@@ -1,4 +1,5 @@
-﻿@model List<LoginMVCApp.Models.Transactions>
+﻿@* @model List<LoginMVCApp.Models.Transactions> *@
+@model List<LoginMVCApp.Models.DailyReportDto>
 
 @{
     ViewData["Title"] = "Daily Report - Scan Inventory";
@@ -39,31 +40,35 @@
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark text-center">
                 <tr>
-                    <th>No</th>
-                    <th>Inventory Id</th>
-                    <th>Robot</th>
-                    <th>Part</th>
-                    <th>Project</th>
-                    <th>Type</th>
-                    <th>Color</th>
-                    <th>Status</th>
-                    <th>Detail NG</th>
+                    <th>ROBOT</th>
+                    <th>PART</th>
+                    <th>PROJECT</th>
+                    <th>TYPE</th>
+                    <th>COLOR</th>
+                    <th>QTY OK</th>
+                    <th>% OK</th>
+                    <th>QTY NG</th>
+                    <th>DETAIL NG</th>
                 </tr>
             </thead>
             <tbody>
-                @for (int i = 0; i < Model.Count; i++)
+                @foreach (var item in Model)
                 {
-                    var trans = Model[i];
                     <tr>
-                        <td class="text-center">@( ( (ViewBag.Page - 1) * ViewBag.PageSize ) + i + 1 )</td>
-                        <td>@trans.Barcode</td>
-                        <td>@trans.Robot.Nama</td>
-                        <td>@trans.Inventory?.PartName</td>
-                        <td>@trans.Inventory?.Project</td>
-                        <td>@trans.Inventory?.Tipe</td>
-                        <td>@trans.Inventory?.Warna</td>
-                        <td>@trans.Status</td>
-                        <td>@trans.NgCategory?.SubCategory</td>
+                        <td>@item.Robot</td>
+                        <td>@item.Part</td>
+                        <td>@item.Project</td>
+                        <td>@item.Type</td>
+                        <td>@item.Color</td>
+                        <td class="text-center">@item.QtyOk</td>
+                        <td class="text-center">@item.PercentOk.ToString("0.0") %</td>
+                        <td class="text-center">@item.QtyNg</td>
+                        <td>
+                            @foreach (var detail in item.DetailNg)
+                            {
+                                <div>@detail.Key: @detail.Value pcs (@((double)detail.Value / (item.QtyNg + item.QtyOk) * 100).ToString("0.0") %)</div>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>

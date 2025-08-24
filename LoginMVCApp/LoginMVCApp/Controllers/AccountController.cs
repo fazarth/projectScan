@@ -86,6 +86,8 @@ namespace LoginMVCApp.Controllers
                     return RedirectToAction("Index", "Checker1");
                 case "Poles":
                     return RedirectToAction("Index", "Poles");
+                case "Report":
+                    return RedirectToAction("Index", "ReportTvs");
                 default:
                     return RedirectToAction("AccessDenied", "Account");
             }

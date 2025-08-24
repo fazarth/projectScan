@@ -59,9 +59,18 @@
                                 <a class="nav-link text-dark" asp-controller="Report" asp-action="Index">Reports</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Report" asp-action="DailyReport">Daily Report</a>
-                        </li>
+                        @if (role == "Report")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="ReportTvs" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Report" asp-action="DailyReport">Daily Report</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Report" asp-action="Index">Report TV</a>
+                            </li>
+                        }
                     </ul>
                 </div>
                 @if (role == "Checker")
