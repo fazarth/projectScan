@@ -103,12 +103,12 @@ namespace LoginMVCApp.Controllers
             return View(user);
         }
 
+        // Ganti Edit GET menjadi:
         public IActionResult Edit(long? id)
         {
             if (!IsAdmin()) return RedirectToAction("AccessDenied", "Account");
             if (id == null) return NotFound();
 
-            //var user = _context.Users.Find(id);
             var user = _context.Users
                        .Include(u => u.Line)
                        .FirstOrDefault(u => u.Id == id);
@@ -126,12 +126,13 @@ namespace LoginMVCApp.Controllers
                 UserGroup = user.UserGroup
             };
 
+            // gunakan PopulateLines agar konsisten
             PopulateLines(user.LineId);
-            //ViewBag.Lines = new SelectList(_context.Lines, "Id", "Name", user.LineId);
 
             return View(viewModel);
         }
 
+        // Ganti bagian repopulate di POST menjadi:
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(long id, EditUserViewModel model)
@@ -148,22 +149,27 @@ namespace LoginMVCApp.Controllers
                 existingUser.Email = model.Email;
                 existingUser.PhoneNumber = model.PhoneNumber;
                 existingUser.Role = model.Role;
-                existingUser.LineId = model.LineId;
-                existingUser.IsActive = model.IsActive;
+                existingUser.LineId = model.LineId; // update
                 existingUser.UserGroup = model.UserGroup;
+                existingUser.IsActive = model.IsActive;
 
                 if (!string.IsNullOrWhiteSpace(model.Password))
                 {
                     existingUser.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
                 }
 
+                _context.Update(existingUser);
+                _context.SaveChanges();
+
                 TempData["success"] = "User Berhasil Diperbarui.";
                 return RedirectToAction("Index");
             }
 
-            PopulateLines(existingUser.LineId);
+            // jika gagal validasi, isi ulang dropdown
+            PopulateLines(model.LineId);
             return View(model);
         }
+
 
         public IActionResult Delete(long? id)
         {

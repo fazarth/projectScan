@@ -345,6 +345,11 @@ public class PolesController : Controller
                 existingTransaction.Role = role;
                 updated = true;
             }
+            if (existingTransaction.UserId != userId)
+            {
+                existingTransaction.UserId = userId;
+                updated = true;
+            }
             if (existingTransaction.Is_Return != isReturn)
             {
                 if (isReturn)

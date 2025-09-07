@@ -16,15 +16,21 @@ namespace LoginMVCApp.Models
         public int StraightPass { get; set; }
 
         [Column("tamu_straight")]
-        public int TamuStraight { get; set; }
+        public int? TamuStraight { get; set; }
 
         [Column("tamu_poles_ok")]
-        public int TamuPolesOk { get; set; }
+        public int? TamuPolesOk { get; set; }
 
         [Column("tamu_poles_repair")]
-        public int TamuPolesRepair { get; set; }
+        public int? TamuPolesRepair { get; set; }
 
         [Column("line")]
         public int Line { get; set; }
+
+        [Column("productivity")]
+        public int Productivity { get; set; }
+
+        [Column("target")]
+        public int Target { get; set; }
     }
 }

@@ -32,7 +32,7 @@ namespace LoginMVCApp.ViewModels
         public string Role { get; set; } = string.Empty;
 
         [Column("line_id")]
-        public long? LineId { get; set; }
+        public long LineId { get; set; }
 
         [Column("isactive")]
         public bool IsActive { get; set; } = true;

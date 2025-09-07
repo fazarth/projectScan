@@ -5,7 +5,7 @@
     ViewData["Title"] = "Daily Report - Scan Inventory";
 }
 
-<div class="container mt-5">
+<div class="container mt-1">
     <h2>Daily Report</h2>
 
     @if (Model != null && Model.Count > 0)
@@ -36,7 +36,6 @@
             <button type="submit" class="btn btn-success">Export to Excel</button>
         </form>
 
-
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark text-center">
                 <tr>
@@ -52,24 +51,33 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.Robot</td>
-                        <td>@item.Part</td>
-                        <td>@item.Project</td>
-                        <td>@item.Type</td>
-                        <td>@item.Color</td>
-                        <td class="text-center">@item.QtyOk</td>
-                        <td class="text-center">@item.PercentOk.ToString("0.0") %</td>
-                        <td class="text-center">@item.QtyNg</td>
-                        <td>
-                            @foreach (var detail in item.DetailNg)
-                            {
-                                <div>@detail.Key: @detail.Value pcs (@((double)detail.Value / (item.QtyNg + item.QtyOk) * 100).ToString("0.0") %)</div>
+                @foreach (var robotGroup in Model.GroupBy(m => m.Robot)){
+                    var first = true;
+                    var rowSpan = robotGroup.Count();
+                    @foreach (var item in robotGroup)
+                    {
+                        <tr>
+                            @if (first){
+                                <td class="text-center align-middle" rowspan="@rowSpan"><b>@robotGroup.Key</b></td>
+                                first = false;
+
                             }
-                        </td>
-                    </tr>
+                            <td class="text-center">@item.Part</td>
+                            <td class="text-center">@item.Project</td>
+                            <td class="text-center">@item.Type</td>
+                            <td class="text-center">@item.Color</td>
+                            <td class="text-center">@item.QtyOk</td>
+                            <td class="text-center">@item.PercentOk.ToString("0.0") %</td>
+                            <td class="text-center">@item.QtyNg</td>
+                            <td>
+                                @foreach (var detail in item.DetailNg)
+                                {
+                                    @* <div>@detail.Key: @detail.Value pcs (@((double)detail.Value / (item.QtyNg + item.QtyOk) * 100).ToString("0.0") %)</div> *@
+                                    <div>@detail.Key: <b>@detail.Value pcs (@(((double)detail.Value / (item.QtyNg + item.QtyOk) * 100).ToString("F1")) %</b>)</div>
+                                }
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>

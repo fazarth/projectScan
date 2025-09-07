@@ -1,12 +1,13 @@
+using LoginMVCApp.Data;
+using LoginMVCApp.Models;
+using LoginMVCApp.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using LoginMVCApp.Data;
-using LoginMVCApp.Models;
 
 namespace LoginMVCApp.Controllers
 {
@@ -22,9 +23,9 @@ namespace LoginMVCApp.Controllers
         // GET: Inventories
         public async Task<IActionResult> Index()
         {
-              return _context.Inventories != null ? 
-                          View(await _context.Inventories.ToListAsync()) :
-                          Problem("Entity set 'AppDbContext.Inventories'  is null.");
+            return _context.Inventories != null ?
+                        View(await _context.Inventories.ToListAsync()) :
+                        Problem("Entity set 'AppDbContext.Inventories'  is null.");
         }
 
         // GET: Inventories/Details/5
@@ -150,14 +151,14 @@ namespace LoginMVCApp.Controllers
             {
                 _context.Inventories.Remove(Inventories);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool InventoriesExists(long id)
         {
-          return (_context.Inventories?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Inventories?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

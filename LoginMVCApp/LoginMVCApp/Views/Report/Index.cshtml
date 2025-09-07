@@ -1,14 +1,8 @@
-﻿@{
-    ViewData["Title"] = "Production Dashboard";
-}
-
-<!-- Keterangan -->
-
+﻿@model LoginMVCApp.ViewModels.DashboardViewModel
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>Production Dashboard</title>
     <style>
         * {
@@ -18,563 +12,800 @@
         }
 
         body {
-            font-family: 'Arial Black', Arial, sans-serif;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            padding: 20px;
-            min-height: 100vh;
+            font-family: "Arial Black", Arial, sans-serif;
+            background: #222;
+            padding: 0;
+            margin: 0;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .dashboard-container {
+            max-width: 100vw;
+            margin: 0;
             background: #000;
-            border: 3px solid #00ff00;
-            padding: 10px;
+            border: 4px solid #1d786a;
+            border-top: 20px solid #1d786a;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: none;
+            padding-top: 6px;
         }
 
-        .header-info {
-            background: #ffff00;
-            color: #000;
-            padding: 8px;
-            text-align: right;
-            font-size: 14px;
+        /* Header Section */
+        .header-section {
+            background: #222;
+            padding: 0;
+            border-bottom: 4px solid #00ff00;
+        }
+
+        .date-time {
+            color: #ffff00;
             font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 18px;
+            padding: 6px 0;
+            letter-spacing: 1px;
         }
 
+        /* Main Grid */
         .main-grid {
             display: grid;
-            grid-template-columns: 200px 1fr 200px 250px;
-            border: 2px solid #fff;
+            grid-template-columns: 1.1fr 2.3fr 1.1fr 1.1fr;
+            gap: 0;
+            border: none;
+            background: #000;
+            min-height: 420px;
         }
 
-        .cell {
-            border: 1px solid #fff;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 50px;
+        /* Column Styling */
+        .column {
+            border-right: 2px solid #00ff00;
+            min-height: 420px;
         }
+
+            .column:last-child {
+                border-right: none;
+            }
 
         /* Plan Produksi Column */
+        .plan-column {
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #00ff00;
+        }
+
+        .plan-production {
+            padding: 6px 6px 6px 0;
+        }
+
         .plan-header {
-            background: #ff00ff;
-            color: white;
-            font-size: 16px;
-            writing-mode: horizontal-tb;
-        }
-
-        .plan-318 {
-            background: #000;
-            color: white;
-            font-size: 32px;
-            font-weight: bold;
-        }
-
-        .plan-productivity {
-            background: #ff00ff;
-            color: white;
-            font-size: 14px;
-        }
-
-        .plan-tolerance {
-            background: #000;
-            color: white;
-            font-size: 14px;
-        }
-
-        .plan-spass {
-            background: #ff00ff;
-            color: white;
-            font-size: 14px;
-        }
-
-        .plan-polesh {
-            background: #ff00ff;
-            color: white;
-            font-size: 14px;
-        }
-
-        /* Checker Section */
-        .checker-header {
-            background: #000;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            grid-column: span 2;
-        }
-
-        .target-header {
-            background: #ff00ff;
-            color: white;
-            font-size: 16px;
-        }
-
-        .active-header {
-            background: #ff00ff;
-            color: white;
-            font-size: 16px;
-        }
-
-        .target-5 {
-            background: #000;
-            color: white;
-            font-size: 24px;
-        }
-
-        .active-000 {
-            background: #000;
-            color: white;
-            font-size: 24px;
-        }
-
-        .target-100 {
-            background: #000;
-            color: white;
-            font-size: 20px;
-        }
-
-        .active-0 {
             background: #000;
             color: #ff00ff;
-            font-size: 20px;
-        }
-
-        .target-96 {
-            background: #000;
-            color: #00ff00;
-            font-size: 20px;
-        }
-
-        .target-15 {
-            background: #000;
-            color: #ffff00;
-            font-size: 20px;
-        }
-
-        /* Polesh Section */
-        .polesh-header {
-            background: #ffff00;
-            color: #000;
-            font-size: 20px;
+            padding: 10px 0 0 0;
+            text-align: center;
             font-weight: bold;
+            font-size: 30px;
+            border: 4px solid #00ff00;
+            letter-spacing: 1px;
         }
 
-        .ok-header {
-            background: #ffff00;
-            color: #000;
-            font-size: 16px;
+        .plan-value {
+            background: #000;
+            color: #fff;
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border: 4px solid #00ff00;
         }
 
-        .repair-header {
-            background: #ff4500;
-            color: white;
-            font-size: 16px;
+        .productivity-section {
+            background: #000;
+            color: #ff00ff;
+            padding: 18px 0 20px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 22px;
+            border: 40px 4px 0 4px solid #00ff00;
         }
 
-        .ok-value {
+        .productivity-value {
+            background: #000;
+            color: #fff;
+            padding: 20px 0 36px 0;
+            text-align: center;
+            font-size: 22px;
+            border-bottom: 2px solid #00ff00;
+        }
+
+        .s-pass,
+        .polesh-left {
+            background: #000;
+            color: #ff00ff;
+            padding: 25px 0 25px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 22px;
+            /* border-bottom: solid #00ff00; */
+        }
+
+        .polesh-left {
+            border-bottom: none;
+        }
+
+        /* Checker Column */
+        .checker-column {
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            border: 4px solid white;
+            /* padding: 6px 6px 6px 0; */
+        }
+
+        .checker-header {
+            background: #000;
+            color: #fff;
+            /* text-align: center; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 40px;
+            /* border-bottom: 2px solid #00ff00; */
+            /* padding: 10px 0 0 0; */
+            margin: 25px 0 25px 0;
+            letter-spacing: 2px;
+        }
+
+        .checker-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            font-size: 28px;
+            font-weight: bold;
+            border: 4px solid white;
+        }
+
+            .checker-table th,
+            .checker-table td {
+                border: 2px solid white;
+                text-align: center;
+                padding: 20px 0;
+            }
+
+            .checker-table th {
+                background: #000;
+                color: #ff00ff;
+                font-size: 22px;
+                font-weight: bold;
+            }
+
+            .checker-table .yellow {
+                color: #ffff00;
+            }
+
+            .checker-table .green {
+                color: #00ff00;
+            }
+
+            .checker-table .red {
+                color: #ff0000;
+            }
+
+            .checker-table .white {
+                color: #fff;
+            }
+
+        .row-target-achieve {
+            padding: 8px 0;
+        }
+
+        /* Polesh Column */
+        .polesh-column {
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .polesh-header {
+            color: #ffff00;
+            text-align: center;
+            font-weight: bold;
+            font-size: 32px;
+            border: solid #ffff00;
+            padding: 8px 0 0 0;
+            letter-spacing: 2px;
+        }
+
+        .polesh-ok,
+        .polesh-repair {
             background: #000;
             color: #ffff00;
-            font-size: 24px;
-            border: 2px solid #ffff00;
+            text-align: center;
+            font-weight: bold;
+            font-size: 22px;
+            /* border-bottom: 2px solid #00ff00; */
+            padding: 8px 0 0 0;
         }
 
-        .repair-value {
+        .polesh-repair {
+            color: #ff0000;
+        }
+
+        .polesh-000,
+        .polesh-repair-000 {
             background: #000;
-            color: #ff4500;
-            font-size: 24px;
-            border: 2px solid #ff4500;
+            color: #ffff00;
+            text-align: center;
+            font-size: 38px;
+            font-weight: bold;
+            border-bottom: 2px solid white;
+            padding: 8px 0 27px 0;
         }
 
-        .polesh-data {
+        .polesh-repair-000 {
+            color: #ff0000;
+            /* animation: blink 1s steps(1) infinite; */
+        }
+
+        .polesh-green-000 {
             background: #000;
             color: #00ff00;
-            font-size: 20px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            border: 3px solid white;
+            padding: 20px 0;
         }
 
-        .empty-cell {
-            background: #000;
-        }
-
-        /* Right Panel */
+        /* Right Panel Column */
         .right-panel {
-            background: #4169e1;
-            padding: 10px;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .temp-header {
+            background: #ffff00;
+            color: #000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            /* text-align: center; */
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 2px solid black;
+            padding: 20px 0 0 0;
+        }
+
+        .date-display {
+            background: #ffff00;
+            color: #000;
+            text-align: right;
+            font-size: 14px;
+            border-bottom: 2px solid #00ff00;
+            padding: 0 6px 8px 0;
+            margin-top: -10px;
         }
 
         .opr-section {
-            margin-bottom: 15px;
+            border: 2px solid #00ff00;
+            background: #0066ff;
+            padding: 4px 0;
         }
 
-        .opr-title {
-            background: #000;
-            color: white;
-            padding: 5px;
+        .opr-header {
+            color: #fff;
             text-align: center;
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 18px;
+            padding: 2px 0 0 0;
         }
 
         .opr-values {
-            display: flex;
-            gap: 5px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* background: #000; */
         }
 
-        .ok-btn {
-            background: #00ff00;
-            color: #000;
-            padding: 5px 10px;
-            flex: 1;
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .repair-btn {
-            background: #ff00ff;
+        .opr-ok {
+            /* background: #00ff00; */
             color: white;
-            padding: 5px 10px;
-            flex: 1;
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .value-display {
-            background: #c0c0c0;
-            color: #000;
-            padding: 2px;
             text-align: center;
             font-size: 14px;
             font-weight: bold;
+            border-right: 1px solid #222;
+            padding: 2px 0;
         }
 
-        /* Bottom Summary */
-        .bottom-summary {
+        .opr-repair {
+            /* background: #ff00ff; */
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 2px 0;
+        }
+
+        .opr-number {
+            /* background: #000; */
+            color: #fff;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 2px 0;
+        }
+
+        .opr-box {
+            /* border: 2px solid #00ff00; */
+            background: #0066ff;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px;
+            position: relative;
+            font-family: Arial, sans-serif;
+        }
+
+        .opr-title {
+            position: absolute;
+            top: -12px;
+            left: 10px;
+            background: #0066ff;
+            color: white;
+            font-weight: bold;
+            padding: 0 5px;
+        }
+
+        .opr-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .opr-label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+            .opr-label.ok {
+                color: #00ff00;
+            }
+
+            .opr-label.repair {
+                color: #ff00ff;
+            }
+
+        .opr-number {
+            background: white;
+            color: black;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: right;
+            width: 140px;
+            border: 1px solid #888;
+        }
+
+        /* QC */
+        .qc-ok {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .qc-pol {
+            background: #ffff00;
+            color: #000;
+        }
+
+        /* Bottom Section */
+        .bottom-section {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            border: 2px solid #fff;
-            margin-top: 10px;
+            border-top: 4px solid #00ff00;
+            background: #000;
+            min-height: 110px;
         }
 
-        .summary-cell {
-            border: 1px solid #fff;
-            padding: 10px;
-            text-align: center;
+        /* .bottom-column {
+                border-right: 2px solid #00ff00;
+                text-align: center;
+              } */
+
+        .bottom-column:last-child {
+            border-right: none;
+        }
+
+        .bottom-header {
+            padding: 4px 0;
             font-weight: bold;
+            font-size: 18px;
         }
 
         .sp-qc-ok {
-            background: #000;
-        }
-
-        .sp-qc-title {
-            color: #00ff00;
-            font-size: 14px;
-        }
-
-        .sp-qc-value {
-            color: #00ff00;
-            font-size: 24px;
-        }
-
-        .sp-qc-percent {
-            color: #00ff00;
-            font-size: 16px;
+            background: #00ff00;
+            color: #000;
         }
 
         .pol-qc-ok {
-            background: #000;
-        }
-
-        .pol-qc-title {
-            color: #ffff00;
-            font-size: 14px;
-        }
-
-        .pol-qc-value {
-            color: #ffff00;
-            font-size: 24px;
-        }
-
-        .pol-qc-percent {
-            color: #ffff00;
-            font-size: 16px;
-        }
-
-        .repair-summary {
-            background: #000;
-        }
-
-        .repair-title {
-            color: #ff4500;
-            font-size: 14px;
-        }
-
-        .repair-value {
-            color: #ff4500;
-            font-size: 24px;
-        }
-
-        .repair-percent {
-            color: #ff4500;
-            font-size: 16px;
-        }
-
-        .total-summary {
-            background: #000;
-        }
-
-        .total-title {
-            color: white;
-            font-size: 14px;
-        }
-
-        .total-value {
-            color: white;
-            font-size: 24px;
-        }
-
-        .total-percent {
-            color: white;
-            font-size: 16px;
-        }
-
-        .ok-part {
-            background: #000;
-        }
-
-        .ok-part-title {
-            color: #00ff00;
-            font-size: 14px;
-        }
-
-        .target-label {
-            background: #808080;
+            background: #ffff00;
             color: #000;
-            padding: 2px;
-            font-size: 10px;
         }
 
-        .active-label {
+        .repair-header {
+            background: #ff0000;
+            color: #fff;
+        }
+
+        .total-header {
+            background: #000;
+            color: #fff;
+        }
+
+        .ok-part-header {
             background: #00ff00;
             color: #000;
-            padding: 2px;
-            font-size: 10px;
         }
 
-        .ok-part-target {
-            color: white;
+        /* .bottom-value-large {
+                padding: 8px 0;
+                font-size: 38px;
+                font-weight: bold;
+              } */
+
+        /* .bottom-value-small {
+                padding: 2px 0 8px 0;
+                font-size: 22px;
+                font-weight: bold;
+              } */
+
+        .green-text {
+            color: #00ff00;
+        }
+
+        .yellow-text {
+            color: #ffff00;
+        }
+
+        .red-text {
+            color: #ff0000;
+        }
+
+        .white-text {
+            color: #fff;
+        }
+
+        .target-achieve {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #000;
+        }
+
+        .target-cell {
+            background: #000;
+            color: #fff;
+            padding: 4px 0;
+            text-align: center;
             font-size: 14px;
+            border-right: 1px solid #00ff00;
+            border-bottom: 2px solid #00ff00;
         }
 
-        .ok-part-value {
+            .target-cell:last-child {
+                border-right: none;
+            }
+
+        .achieve-cell {
+            background: #000;
             color: #00ff00;
+            padding: 2px 0;
+            text-align: center;
+            font-size: 18px;
+            border-bottom: 2px solid #00ff00;
+        }
+
+        .percentage-95 {
+            background: #000;
+            color: #fff;
+            padding: 2px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .percentage-0 {
+            background: #000;
+            color: #00ff00;
+            padding: 2px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .bottom-column {
+            position: relative;
+            border: 2px solid #fff;
+            padding: 15px 10px 10px 10px;
+            margin: 10px;
+            width: 100%;
+        }
+
+        .bottom-header {
+            position: absolute;
+            top: -12px;
+            left: 10px;
+            background: black;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 0 5px;
+        }
+
+        .sp-qc-ok {
+            color: #00ff00;
+        }
+
+        .pol-qc-ok {
+            color: yellow;
+        }
+
+        .total-header {
+            color: white;
+        }
+
+        .ok-part-header {
+            color: cyan;
+        }
+
+        .bottom-value-large {
+            background: black;
+            font-weight: bold;
+            font-size: 24px;
+            text-align: right;
+            margin-top: 10px;
+            border: 1px solid #888;
+            padding: 5px;
+        }
+
+        .bottom-value-small {
+            background: black;
+            font-weight: bold;
             font-size: 20px;
+            text-align: right;
+            border: 1px solid #888;
+            padding: 5px;
+            margin-top: 5px;
         }
 
-        .ok-part-percent {
-            color: #00ff00;
-            font-size: 16px;
-        }
-        .active-0 {
-            animation: blink 2s infinite;
-        }
-
-        .bottom-summary {
-            grid-template-columns: 1fr;
+        .target-achieve {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-weight: bold;
         }
 
+        .target-cell,
+        .achieve-cell {
+            border: 1px solid #888;
+            padding: 5px;
+            flex: 1;
+            text-align: center;
+            margin: 0 2px;
+        }
+
+        .percentage-95,
+        .percentage-0 {
+            font-weight: bold;
+            font-size: 20px;
+            text-align: right;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header Info -->
-        <div class="header-info">
-            TEMP: 0°C &nbsp;&nbsp;&nbsp; Selasa, 19/06/2012 &nbsp;&nbsp;&nbsp; 09:08:30
+    <div class="dashboard-container">
+        <!-- Header with Date/Time -->
+        <div class="header-section">
+            <div class="date-time">
+                @* @Model.Tanggal.ToString("dddd, dd/MM/yyyy") - @DateTime.Now.ToString("HH:mm:ss") *@
+            </div>
         </div>
 
-        <!-- Main Grid -->
+        <!-- Main Grid Section -->
         <div class="main-grid">
-            <!-- Plan Produksi Column -->
-            <div class="cell plan-header">PLAN<br>PRODUKSI</div>
-            <div class="cell checker-header">CHECKER</div>
-            <div class="cell polesh-header">POLESH</div>
+            <!-- PLAN PRODUKSI -->
+            <div class="column plan-column">
+                <div class="plan-production">
+                    <div class="plan-header">PLAN<br />PRODUKSI</div>
+                    <div class="plan-value">@Model.ProductionPlan</div>
+                </div>
+                <div class="productivity-section">PRODUCTIVITY</div>
+                <div class="productivity-value">@Model.ProductivityPct %</div>
+                <div class="s-pass" style="border: solid #00ff00">S/PASS</div>
+                <div class="productivity-value green-text">@Model.StraightPassPct %</div>
+                <div class="polesh-left" style="border: solid #00ff00">POLESH %</div>
+                <div class="productivity-value yellow-text">@Model.PoleshPct %</div>
+            </div>
 
-            <!-- Row 2 -->
-            <div class="cell plan-318">318</div>
-            <div class="cell target-header">TARGET</div>
-            <div class="cell active-header">ACHIVE</div>
-            <div class="cell plan-productivity">PRODUCTIVITY</div>
-            <div class="cell plan-tolerance">+5%/-5%</div>
-            @* <div class="cell ok-header">OK</div> *@
-            @* <div class="cell repair-header">REPAIR</div> *@
+            <!-- CHECKER TABLE -->
+            <div class="column checker-column">
+                <div class="checker-header">CHECKER</div>
+                <table class="checker-table">
+                    <tr>
+                        <th>TARGET</th>
+                        <th>ACHIEVE</th>
+                    </tr>
+                    <tr>
+                        <td class="white">@Model.TargetCumulativeSaatIni</td>
+                        <td class="white">@Model.AchieveCount</td>
+                    </tr>
+                    <tr>
+                        <td class="green">@Model.TargetPerJam</td>
+                        <td class="white">@Model.AchievePct %</td>
+                    </tr>
+                    <tr>
+                        <td class="green">@Model.CheckerOkPct %</td>
+                        <td style="color:#ff00ff">@Model.CheckerPoleshPct %</td>
+                    </tr>
+                </table>
+            </div>
 
-            <!-- Row 3 -->
-            <div class="cell target-5">5</div>
-            <div class="cell active-000">000</div>
-            <div class="cell ok-value">000</div>
-            <div class="cell repair-value">000</div>
+            <!-- POLESH -->
+            <div class="column polesh-column">
+                <div class="polesh-header">POLESH</div>
+                <div class="polesh-ok">OK</div>
+                <div class="polesh-000">
+                    <div>@Model.PolesOk</div>
+                </div>
+                <div class="polesh-repair">REPAIR</div>
+                <div class="polesh-repair-000">
+                    <div>@Model.PolesNg</div>
+                </div>
+                <div class="polesh-green-000">@Model.CheckerOk</div>
+                <div class="polesh-green-000" style="color: #ffff00">@Model.CheckerPolesh</div>
+            </div>
 
-            <!-- Row 4 -->
-            <div class="cell target-100">100%</div>
-            <div class="cell active-0">0%</div>
-            <div class="cell empty-cell"></div>
-            <div class="cell empty-cell"></div>
-
-            <!-- Row 5 -->
-            <div class="cell plan-spass">S/PASS</div>
-            <div class="cell target-96">96%</div>
-            <div class="cell active-0">0%</div>
-            <div class="cell polesh-data">000</div>
-            <div class="cell empty-cell"></div>
-
-            <!-- Row 6 -->
-            <div class="cell plan-polesh">POLESH</div>
-            <div class="cell target-15">15%</div>
-            <div class="cell active-0">0%</div>
-            <div class="cell polesh-data">000</div>
-            <div class="cell empty-cell"></div>
-        </div>
-
-        <!-- Right Panel -->
-        <div style="position: absolute; right: 20px; top: 280px; width: 200px;">
-            <div class="right-panel">
-                <div class="opr-section">
-                    <div class="opr-title">OPR1</div>
-                    <div class="opr-values">
-                        <div class="ok-btn">OK</div>
-                        <div class="repair-btn">REPAIR</div>
+            <!-- RIGHT PANEL -->
+            <div class="column right-panel">
+                <div class="temp-header">
+                    <div style="position:absolute; top:18px; background-color:#ffff00; padding:0px 5px;">TEMP</div>
+                    <div>00C</div>
+                    <div class="date-display">
+                        @* @Model.Tanggal.ToString("dddd, dd/MM/yyyy")<br /> *@
+                        @DateTime.Now.ToString("HH:mm:ss")
                     </div>
-                    <div class="value-display">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</div>
                 </div>
 
+                <!-- contoh operator -->
                 <div class="opr-section">
-                    <div class="opr-title">OPR2</div>
-                    <div class="opr-values">
-                        <div class="ok-btn">OK</div>
-                        <div class="repair-btn">REPAIR</div>
+                    <div class="opr-box">
+                        <div class="opr-title">OPR1</div>
+                        <div class="opr-row">
+                            <span class="opr-label ok">OK</span>
+                            <div class="opr-number">@Model.CheckerOk</div>
+                        </div>
+                        <div class="opr-row">
+                            <span class="opr-label repair">REPAIR</span>
+                            <div class="opr-number">@Model.Repair</div>
+                        </div>
                     </div>
-                    <div class="value-display">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</div>
-                </div>
-
-                <div class="opr-section">
-                    <div class="opr-title">OPR3</div>
-                    <div class="opr-values">
-                        <div class="ok-btn">OK</div>
-                        <div class="repair-btn">REPAIR</div>
-                    </div>
-                    <div class="value-display">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</div>
-                </div>
-
-                <div class="opr-section">
-                    <div class="opr-title">QC01</div>
-                    <div class="opr-values">
-                        <div class="ok-btn">OK_C</div>
-                        <div class="repair-btn">OK_PLS</div>
-                    </div>
-                    <div class="value-display">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</div>
-                </div>
-
-                <div class="opr-section">
-                    <div class="opr-title">QC02</div>
-                    <div class="opr-values">
-                        <div class="ok-btn">OK_C</div>
-                        <div class="repair-btn">OK_PLS</div>
-                    </div>
-                    <div class="value-display">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</div>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Summary -->
-        <div class="bottom-summary">
-            <div class="summary-cell sp-qc-ok">
-                <div class="sp-qc-title">SP QC OK</div>
-                <div class="sp-qc-value">0</div>
-                <div class="sp-qc-percent">0%</div>
+        <!-- Bottom Section -->
+        <div class="bottom-section">
+            <div class="bottom-column">
+                <div class="bottom-header sp-qc-ok">SP QC OK</div>
+                <div class="bottom-value-large green-text">@Model.SpQcOk</div>
+                <div class="bottom-value-small green-text">@Model.CheckerOkPct %</div>
             </div>
 
-            <div class="summary-cell pol-qc-ok">
-                <div class="pol-qc-title">POL QC OK</div>
-                <div class="pol-qc-value">0</div>
-                <div class="pol-qc-percent">0%</div>
+            <div class="bottom-column">
+                <div class="bottom-header pol-qc-ok">POL QC OK</div>
+                <div class="bottom-value-large yellow-text">@Model.PolQcOk</div>
+                <div class="bottom-value-small yellow-text">@Model.CheckerPoleshPct %</div>
             </div>
 
-            <div class="summary-cell repair-summary">
-                <div class="repair-title">REPAIR</div>
-                <div class="repair-value">0</div>
-                <div class="repair-percent">0%</div>
+            <div class="bottom-column">
+                <div class="bottom-header red-text">REPAIR</div>
+                <div class="bottom-value-large red-text">@Model.Repair</div>
             </div>
 
-            <div class="summary-cell total-summary">
-                <div class="total-title">TOTAL</div>
-                <div class="total-value">0</div>
-                <div class="total-percent">0%</div>
+            <div class="bottom-column">
+                <div class="bottom-header total-header">TOTAL</div>
+                <div class="bottom-value-large white-text">@Model.Total</div>
             </div>
 
-            <div class="summary-cell ok-part">
-                <div class="ok-part-title">OK PART</div>
-                <div style="display: flex; gap: 5px; margin: 5px 0;">
-                    <span class="target-label">TARGET</span>
-                    <span class="active-label">ACHIVE</span>
+            <div class="bottom-column">
+                <div class="bottom-header green-text">OK PART</div>
+                <div class="target-achieve">
+                    <div class="target-cell">TARGET</div>
+                    <div class="target-cell">ACHIEVE</div>
                 </div>
-                <div class="ok-part-target">95%</div>
-                <div class="ok-part-value">000</div>
-                <div class="ok-part-percent">0%</div>
+                <div class="target-achieve">
+                    <div class="target-cell">@Model.TargetPerJam</div>
+                    <div class="target-cell">@Model.AchieveCount</div>
+                </div>
+                <div class="target-cell" style="color:#00ff00; text-align:right">
+                    @Model.AchievePct %
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Auto-refresh every 60 seconds
-        setTimeout(() => {
-            window.location.reload();
-        }, 60000);
+        // Real-time clock update
+        function updateDateTime() {
+          const now = new Date();
+          const options = {
+            weekday: "long",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+          };
 
-        // Press F for fullscreen
-        document.addEventListener("keydown", function (e) {
-            if (e.key === "f" || e.key === "F") {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else {
-                    document.documentElement.requestFullscreen();
-                }
+          const formatter = new Intl.DateTimeFormat("id-ID", options);
+          const parts = formatter.formatToParts(now);
+
+          const dayName = parts.find((part) => part.type === "weekday").value;
+          const day = parts.find((part) => part.type === "day").value;
+          const month = parts.find((part) => part.type === "month").value;
+          const year = parts.find((part) => part.type === "year").value;
+          const hour = parts.find((part) => part.type === "hour").value;
+          const minute = parts.find((part) => part.type === "minute").value;
+          const second = parts.find((part) => part.type === "second").value;
+
+          const formattedDateTime = `${dayName}, ${day}/${month}/${year} - ${hour}:${minute}:${second}`;
+
+          // Update both date-time displays
+          const dateTimeElements = document.querySelectorAll(
+            ".date-time, .date-display"
+          );
+          dateTimeElements.forEach((element) => {
+            if (element.classList.contains("date-display")) {
+              element.innerHTML = `${dayName}, ${day}/${month}/${year}<br>${hour}:${minute}:${second}`;
+            } else {
+              element.textContent = formattedDateTime;
             }
-        });
-
-        // Simulate real-time updates
-        function updateData() {
-            const activeElements = document.querySelectorAll('.active-0');
-            activeElements.forEach(element => {
-                if (Math.random() > 0.9) {
-                    const newValue = Math.floor(Math.random() * 10);
-                    if (element.textContent.includes('%')) {
-                        element.textContent = newValue + '%';
-                    } else {
-                        element.textContent = newValue.toString().padStart(3, '0');
-                    }
-                }
-            });
+          });
         }
 
-        // Update every 5 seconds
-        setInterval(updateData, 5000);
+        // Update every second
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // Initial update
 
-        // Add click effects
-        const cells = document.querySelectorAll('.cell');
-        cells.forEach(cell => {
-            cell.addEventListener('click', function() {
-                this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 100);
-            });
-        });
+        // Simulate data updates
+        function simulateDataUpdate() {
+          // Random updates for demonstration
+          const planValue = document.querySelector(".plan-value");
+          const currentValue = parseInt(planValue.textContent);
+          const newValue = currentValue + Math.floor(Math.random() * 3) - 1; // Random +/- 1
+          if (newValue >= 0) {
+            planValue.textContent = newValue;
+          }
+        }
+
+        // Update data every 10 seconds
+        setInterval(simulateDataUpdate, 10000);
+
+        // Add blinking effect for critical values
+        function addBlinkingEffect() {
+          const criticalElements = document.querySelectorAll(
+            ".polesh-repair-000, .red-text"
+          );
+          criticalElements.forEach((element) => {
+            setInterval(() => {
+              element.style.opacity =
+                element.style.opacity === "0.5" ? "1" : "0.5";
+            }, 1000);
+          });
+        }
+
+        // addBlinkingEffect();
     </script>
 </body>
 </html>
-
